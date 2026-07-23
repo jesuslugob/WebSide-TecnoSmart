@@ -7,7 +7,7 @@ const MP_PUBLIC_KEY = 'APP_USR-667aeeb2-79a5-4721-af25-1dd0a8633a8b';
 // Cambia esta URL por la de tu servidor en Render después del deploy
 const SERVER_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
-  : 'https://tecnosmart-server.onrender.com';
+  : 'https://tecnosmart-server.onrender.com'; // Servidor en Render
 
 // ===== PRODUCT DATA =====
 const products = {
