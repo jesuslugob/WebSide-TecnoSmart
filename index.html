@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TecnoSmart — El Sonido del Futuro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <span class="logo-icon"><i class="fas fa-headphones-alt"></i></span>
+      <span class="logo-text">TecnoSmart</span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#productos">Productos</a></li>
+      <li><a href="#features">Características</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge"><i class="fas fa-bolt"></i> Nuevo 2025</div>
+      <h1 class="hero-title">El Sonido del<br><span class="gradient-text">Futuro</span><br>Hoy en Tus Manos</h1>
+      <p class="hero-subtitle">Descubre la línea completa de AirPods — diseñados para quienes viven la música sin límites.</p>
+      <div class="hero-btns">
+        <a href="#productos" class="btn-primary">Ver Productos <i class="fas fa-arrow-right"></i></a>
+        <a href="#features" class="btn-ghost">Conoce más</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">50K+</span><span class="stat-label">Clientes felices</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Calificación</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Original</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img-wrapper">
+        <div class="hero-glow"></div>
+        <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=640&hei=528&fmt=jpeg&qlt=90&.v=1660803972361" alt="AirPods Pro" class="hero-img" onerror="this.src='https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?w=600&q=80'" />
+        <div class="floating-badge fb1"><i class="fas fa-shield-alt"></i> Garantía 1 año</div>
+        <div class="floating-badge fb2"><i class="fas fa-shipping-fast"></i> Envío gratis</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator"><div class="scroll-dot"></div></div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-container">
+    <div class="trust-item"><i class="fas fa-lock"></i><span>Pago 100% Seguro</span></div>
+    <div class="trust-item"><i class="fas fa-undo"></i><span>Devolución 30 días</span></div>
+    <div class="trust-item"><i class="fas fa-shipping-fast"></i><span>Envío Express</span></div>
+    <div class="trust-item"><i class="fas fa-headset"></i><span>Soporte 24/7</span></div>
+    <div class="trust-item"><i class="fab fa-apple"></i><span>Producto Original</span></div>
+  </div>
+</div>
+
+<!-- PRODUCTOS -->
+<section class="productos" id="productos">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">Nuestra Colección</span>
+      <h2 class="section-title">Elige tu <span class="gradient-text">AirPods</span></h2>
+      <p class="section-sub">Tres modelos. Una sola misión: audio perfecto.</p>
+    </div>
+    <div class="products-grid">
+
+      <!-- AirPods Pro 3 -->
+      <div class="product-card featured" data-id="1" data-name="AirPods Pro 3" data-price="249">
+        <div class="card-badge">Nuevo</div>
+        <div class="card-img-wrap">
+          <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=400&hei=400&fmt=jpeg&qlt=90" alt="AirPods Pro 3"
+               onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+          <div class="card-overlay">
+            <button class="quick-view" onclick="openModal(1)">Vista rápida</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Pro Series</div>
+          <h3 class="card-title">AirPods Pro 3</h3>
+          <p class="card-desc">2× mejor cancelación de ruido, sensor de frecuencia cardíaca, audio espacial personalizado.</p>
+          <div class="card-specs">
+            <span><i class="fas fa-battery-full"></i> 36h total</span>
+            <span><i class="fas fa-wifi"></i> BT 5.3</span>
+            <span><i class="fas fa-microphone"></i> ANC Ultra</span>
+          </div>
+          <div class="card-footer">
+            <div class="price-wrap">
+              <span class="price-old">$289</span>
+              <span class="price">$249</span>
+            </div>
+            <button class="add-cart-btn" onclick="addToCart(1,'AirPods Pro 3',249,'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80&q=80')">
+              <i class="fas fa-bag-shopping"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AirPods Pro 2 -->
+      <div class="product-card" data-id="2" data-name="AirPods Pro 2" data-price="179">
+        <div class="card-badge bestseller">Best Seller</div>
+        <div class="card-img-wrap">
+          <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=400&hei=400&fmt=jpeg&qlt=90" alt="AirPods Pro 2"
+               onerror="this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
+          <div class="card-overlay">
+            <button class="quick-view" onclick="openModal(2)">Vista rápida</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Pro Series</div>
+          <h3 class="card-title">AirPods Pro 2</h3>
+          <p class="card-desc">Cancelación activa de ruido, chip H2, audio espacial y estuche con altavoz integrado.</p>
+          <div class="card-specs">
+            <span><i class="fas fa-battery-full"></i> 30h total</span>
+            <span><i class="fas fa-wifi"></i> BT 5.3</span>
+            <span><i class="fas fa-microphone"></i> ANC H2</span>
+          </div>
+          <div class="card-footer">
+            <div class="price-wrap">
+              <span class="price-old">$229</span>
+              <span class="price">$179</span>
+            </div>
+            <button class="add-cart-btn" onclick="addToCart(2,'AirPods Pro 2',179,'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=80&q=80')">
+              <i class="fas fa-bag-shopping"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AirPods Series 3 -->
+      <div class="product-card" data-id="3" data-name="AirPods Series 3" data-price="129">
+        <div class="card-img-wrap">
+          <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-3rd-gen-hero-select-202110?wid=400&hei=400&fmt=jpeg&qlt=90" alt="AirPods Series 3"
+               onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <div class="card-overlay">
+            <button class="quick-view" onclick="openModal(3)">Vista rápida</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Standard Series</div>
+          <h3 class="card-title">AirPods Series 3</h3>
+          <p class="card-desc">Audio espacial dinámico, resistencia al agua IPX4, carga MagSafe incluida.</p>
+          <div class="card-specs">
+            <span><i class="fas fa-battery-full"></i> 30h total</span>
+            <span><i class="fas fa-wifi"></i> BT 5.0</span>
+            <span><i class="fas fa-tint"></i> IPX4</span>
+          </div>
+          <div class="card-footer">
+            <div class="price-wrap">
+              <span class="price-old">$169</span>
+              <span class="price">$129</span>
+            </div>
+            <button class="add-cart-btn" onclick="addToCart(3,'AirPods Series 3',129,'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=80&q=80')">
+              <i class="fas fa-bag-shopping"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features" id="features">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">¿Por qué elegirnos?</span>
+      <h2 class="section-title">Tecnología que <span class="gradient-text">se siente</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-volume-mute"></i></div>
+        <h4>Cancelación de Ruido</h4>
+        <p>Hasta 2× más efectiva. Silencio total en cualquier entorno.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-heart-pulse"></i></div>
+        <h4>Monitor de Salud</h4>
+        <p>Sensor de frecuencia cardíaca y detección de nivel de ruido ambiental.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-cube"></i></div>
+        <h4>Audio Espacial</h4>
+        <p>Sonido 360° que se adapta al movimiento de tu cabeza en tiempo real.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-battery-three-quarters"></i></div>
+        <h4>Batería Extendida</h4>
+        <p>Hasta 36 horas de reproducción total con el estuche de carga.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-tint-slash"></i></div>
+        <h4>Resistente al Agua</h4>
+        <p>Certificación IPX4, ideal para entrenamiento y días de lluvia.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fab fa-apple"></i></div>
+        <h4>Ecosistema Apple</h4>
+        <p>Conexión instantánea con iPhone, iPad, Mac y Apple Watch.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="comparison">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">Comparativa</span>
+      <h2 class="section-title">¿Cuál es el <span class="gradient-text">indicado</span> para ti?</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th class="highlight-col">AirPods Pro 3<br><small>$249</small></th>
+            <th>AirPods Pro 2<br><small>$179</small></th>
+            <th>AirPods Series 3<br><small>$129</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Cancelación de ruido</td><td class="highlight-col"><i class="fas fa-check-circle green"></i> Ultra ANC</td><td><i class="fas fa-check-circle green"></i> ANC H2</td><td><i class="fas fa-times-circle red"></i></td></tr>
+          <tr><td>Audio espacial</td><td class="highlight-col"><i class="fas fa-check-circle green"></i></td><td><i class="fas fa-check-circle green"></i></td><td><i class="fas fa-check-circle green"></i></td></tr>
+          <tr><td>Sensor cardíaco</td><td class="highlight-col"><i class="fas fa-check-circle green"></i></td><td><i class="fas fa-times-circle red"></i></td><td><i class="fas fa-times-circle red"></i></td></tr>
+          <tr><td>Batería total</td><td class="highlight-col">36 horas</td><td>30 horas</td><td>30 horas</td></tr>
+          <tr><td>Resistencia</td><td class="highlight-col">IPX4</td><td>IPX4</td><td>IPX4</td></tr>
+          <tr><td>Carga MagSafe</td><td class="highlight-col"><i class="fas fa-check-circle green"></i></td><td><i class="fas fa-check-circle green"></i></td><td><i class="fas fa-check-circle green"></i></td></tr>
+          <tr><td>Bluetooth</td><td class="highlight-col">5.3</td><td>5.3</td><td>5.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">Reseñas</span>
+      <h2 class="section-title">Lo que dicen nuestros <span class="gradient-text">clientes</span></h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>"Los AirPods Pro 3 son increíbles. La cancelación de ruido es otro nivel. Los compré aquí y llegaron en 2 días."</p>
+        <div class="reviewer"><img src="https://i.pravatar.cc/48?img=1" alt="Ana"/><div><strong>Ana García</strong><span>Bogotá, Colombia</span></div></div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>"Compré los Pro 2 y no me arrepiento. El sonido es perfecto para el gym. TecnoSmart es confiable, 100% recomendados."</p>
+        <div class="reviewer"><img src="https://i.pravatar.cc/48?img=11" alt="Carlos"/><div><strong>Carlos Ruiz</strong><span>Medellín, Colombia</span></div></div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>"El proceso de compra fue rapidísimo. Pagué con tarjeta sin problema y llegó sellado. Totalmente original."</p>
+        <div class="reviewer"><img src="https://i.pravatar.cc/48?img=5" alt="María"/><div><strong>María López</strong><span>Cali, Colombia</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+  <div class="newsletter-content">
+    <div class="newsletter-icon"><i class="fas fa-bell"></i></div>
+    <h3>¿Quieres ofertas exclusivas?</h3>
+    <p>Suscríbete y recibe descuentos de hasta 20% en tu primera compra.</p>
+    <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+      <input type="email" placeholder="tu@email.com" required />
+      <button type="submit">Suscribirme <i class="fas fa-paper-plane"></i></button>
+    </form>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section class="nosotros" id="nosotros">
+  <div class="section-container nosotros-grid">
+    <div class="nosotros-img">
+      <img src="https://images.unsplash.com/photo-1560472355-536de3962603?w=600&q=80" alt="TecnoSmart equipo" />
+    </div>
+    <div class="nosotros-text">
+      <span class="section-tag">Sobre Nosotros</span>
+      <h2>Somos <span class="gradient-text">TecnoSmart</span></h2>
+      <p>Nacimos con una misión: llevar tecnología Apple auténtica a las manos de todos. Somos distribuidores autorizados con más de 3 años de experiencia, ofreciendo productos 100% originales con garantía de fábrica.</p>
+      <ul class="nosotros-list">
+        <li><i class="fas fa-check-circle"></i> Productos 100% originales con factura</li>
+        <li><i class="fas fa-check-circle"></i> Garantía oficial de 1 año</li>
+        <li><i class="fas fa-check-circle"></i> Envío a todo el país</li>
+        <li><i class="fas fa-check-circle"></i> Soporte técnico especializado</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="contacto" id="contacto">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">Contacto</span>
+      <h2 class="section-title">Estamos para <span class="gradient-text">ayudarte</span></h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Dirección</strong><span>Tu ciudad, Colombia</span></div></div>
+        <div class="contact-item"><i class="fas fa-phone"></i><div><strong>Teléfono</strong><span>+57 300 000 0000</span></div></div>
+        <div class="contact-item"><i class="fas fa-envelope"></i><div><strong>Email</strong><span>hola@tecnosmart.co</span></div></div>
+        <div class="contact-item"><i class="fab fa-whatsapp"></i><div><strong>WhatsApp</strong><span>+57 300 000 0000</span></div></div>
+        <div class="social-links">
+          <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="sendContact(event)">
+        <input type="text" placeholder="Tu nombre" required />
+        <input type="email" placeholder="Tu email" required />
+        <textarea placeholder="¿En qué podemos ayudarte?" rows="4" required></textarea>
+        <button type="submit" class="btn-primary">Enviar mensaje <i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <div class="nav-logo"><span class="logo-icon"><i class="fas fa-headphones-alt"></i></span><span class="logo-text">TecnoSmart</span></div>
+      <p>El Sonido del Futuro, Hoy en Tus Manos.</p>
+    </div>
+    <div class="footer-links">
+      <h5>Productos</h5>
+      <ul>
+        <li><a href="#">AirPods Pro 3</a></li>
+        <li><a href="#">AirPods Pro 2</a></li>
+        <li><a href="#">AirPods Series 3</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+        <li><a href="#">Garantía</a></li>
+        <li><a href="#">Devoluciones</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h5>Pago seguro</h5>
+      <div class="payment-icons">
+        <i class="fab fa-cc-visa"></i>
+        <i class="fab fa-cc-mastercard"></i>
+        <i class="fab fa-cc-amex"></i>
+        <i class="fab fa-cc-paypal"></i>
+        <i class="fab fa-apple-pay"></i>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 TecnoSmart. Todos los derechos reservados. | Hecho con <i class="fas fa-heart"></i> en Colombia</p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3><i class="fas fa-shopping-bag"></i> Mi Carrito</h3>
+    <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty"><i class="fas fa-bag-shopping"></i><p>Tu carrito está vacío</p></div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total"><span>Total:</span><span id="cartTotal">$0</span></div>
+    <button class="btn-primary full-width" onclick="openCheckout()">
+      <i class="fas fa-lock"></i> Proceder al pago
+    </button>
+  </div>
+</div>
+
+<!-- MODAL PRODUCTO -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal" id="productModal">
+  <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutOverlay" onclick="closeCheckout()"></div>
+<div class="checkout-modal" id="checkoutModal">
+  <button class="modal-close" onclick="closeCheckout()"><i class="fas fa-times"></i></button>
+  <div class="checkout-content">
+    <div class="checkout-steps">
+      <div class="step active" id="step1-indicator">1. Datos</div>
+      <div class="step-divider"></div>
+      <div class="step" id="step2-indicator">2. Envío</div>
+      <div class="step-divider"></div>
+      <div class="step" id="step3-indicator">3. Pago</div>
+    </div>
+    <div id="checkoutStep1" class="checkout-step">
+      <h3>Información de contacto</h3>
+      <div class="form-row"><input type="text" id="co-name" placeholder="Nombre completo" /><input type="email" id="co-email" placeholder="Correo electrónico" /></div>
+      <input type="tel" id="co-phone" placeholder="Teléfono / WhatsApp" />
+      <button class="btn-primary full-width mt-16" onclick="goStep(2)">Continuar <i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div id="checkoutStep2" class="checkout-step" style="display:none">
+      <h3>Dirección de envío</h3>
+      <input type="text" id="co-address" placeholder="Dirección completa" />
+      <div class="form-row"><input type="text" id="co-city" placeholder="Ciudad" /><input type="text" id="co-dept" placeholder="Departamento" /></div>
+      <input type="text" id="co-zip" placeholder="Código postal (opcional)" />
+      <div class="form-row mt-16">
+        <button class="btn-ghost" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Atrás</button>
+        <button class="btn-primary" onclick="goStep(3)">Continuar <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+    <div id="checkoutStep3" class="checkout-step" style="display:none">
+      <h3>Resumen y pago</h3>
+      <div class="mp-info-box">
+        <div class="mp-logo"><i class="fas fa-lock"></i> Pago seguro con</div>
+        <div class="mp-methods">
+          <span><i class="fab fa-cc-visa"></i></span>
+          <span><i class="fab fa-cc-mastercard"></i></span>
+          <span><i class="fab fa-cc-amex"></i></span>
+          <span><i class="fas fa-university"></i> PSE</span>
+          <span><i class="fas fa-mobile-alt"></i> Nequi</span>
+          <span><i class="fas fa-money-bill"></i> Efecty</span>
+        </div>
+        <p class="mp-desc">Al hacer clic en "Pagar ahora" se abrirá la ventana segura de MercadoPago donde podrás elegir tu método de pago favorito.</p>
+      </div>
+      <div class="order-summary" id="orderSummary"></div>
+      <div class="form-row mt-16">
+        <button class="btn-ghost" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Atrás</button>
+        <button class="btn-primary" onclick="processPayment()"><i class="fas fa-lock"></i> Pagar ahora</button>
+      </div>
+    </div>
+    <div id="checkoutSuccess" class="checkout-step success-step" style="display:none">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>¡Pedido confirmado!</h3>
+      <p>Gracias por tu compra. Recibirás un correo de confirmación en breve. Tu pedido llegará en 2-4 días hábiles.</p>
+      <button class="btn-primary mt-16" onclick="closeCheckout(); clearCart();">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
