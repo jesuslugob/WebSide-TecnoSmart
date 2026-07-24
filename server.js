@@ -6,7 +6,7 @@ const https = require('https');
 const url   = require('url');
 
 // Credenciales desde variable de entorno (se configura en Render)
-const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || 'APP_USR-1766369057262935-072220-775e68c2d0f707d18297c95b792543e1-3562487044';
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || '';
 const PORT            = process.env.PORT || 3000;
 
 // ── Leer body JSON ───────────────────────────────────────────────────────────

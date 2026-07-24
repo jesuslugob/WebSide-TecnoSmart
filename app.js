@@ -3,7 +3,7 @@ let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
 // ===== MERCADOPAGO CONFIG =====
-const MP_PUBLIC_KEY = 'APP_USR-667aeeb2-79a5-4721-af25-1dd0a8633a8b';
+const MP_PUBLIC_KEY = 'APP_USR-2673c2b6-7333-494f-9abd-269f4bf1d6bc';
 // Cambia esta URL por la de tu servidor en Render después del deploy
 const SERVER_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
