@@ -3,11 +3,9 @@ let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
 // ===== MERCADOPAGO CONFIG =====
-const MP_PUBLIC_KEY = 'APP_USR-667aeeb2-79a5-4721-af25-1dd0a8633a8b'; // PRUEBA
-// Cambia esta URL por la de tu servidor en Render después del deploy
-const SERVER_URL = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000'
-  : 'https://tecnosmart-server.onrender.com'; // Servidor en Render
+const MP_PUBLIC_KEY = 'APP_USR-667aeeb2-79a5-4721-af25-1dd0a8633a8b';
+// Netlify Function — funciona en local y en producción automáticamente
+const SERVER_URL = '/.netlify/functions';
 
 // ===== PRODUCT DATA =====
 // Formato pesos colombianos
@@ -257,7 +255,11 @@ async function processPayment() {
       body: JSON.stringify({ items: cart, buyer })
     });
 
-    if (!response.ok) throw new Error('Error del servidor');
+    if (!response.ok) {
+      let errData = {};
+      try { errData = await response.json(); } catch {}
+      throw new Error(errData.error || `Error del servidor (${response.status})`);
+    }
     const data = await response.json();
 
     if (data.error) throw new Error(data.error);

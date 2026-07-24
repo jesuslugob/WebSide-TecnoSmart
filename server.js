@@ -93,6 +93,8 @@ const server = http.createServer(async (req, res) => {
 
       const result = await mpPost('/checkout/preferences', preference);
 
+      console.log('MP Response:', JSON.stringify(result, null, 2));
+
       if (result.id) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
@@ -101,7 +103,9 @@ const server = http.createServer(async (req, res) => {
           sandboxUrl:   result.sandbox_init_point
         }));
       } else {
-        throw new Error(result.message || JSON.stringify(result));
+        // Devolver el error completo de MP para depuración
+        const errMsg = result.message || result.error || JSON.stringify(result);
+        throw new Error(errMsg);
       }
 
     } catch (err) {
