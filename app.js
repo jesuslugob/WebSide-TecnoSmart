@@ -59,6 +59,13 @@ const products = {
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
     desc: 'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.',
     specs: { 'Chip': 'H1', 'ANC': 'No', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.0', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
+  },
+  4: {
+    id: 4, name: 'AirPods Series 4', price: 12500,
+    img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-4-hero-select-202409?wid=600&hei=528&fmt=jpeg&qlt=90',
+    fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
+    desc: 'Los AirPods de 4ta generación con chip H2, nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 30 horas totales de batería.',
+    specs: { 'Chip': 'H2', 'ANC': 'Activa (modelo ANC)', 'Batería': '5h + 25h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'USB-C / MagSafe' }
   }
 };
 
@@ -473,6 +480,23 @@ document.addEventListener('DOMContentLoaded', () => {
   style.textContent = `.visible { opacity: 1 !important; transform: translateY(0) !important; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }`;
   document.head.appendChild(style);
+
+  // ---- AUTH + REVIEWS init ----
+  updateNavForUser();
+  initStarSelector();
+  renderUserReviews();
+
+  // Update nav login button behaviour
+  document.querySelector('.nav-btn-login')?.addEventListener('click', () => {
+    if (currentUser) {
+      document.getElementById('profileGreeting').textContent = `¡Hola, ${currentUser.name}!`;
+      document.getElementById('profileEmail').textContent = currentUser.email;
+      document.getElementById('profileInfo').innerHTML = `
+        <div class="profile-row"><i class="fas fa-phone"></i> ${currentUser.phone || 'Sin teléfono'}</div>
+        <div class="profile-row"><i class="fas fa-calendar"></i> Miembro activo</div>
+      `;
+    }
+  });
 });
 
 // ===== KEYBOARD CLOSE =====
@@ -498,3 +522,211 @@ window.addEventListener('scroll', () => {
 
 const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
+
+// ===== AUTH SYSTEM =====
+let currentUser = JSON.parse(localStorage.getItem('tsUser') || 'null');
+
+function openAuthModal(tab = 'login') {
+  if (currentUser) {
+    switchAuth('profile');
+  } else {
+    switchAuth(tab);
+  }
+  document.getElementById('authOverlay').classList.add('active');
+  document.getElementById('authModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('active');
+  document.getElementById('authModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function switchAuth(panel) {
+  ['authLogin', 'authRegister', 'authProfile'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById(`auth${panel.charAt(0).toUpperCase() + panel.slice(1)}`).style.display = 'block';
+}
+
+function registerUser(e) {
+  e.preventDefault();
+  const name     = document.getElementById('regName').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const phone    = document.getElementById('regPhone').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  // Verificar si ya existe
+  const users = JSON.parse(localStorage.getItem('tsUsers') || '[]');
+  if (users.find(u => u.email === email)) {
+    showToast('❌ Ya existe una cuenta con ese email', 'error');
+    return;
+  }
+
+  const newUser = { name, email, phone, password, createdAt: new Date().toISOString() };
+  users.push(newUser);
+  localStorage.setItem('tsUsers', JSON.stringify(users));
+
+  // Auto-login
+  currentUser = { name, email, phone };
+  localStorage.setItem('tsUser', JSON.stringify(currentUser));
+  updateNavForUser();
+  showToast(`✅ ¡Bienvenido, ${name}! Cuenta creada exitosamente.`, 'success');
+  closeAuthModal();
+}
+
+function loginUser(e) {
+  e.preventDefault();
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  const users = JSON.parse(localStorage.getItem('tsUsers') || '[]');
+  const user  = users.find(u => u.email === email && u.password === password);
+  if (!user) {
+    showToast('❌ Email o contraseña incorrectos', 'error');
+    return;
+  }
+
+  currentUser = { name: user.name, email: user.email, phone: user.phone };
+  localStorage.setItem('tsUser', JSON.stringify(currentUser));
+  updateNavForUser();
+  showToast(`✅ ¡Hola de nuevo, ${user.name}!`, 'success');
+  closeAuthModal();
+}
+
+function logoutUser() {
+  currentUser = null;
+  localStorage.removeItem('tsUser');
+  updateNavForUser();
+  showToast('Sesión cerrada', 'default');
+  closeAuthModal();
+}
+
+function updateNavForUser() {
+  const loginBtn    = document.querySelector('.nav-btn-login');
+  const registerBtn = document.querySelector('.nav-btn-register');
+  if (!loginBtn || !registerBtn) return;
+
+  if (currentUser) {
+    loginBtn.innerHTML   = `<i class="fas fa-user-circle"></i> ${currentUser.name.split(' ')[0]}`;
+    registerBtn.style.display = 'none';
+  } else {
+    loginBtn.innerHTML   = '<i class="fas fa-user"></i> Ingresar';
+    registerBtn.style.display = '';
+  }
+}
+
+// Show profile when logged in
+document.getElementById('authOverlay')?.addEventListener('click', closeAuthModal);
+
+// ===== REVIEWS =====
+let reviews = JSON.parse(localStorage.getItem('tsReviews') || '[]');
+let selectedRating = 5;
+let reviewImagesData = [];
+
+function initStarSelector() {
+  const stars = document.querySelectorAll('#starInput i');
+  stars.forEach(star => {
+    star.addEventListener('mouseover', () => {
+      const val = parseInt(star.dataset.val);
+      stars.forEach((s, idx) => {
+        s.style.color = idx < val ? '#f59e0b' : '#d1d5db';
+      });
+    });
+    star.addEventListener('mouseleave', () => {
+      stars.forEach((s, idx) => {
+        s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
+      });
+    });
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.val);
+      document.getElementById('reviewRating').value = selectedRating;
+      stars.forEach((s, idx) => {
+        s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
+      });
+    });
+  });
+  // Init color
+  document.querySelectorAll('#starInput i').forEach((s, idx) => {
+    s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
+  });
+}
+
+function previewReviewImages(event) {
+  const files   = Array.from(event.target.files).slice(0, 3);
+  const preview = document.getElementById('imgPreviewRow');
+  reviewImagesData = [];
+  preview.innerHTML = '';
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      reviewImagesData.push(e.target.result);
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'preview-thumb';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function submitReview(e) {
+  e.preventDefault();
+  const name    = document.getElementById('reviewName').value.trim();
+  const city    = document.getElementById('reviewCity').value.trim();
+  const product = document.getElementById('reviewProduct').value;
+  const rating  = parseInt(document.getElementById('reviewRating').value);
+  const text    = document.getElementById('reviewText').value.trim();
+
+  const review = {
+    id: Date.now(),
+    name, city, product, rating, text,
+    images: [...reviewImagesData],
+    date: new Date().toLocaleDateString('es-CO')
+  };
+
+  reviews.unshift(review);
+  localStorage.setItem('tsReviews', JSON.stringify(reviews));
+  renderUserReviews();
+
+  // Reset form
+  e.target.reset();
+  selectedRating = 5;
+  reviewImagesData = [];
+  document.getElementById('imgPreviewRow').innerHTML = '';
+  initStarSelector();
+
+  showToast('✅ ¡Reseña publicada! Gracias por compartir tu experiencia.', 'success');
+  document.getElementById('reviewsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderUserReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  // Remove previous user reviews
+  grid.querySelectorAll('.review-card.user-review').forEach(el => el.remove());
+
+  reviews.forEach(r => {
+    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    const imgsHTML = r.images && r.images.length
+      ? `<div class="review-imgs-row">${r.images.map(src => `<img src="${src}" class="review-img-thumb" alt="Foto del producto" />`).join('')}</div>`
+      : '';
+    const card = document.createElement('div');
+    card.className = 'review-card user-review verified';
+    card.innerHTML = `
+      <div class="review-header">
+        <div class="stars" style="color:#f59e0b">${stars}</div>
+        <span class="verified-badge"><i class="fas fa-check-circle"></i> Compra verificada</span>
+      </div>
+      <p class="review-product-tag"><i class="fas fa-tag"></i> ${r.product}</p>
+      <p>"${r.text}"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">${r.name.charAt(0).toUpperCase()}</div>
+        <div><strong>${r.name}</strong><span>${r.city} · ${r.date}</span></div>
+      </div>
+      ${imgsHTML}
+    `;
+    grid.prepend(card);
+  });
+}
