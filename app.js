@@ -240,31 +240,35 @@ async function processPayment() {
     return;
   }
 
-  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Wompi...';
+  // Total en centavos
+  const totalCOP = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const amountInCents = totalCOP * 100;
+  const reference = `TS-${Date.now()}`;
+
+  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Abriendo Wompi...';
   payBtn.disabled = true;
 
   try {
-    const response = await fetch(`${SERVER_URL}/crear-transaccion`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: cart, buyer })
-    });
+    // Obtener token de aceptación desde Wompi directamente
+    const merchantRes = await fetch(`https://sandbox.wompi.co/v1/merchants/${WOMPI_PUBLIC_KEY}`);
+    const merchantData = await merchantRes.json();
+    const acceptanceToken = merchantData?.data?.presigned_acceptance?.acceptance_token;
 
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
+    if (!acceptanceToken) throw new Error('No se pudo obtener token de aceptación');
 
-    // Abrir widget de Wompi
+    // Abrir widget de Wompi — maneja todo el pago internamente
     const checkout = new WidgetCheckout({
       currency:        'COP',
-      amountInCents:   data.amountInCents,
-      reference:       data.reference,
+      amountInCents:   amountInCents,
+      reference:       reference,
       publicKey:       WOMPI_PUBLIC_KEY,
-      redirectUrl:     window.location.href,
       customerData: {
-        email:       buyer.email,
-        fullName:    buyer.name,
-        phoneNumber: buyer.phone || '',
-        phoneNumberPrefix: '+57'
+        email:              buyer.email,
+        fullName:           buyer.name,
+        phoneNumber:        buyer.phone || '3000000000',
+        phoneNumberPrefix:  '+57',
+        legalId:            '1000000000',
+        legalIdType:        'CC'
       }
     });
 
@@ -273,19 +277,18 @@ async function processPayment() {
 
     checkout.open((result) => {
       const { transaction } = result;
-      if (transaction && transaction.status === 'APPROVED') {
+      console.log('Wompi result:', transaction);
+      if (transaction?.status === 'APPROVED') {
         [1, 2, 3].forEach(s => {
           document.getElementById(`checkoutStep${s}`).style.display = 'none';
-          const ind = document.getElementById(`step${s}-indicator`);
-          ind.classList.remove('active');
-          ind.classList.add('done');
+          document.getElementById(`step${s}-indicator`).classList.add('done');
         });
         document.getElementById('checkoutSuccess').style.display = 'block';
         clearCart();
-      } else if (transaction && transaction.status === 'DECLINED') {
+      } else if (transaction?.status === 'DECLINED') {
         showToast('❌ Pago rechazado. Intenta con otra tarjeta.', 'error');
       } else {
-        showToast('⚠️ Pago pendiente o cancelado.', 'error');
+        showToast('⚠️ Pago cancelado o pendiente.', 'error');
       }
     });
 
