@@ -457,6 +457,30 @@ window.addEventListener('scroll', () => {
   });
 });
 
-// ===== WOMPI CONFIG =====
+// ===== EMAILJS CONFIG =====
+const EMAILJS_SERVICE_ID  = 'service_7liinxs';
+const EMAILJS_TEMPLATE_ID = '9a0tadq';
+
+function enviarEmailPedido(buyer, address, cartItems, reference) {
+  const productos = cartItems.map(i =>
+    `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`
+  ).join('\n');
+  const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  const templateParams = {
+    order_ref:        reference,
+    cliente_nombre:   buyer.name  || 'No especificado',
+    cliente_email:    buyer.email || 'No especificado',
+    cliente_telefono: buyer.phone || 'No especificado',
+    direccion:        address.address || 'No especificada',
+    ciudad:           address.city    || 'No especificada',
+    departamento:     address.dept    || 'No especificado',
+    productos,
+    total:            formatCOP(total),
+    fecha:            new Date().toLocaleString('es-CO')
+  };
+
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+}
 const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
