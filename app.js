@@ -4,7 +4,7 @@ let currentPayMethod = 'card';
 
 // ===== EMAILJS CONFIG =====
 const EMAILJS_SERVICE_ID        = 'service_7liinxs';
-const EMAILJS_TEMPLATE_PEDIDO   = '9a0tadq';          // Pedido confirmado (Wompi)
+const EMAILJS_TEMPLATE_PEDIDO   = 'template_g2sa7yg'; // Pedido confirmado (Wompi)
 const EMAILJS_TEMPLATE_CONTACTO = 'template_contacto'; // Formulario de contacto
 const EMAILJS_TEMPLATE_NEWSLETTER = 'template_newsletter'; // Suscripción newsletter
 
