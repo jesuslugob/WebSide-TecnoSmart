@@ -240,35 +240,34 @@ async function processPayment() {
     return;
   }
 
-  // Total en centavos
-  const totalCOP = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-  const amountInCents = totalCOP * 100;
-  const reference = `TS-${Date.now()}`;
-
-  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Abriendo Wompi...';
+  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando pago...';
   payBtn.disabled = true;
 
   try {
-    // Obtener token de aceptación desde Wompi directamente
-    const merchantRes = await fetch(`https://sandbox.wompi.co/v1/merchants/${WOMPI_PUBLIC_KEY}`);
-    const merchantData = await merchantRes.json();
-    const acceptanceToken = merchantData?.data?.presigned_acceptance?.acceptance_token;
+    // Obtener firma del servidor
+    const response = await fetch(`${SERVER_URL}/crear-transaccion`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: cart, buyer })
+    });
 
-    if (!acceptanceToken) throw new Error('No se pudo obtener token de aceptación');
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
 
-    // Abrir widget de Wompi — maneja todo el pago internamente
+    // Abrir widget de Wompi con firma de integridad
     const checkout = new WidgetCheckout({
-      currency:        'COP',
-      amountInCents:   amountInCents,
-      reference:       reference,
-      publicKey:       WOMPI_PUBLIC_KEY,
+      currency:        data.currency,
+      amountInCents:   data.amountInCents,
+      reference:       data.reference,
+      publicKey:       data.publicKey,
+      signature:       { integrity: data.signature },
       customerData: {
-        email:              buyer.email,
-        fullName:           buyer.name,
-        phoneNumber:        buyer.phone || '3000000000',
-        phoneNumberPrefix:  '+57',
-        legalId:            '1000000000',
-        legalIdType:        'CC'
+        email:             buyer.email,
+        fullName:          buyer.name,
+        phoneNumber:       buyer.phone || '3000000000',
+        phoneNumberPrefix: '+57',
+        legalId:           '1000000000',
+        legalIdType:       'CC'
       }
     });
 
@@ -277,7 +276,7 @@ async function processPayment() {
 
     checkout.open((result) => {
       const { transaction } = result;
-      console.log('Wompi result:', transaction);
+      console.log('Wompi:', transaction);
       if (transaction?.status === 'APPROVED') {
         [1, 2, 3].forEach(s => {
           document.getElementById(`checkoutStep${s}`).style.display = 'none';
@@ -288,7 +287,7 @@ async function processPayment() {
       } else if (transaction?.status === 'DECLINED') {
         showToast('❌ Pago rechazado. Intenta con otra tarjeta.', 'error');
       } else {
-        showToast('⚠️ Pago cancelado o pendiente.', 'error');
+        showToast('⚠️ Pago cancelado.', 'error');
       }
     });
 
