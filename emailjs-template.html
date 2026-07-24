@@ -1,0 +1,54 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+  
+  <!-- HEADER -->
+  <div style="background: linear-gradient(135deg, #6c63ff, #a78bfa); padding: 32px 24px; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 800;">🎧 TecnoSmart</h1>
+    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">El Sonido del Futuro, Hoy en Tus Manos</p>
+  </div>
+
+  <!-- BODY -->
+  <div style="padding: 32px 24px;">
+
+    <h2 style="color: #1a1a2e; font-size: 20px; margin: 0 0 8px;">🛍️ ¡Nuevo pedido recibido!</h2>
+    <p style="color: #666; font-size: 14px; margin: 0 0 24px;">Se realizó una compra en tu tienda TecnoSmart.</p>
+
+    <!-- REFERENCIA -->
+    <div style="background: #f8f7ff; border-left: 4px solid #6c63ff; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 13px; color: #666;">Referencia del pedido</p>
+      <p style="margin: 4px 0 0; font-size: 16px; font-weight: 700; color: #6c63ff;">{{order_ref}}</p>
+    </div>
+
+    <!-- DATOS DEL CLIENTE -->
+    <h3 style="color: #1a1a2e; font-size: 16px; margin: 0 0 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">👤 Datos del cliente</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+      <tr><td style="padding: 6px 0; color: #666; font-size: 14px; width: 40%;">Nombre:</td><td style="padding: 6px 0; font-weight: 600; font-size: 14px;">{{cliente_nombre}}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666; font-size: 14px;">Email:</td><td style="padding: 6px 0; font-weight: 600; font-size: 14px;">{{cliente_email}}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666; font-size: 14px;">Teléfono:</td><td style="padding: 6px 0; font-weight: 600; font-size: 14px;">{{cliente_telefono}}</td></tr>
+    </table>
+
+    <!-- DIRECCIÓN -->
+    <h3 style="color: #1a1a2e; font-size: 16px; margin: 0 0 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">📦 Dirección de envío</h3>
+    <div style="background: #f8f9fa; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.6;">
+        {{direccion}}<br>
+        {{ciudad}}, {{departamento}}
+      </p>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <h3 style="color: #1a1a2e; font-size: 16px; margin: 0 0 12px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">🛒 Productos</h3>
+    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 14px; color: #333; white-space: pre-line;">{{productos}}</p>
+    </div>
+
+    <!-- TOTAL -->
+    <div style="background: linear-gradient(135deg, #6c63ff, #a78bfa); padding: 16px 24px; border-radius: 10px; text-align: right;">
+      <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 13px;">Total del pedido</p>
+      <p style="margin: 4px 0 0; color: white; font-size: 24px; font-weight: 900;">{{total}}</p>
+    </div>
+
+    <p style="margin: 24px 0 0; font-size: 13px; color: #999; text-align: center;">
+      Pedido realizado el {{fecha}} · tecnosmart1301@gmail.com
+    </p>
+  </div>
+</div>

@@ -2,9 +2,34 @@
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
-// ===== WOMPI CONFIG =====
-const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
-const SERVER_URL = '/.netlify/functions';
+// ===== EMAILJS CONFIG =====
+const EMAILJS_SERVICE_ID  = 'service_7liinxs';
+const EMAILJS_TEMPLATE_ID = '9a0tadq';
+
+function enviarEmailPedido(orderData) {
+  const productosTexto = orderData.items.map(i =>
+    `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`
+  ).join('\n');
+
+  const total = orderData.items.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  const templateParams = {
+    order_ref:        orderData.reference,
+    cliente_nombre:   orderData.buyer.name  || 'No especificado',
+    cliente_email:    orderData.buyer.email || 'No especificado',
+    cliente_telefono: orderData.buyer.phone || 'No especificado',
+    direccion:        orderData.buyer.address || 'No especificada',
+    ciudad:           orderData.buyer.city    || 'No especificada',
+    departamento:     orderData.buyer.dept    || 'No especificado',
+    productos:        productosTexto,
+    total:            formatCOP(total),
+    fecha:            new Date().toLocaleString('es-CO')
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+    .then(() => console.log('✅ Email de pedido enviado'))
+    .catch(err => console.error('❌ Error enviando email:', err));
+}
 
 // ===== PRODUCT DATA =====
 // Formato pesos colombianos
@@ -278,6 +303,28 @@ async function processPayment() {
       const { transaction } = result;
       console.log('Wompi:', transaction);
       if (transaction?.status === 'APPROVED') {
+        // Enviar email de notificación
+        const productosTexto = cart.map(i => `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`).join('\n');
+        const totalPedido = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+
+        emailjs.send('service_7liinxs', '9a0tadq', {
+          order_ref:        data.reference,
+          cliente_nombre:   buyer.name   || 'No especificado',
+          cliente_email:    buyer.email  || 'No especificado',
+          cliente_telefono: buyer.phone  || 'No especificado',
+          direccion:        document.getElementById('co-address')?.value || 'No especificada',
+          ciudad:           document.getElementById('co-city')?.value    || 'No especificada',
+          departamento:     document.getElementById('co-dept')?.value    || 'No especificado',
+          productos:        productosTexto,
+          total:            formatCOP(totalPedido),
+          fecha:            new Date().toLocaleString('es-CO')
+        }).then(() => {
+          console.log('Email enviado ✅');
+        }).catch(err => {
+          console.error('Error email:', err);
+        });
+
+        // Mostrar pantalla de éxito
         [1, 2, 3].forEach(s => {
           document.getElementById(`checkoutStep${s}`).style.display = 'none';
           document.getElementById(`step${s}-indicator`).classList.add('done');
@@ -409,3 +456,7 @@ window.addEventListener('scroll', () => {
     a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--accent2)' : '';
   });
 });
+
+// ===== WOMPI CONFIG =====
+const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
+const SERVER_URL = '/.netlify/functions';
