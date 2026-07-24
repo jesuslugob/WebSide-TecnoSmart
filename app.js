@@ -2,9 +2,8 @@
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
-// ===== MERCADOPAGO CONFIG =====
-const MP_PUBLIC_KEY = 'APP_USR-2673c2b6-7333-494f-9abd-269f4bf1d6bc'; // PRODUCCIÓN
-// Netlify Function — funciona en local y en producción automáticamente
+// ===== WOMPI CONFIG =====
+const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
 
 // ===== PRODUCT DATA =====
@@ -230,53 +229,51 @@ function renderOrderSummary() {
 async function processPayment() {
   const payBtn = document.querySelector('#checkoutStep3 .btn-primary:last-child');
 
-  // Recoger datos del comprador (pasos anteriores)
   const buyer = {
     name:  document.getElementById('co-name')?.value  || '',
     email: document.getElementById('co-email')?.value || '',
     phone: document.getElementById('co-phone')?.value || ''
   };
 
-  // Validar email mínimo
   if (!buyer.email || !buyer.email.includes('@')) {
     showToast('Por favor regresa y completa tu correo electrónico', 'error');
     return;
   }
 
-  // Mostrar cargando
-  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con MercadoPago...';
+  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Wompi...';
   payBtn.disabled = true;
 
   try {
-    // Llamar al servidor local para crear la preferencia de pago
-    const response = await fetch(`${SERVER_URL}/crear-preferencia`, {
+    const response = await fetch(`${SERVER_URL}/crear-transaccion`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items: cart, buyer })
     });
 
-    if (!response.ok) {
-      let errData = {};
-      try { errData = await response.json(); } catch {}
-      throw new Error(errData.error || `Error del servidor (${response.status})`);
-    }
     const data = await response.json();
-
     if (data.error) throw new Error(data.error);
 
-    // Abrir ventana de pago de MercadoPago
-    // sandboxUrl = prueba | initPoint = producción real
-    const payUrl = data.sandboxUrl || data.initPoint;
-    const mpWindow = window.open(payUrl, '_blank', 'width=900,height=700,scrollbars=yes');
+    // Abrir widget de Wompi
+    const checkout = new WidgetCheckout({
+      currency:        'COP',
+      amountInCents:   data.amountInCents,
+      reference:       data.reference,
+      publicKey:       WOMPI_PUBLIC_KEY,
+      redirectUrl:     window.location.href,
+      customerData: {
+        email:       buyer.email,
+        fullName:    buyer.name,
+        phoneNumber: buyer.phone || '',
+        phoneNumberPrefix: '+57'
+      }
+    });
 
-    // Mostrar mensaje mientras el usuario paga
-    payBtn.innerHTML = '<i class="fas fa-external-link-alt"></i> Ventana de pago abierta';
+    payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
+    payBtn.disabled = false;
 
-    // Escuchar cuando el usuario cierra la ventana de MP
-    const checkClosed = setInterval(() => {
-      if (mpWindow && mpWindow.closed) {
-        clearInterval(checkClosed);
-        // Mostrar pantalla de éxito
+    checkout.open((result) => {
+      const { transaction } = result;
+      if (transaction && transaction.status === 'APPROVED') {
         [1, 2, 3].forEach(s => {
           document.getElementById(`checkoutStep${s}`).style.display = 'none';
           const ind = document.getElementById(`step${s}-indicator`);
@@ -285,24 +282,18 @@ async function processPayment() {
         });
         document.getElementById('checkoutSuccess').style.display = 'block';
         clearCart();
+      } else if (transaction && transaction.status === 'DECLINED') {
+        showToast('❌ Pago rechazado. Intenta con otra tarjeta.', 'error');
+      } else {
+        showToast('⚠️ Pago pendiente o cancelado.', 'error');
       }
-    }, 1000);
+    });
 
   } catch (err) {
     console.error(err);
-    // Si el servidor no está corriendo, mostrar instrucciones
-    if (err.message.includes('fetch') || err.message.includes('Failed')) {
-      showToast('⚠️ Inicia el servidor: node server.js en la terminal', 'error');
-      payBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Servidor no activo';
-      setTimeout(() => {
-        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
-        payBtn.disabled = false;
-      }, 4000);
-    } else {
-      showToast(`Error: ${err.message}`, 'error');
-      payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
-      payBtn.disabled = false;
-    }
+    showToast(`Error: ${err.message}`, 'error');
+    payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
+    payBtn.disabled = false;
   }
 }
 
