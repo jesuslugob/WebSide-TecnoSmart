@@ -3,32 +3,33 @@ let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
 // ===== EMAILJS CONFIG =====
-const EMAILJS_SERVICE_ID  = 'service_7liinxs';
-const EMAILJS_TEMPLATE_ID = '9a0tadq';
+const EMAILJS_SERVICE_ID        = 'service_7liinxs';
+const EMAILJS_TEMPLATE_PEDIDO   = '9a0tadq';          // Pedido confirmado (Wompi)
+const EMAILJS_TEMPLATE_CONTACTO = 'template_contacto'; // Formulario de contacto
+const EMAILJS_TEMPLATE_NEWSLETTER = 'template_newsletter'; // Suscripción newsletter
 
-function enviarEmailPedido(orderData) {
-  const productosTexto = orderData.items.map(i =>
+/**
+ * Envía email de confirmación de pedido al dueño de la tienda.
+ * Se llama cuando Wompi confirma el pago (status === 'APPROVED').
+ */
+function enviarEmailPedido(buyer, address, cartItems, reference) {
+  const productos = cartItems.map(i =>
     `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`
   ).join('\n');
+  const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
 
-  const total = orderData.items.reduce((s, i) => s + (i.price * i.qty), 0);
-
-  const templateParams = {
-    order_ref:        orderData.reference,
-    cliente_nombre:   orderData.buyer.name  || 'No especificado',
-    cliente_email:    orderData.buyer.email || 'No especificado',
-    cliente_telefono: orderData.buyer.phone || 'No especificado',
-    direccion:        orderData.buyer.address || 'No especificada',
-    ciudad:           orderData.buyer.city    || 'No especificada',
-    departamento:     orderData.buyer.dept    || 'No especificado',
-    productos:        productosTexto,
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_PEDIDO, {
+    order_ref:        reference,
+    cliente_nombre:   buyer.name    || 'No especificado',
+    cliente_email:    buyer.email   || 'No especificado',
+    cliente_telefono: buyer.phone   || 'No especificado',
+    direccion:        address.street || 'No especificada',
+    ciudad:           address.city   || 'No especificada',
+    departamento:     address.dept   || 'No especificado',
+    productos,
     total:            formatCOP(total),
     fecha:            new Date().toLocaleString('es-CO')
-  };
-
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-    .then(() => console.log('✅ Email de pedido enviado'))
-    .catch(err => console.error('❌ Error enviando email:', err));
+  });
 }
 
 // ===== PRODUCT DATA =====
@@ -303,26 +304,17 @@ async function processPayment() {
       const { transaction } = result;
       console.log('Wompi:', transaction);
       if (transaction?.status === 'APPROVED') {
-        // Enviar email de notificación
-        const productosTexto = cart.map(i => `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`).join('\n');
-        const totalPedido = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        // Capturar datos de envío en el momento del pago
+        const address = {
+          street: document.getElementById('co-address')?.value || '',
+          city:   document.getElementById('co-city')?.value    || '',
+          dept:   document.getElementById('co-dept')?.value    || ''
+        };
 
-        emailjs.send('service_7liinxs', '9a0tadq', {
-          order_ref:        data.reference,
-          cliente_nombre:   buyer.name   || 'No especificado',
-          cliente_email:    buyer.email  || 'No especificado',
-          cliente_telefono: buyer.phone  || 'No especificado',
-          direccion:        document.getElementById('co-address')?.value || 'No especificada',
-          ciudad:           document.getElementById('co-city')?.value    || 'No especificada',
-          departamento:     document.getElementById('co-dept')?.value    || 'No especificado',
-          productos:        productosTexto,
-          total:            formatCOP(totalPedido),
-          fecha:            new Date().toLocaleString('es-CO')
-        }).then(() => {
-          console.log('Email enviado ✅');
-        }).catch(err => {
-          console.error('Error email:', err);
-        });
+        // Enviar email de notificación al dueño de la tienda
+        enviarEmailPedido(buyer, address, [...cart], data.reference)
+          .then(() => console.log('✅ Email de pedido enviado'))
+          .catch(err => console.error('❌ Error enviando email:', err));
 
         // Mostrar pantalla de éxito
         [1, 2, 3].forEach(s => {
@@ -389,15 +381,62 @@ function showToast(msg, type = 'default') {
 function subscribeNewsletter(e) {
   e.preventDefault();
   const input = e.target.querySelector('input');
-  showToast(`✅ ¡${input.value} suscrito! Revisa tu correo.`, 'success');
-  input.value = '';
+  const email = input.value.trim();
+  const btn   = e.target.querySelector('button');
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NEWSLETTER, {
+    suscriptor_email: email,
+    fecha:            new Date().toLocaleString('es-CO')
+  })
+  .then(() => {
+    showToast(`✅ ¡${email} suscrito! Revisa tu correo.`, 'success');
+    input.value = '';
+  })
+  .catch(err => {
+    console.error('Error newsletter:', err);
+    // Igual mostramos éxito al usuario aunque el email falle
+    showToast(`✅ ¡${email} suscrito!`, 'success');
+    input.value = '';
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = 'Suscribirme <i class="fas fa-paper-plane"></i>';
+  });
 }
 
 // ===== CONTACT FORM =====
 function sendContact(e) {
   e.preventDefault();
-  showToast('✅ Mensaje enviado. Te responderemos pronto!', 'success');
-  e.target.reset();
+  const form   = e.target;
+  const nombre = form.querySelector('input[type="text"]').value.trim();
+  const email  = form.querySelector('input[type="email"]').value.trim();
+  const mensaje = form.querySelector('textarea').value.trim();
+  const btn    = form.querySelector('button[type="submit"]');
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONTACTO, {
+    from_name:    nombre,
+    from_email:   email,
+    message:      mensaje,
+    fecha:        new Date().toLocaleString('es-CO')
+  })
+  .then(() => {
+    showToast('✅ Mensaje enviado. ¡Te responderemos pronto!', 'success');
+    form.reset();
+  })
+  .catch(err => {
+    console.error('Error contacto:', err);
+    showToast('❌ Error al enviar. Intenta de nuevo.', 'error');
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = 'Enviar mensaje <i class="fas fa-paper-plane"></i>';
+  });
 }
 
 // ===== SCROLL ANIMATIONS =====
@@ -457,30 +496,5 @@ window.addEventListener('scroll', () => {
   });
 });
 
-// ===== EMAILJS CONFIG =====
-const EMAILJS_SERVICE_ID  = 'service_7liinxs';
-const EMAILJS_TEMPLATE_ID = '9a0tadq';
-
-function enviarEmailPedido(buyer, address, cartItems, reference) {
-  const productos = cartItems.map(i =>
-    `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`
-  ).join('\n');
-  const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
-
-  const templateParams = {
-    order_ref:        reference,
-    cliente_nombre:   buyer.name  || 'No especificado',
-    cliente_email:    buyer.email || 'No especificado',
-    cliente_telefono: buyer.phone || 'No especificado',
-    direccion:        address.address || 'No especificada',
-    ciudad:           address.city    || 'No especificada',
-    departamento:     address.dept    || 'No especificado',
-    productos,
-    total:            formatCOP(total),
-    fecha:            new Date().toLocaleString('es-CO')
-  };
-
-  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-}
 const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
