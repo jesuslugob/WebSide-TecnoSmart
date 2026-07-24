@@ -10,23 +10,28 @@ const SERVER_URL = window.location.hostname === 'localhost'
   : 'https://tecnosmart-server.onrender.com'; // Servidor en Render
 
 // ===== PRODUCT DATA =====
+// Formato pesos colombianos
+function formatCOP(value) {
+  return '$' + value.toLocaleString('es-CO');
+}
+
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 249,
+    id: 1, name: 'AirPods Pro 3', price: 100,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
     desc: 'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 36 horas de batería con el estuche MagSafe.',
     specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 30h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 179,
+    id: 2, name: 'AirPods Pro 2', price: 100,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
     desc: 'Los AirPods Pro 2 con chip H2 ofrecen cancelación activa de ruido mejorada, modo de sonido ambiente y audio espacial personalizado. El estuche incluye altavoz integrado y correa.',
     specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 129,
+    id: 3, name: 'AirPods Series 3', price: 100,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-3rd-gen-hero-select-202110?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
     desc: 'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.',
@@ -97,7 +102,7 @@ function renderCart() {
       <img src="${item.img}" alt="${item.name}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80&q=80'" />
       <div class="cart-item-info">
         <h4>${item.name}</h4>
-        <p>$${item.price}</p>
+        <p>${formatCOP(item.price)}</p>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -108,7 +113,7 @@ function renderCart() {
     </div>
   `).join('');
   const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-  document.getElementById('cartTotal').textContent = `$${total}`;
+  document.getElementById('cartTotal').textContent = formatCOP(total);
 }
 
 function changeQty(id, delta) {
@@ -151,7 +156,7 @@ function openModal(id) {
   document.getElementById('modalContent').innerHTML = `
     <img class="modal-img" src="${p.img}" alt="${p.name}" onerror="this.src='${p.fallback}'" />
     <h2>${p.name}</h2>
-    <div class="price">$${p.price}</div>
+    <div class="price">${formatCOP(p.price)}</div>
     <p class="desc">${p.desc}</p>
     <div class="modal-specs-list">${specsHTML}</div>
     <button class="btn-primary full-width" onclick="addToCart(${p.id},'${p.name}',${p.price},'${p.fallback}'); closeModal();">
@@ -214,13 +219,13 @@ function renderOrderSummary() {
   const summary = document.getElementById('orderSummary');
   if (!summary) return;
   const items = cart.map(i => `
-    <div class="order-summary-item"><span>${i.name} × ${i.qty}</span><span>$${i.price * i.qty}</span></div>
+    <div class="order-summary-item"><span>${i.name} × ${i.qty}</span><span>${formatCOP(i.price * i.qty)}</span></div>
   `).join('');
   const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
   summary.innerHTML = `
     ${items}
     <div class="order-summary-item"><span>Envío</span><span style="color: var(--green)">GRATIS</span></div>
-    <div class="order-summary-item"><span>Total</span><span style="color: var(--accent2)">$${total}</span></div>
+    <div class="order-summary-item"><span>Total</span><span style="color: var(--accent2)">${formatCOP(total)}</span></div>
   `;
 }
 
