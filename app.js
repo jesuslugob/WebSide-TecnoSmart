@@ -14,21 +14,21 @@ function formatCOP(value) {
 
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 100,
+    id: 1, name: 'AirPods Pro 3', price: 12500,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
     desc: 'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 36 horas de batería con el estuche MagSafe.',
     specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 30h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 100,
+    id: 2, name: 'AirPods Pro 2', price: 12500,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
     desc: 'Los AirPods Pro 2 con chip H2 ofrecen cancelación activa de ruido mejorada, modo de sonido ambiente y audio espacial personalizado. El estuche incluye altavoz integrado y correa.',
     specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 100,
+    id: 3, name: 'AirPods Series 3', price: 12500,
     img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-3rd-gen-hero-select-202110?wid=600&hei=528&fmt=jpeg&qlt=90',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
     desc: 'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.',
