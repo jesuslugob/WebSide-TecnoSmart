@@ -1,12 +1,5 @@
 {
-  "name": "tecnosmart-server",
+  "name": "tecnosmart",
   "version": "1.0.0",
-  "description": "TecnoSmart - Servidor MercadoPago",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "description": "TecnoSmart - Tienda online"
 }

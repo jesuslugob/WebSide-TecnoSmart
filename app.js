@@ -307,7 +307,7 @@ async function processPayment() {
     payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
     payBtn.disabled = false;
 
-    checkout.open((result) => {
+    checkout.open(async (result) => {
       const { transaction } = result;
       console.log('Wompi:', transaction);
       if (transaction?.status === 'APPROVED') {
@@ -318,12 +318,34 @@ async function processPayment() {
           dept:   document.getElementById('co-dept')?.value    || ''
         };
 
-        // Enviar email de notificación al dueño de la tienda
-        enviarEmailPedido(buyer, address, [...cart], data.reference)
+        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        const cartSnapshot = [...cart];
+
+        // 1. Guardar pedido en Firestore
+        try {
+          await fetch(`${SERVER_URL}/guardar-pedido`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              buyer,
+              address,
+              items:         cartSnapshot,
+              reference:     data.reference,
+              transactionId: transaction.id || '',
+              total
+            })
+          });
+          console.log('✅ Pedido guardado en Firestore');
+        } catch (err) {
+          console.error('❌ Error guardando pedido:', err);
+        }
+
+        // 2. Enviar email de notificación al dueño de la tienda
+        enviarEmailPedido(buyer, address, cartSnapshot, data.reference)
           .then(() => console.log('✅ Email de pedido enviado'))
           .catch(err => console.error('❌ Error enviando email:', err));
 
-        // Mostrar pantalla de éxito
+        // 3. Mostrar pantalla de éxito
         [1, 2, 3].forEach(s => {
           document.getElementById(`checkoutStep${s}`).style.display = 'none';
           document.getElementById(`step${s}-indicator`).classList.add('done');

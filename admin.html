@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TecnoSmart — Panel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #1a1a24;
+      --border: rgba(255,255,255,0.08);
+      --accent: #6366f1;
+      --accent2: #a78bfa;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* LOGIN */
+    .login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .login-card { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:48px 40px; width:100%; max-width:400px; text-align:center; }
+    .login-card .logo { font-size:32px; margin-bottom:8px; }
+    .login-card h2 { font-size:22px; font-weight:700; margin-bottom:4px; }
+    .login-card p { color:var(--text2); font-size:14px; margin-bottom:32px; }
+    .login-card input { width:100%; padding:12px 16px; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:15px; margin-bottom:12px; outline:none; }
+    .login-card input:focus { border-color:var(--accent); }
+    .btn-login { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:10px; color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+    .btn-login:hover { opacity:.9; }
+    .login-error { color:var(--red); font-size:13px; margin-top:8px; display:none; }
+
+    /* ADMIN LAYOUT */
+    .admin-wrap { display:none; min-height:100vh; flex-direction:column; }
+    .admin-header { background:var(--bg2); border-bottom:1px solid var(--border); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
+    .admin-header .logo { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:700; }
+    .admin-header .logo i { color:var(--accent2); }
+    .admin-header .header-right { display:flex; align-items:center; gap:16px; }
+    .header-right span { color:var(--text2); font-size:14px; }
+    .btn-logout { background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text2); padding:8px 14px; font-size:13px; cursor:pointer; }
+    .btn-logout:hover { color:var(--red); border-color:var(--red); }
+    .admin-body { padding:32px; flex:1; }
+
+    /* STATS */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:32px; }
+    .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:24px; }
+    .stat-card .stat-label { color:var(--text2); font-size:13px; margin-bottom:8px; }
+    .stat-card .stat-val { font-size:28px; font-weight:800; }
+    .stat-card .stat-icon { float:right; font-size:28px; opacity:.3; }
+
+    /* TABLA */
+    .table-section { background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .table-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .table-header h3 { font-size:16px; font-weight:700; }
+    .table-controls { display:flex; gap:10px; align-items:center; }
+    .search-box { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-size:14px; outline:none; width:220px; }
+    .search-box:focus { border-color:var(--accent); }
+    .filter-select { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:14px; cursor:pointer; }
+    .btn-refresh { background:var(--accent); border:none; border-radius:8px; color:#fff; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .btn-refresh:hover { opacity:.9; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:var(--bg3); padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; }
+    td { padding:14px 16px; border-bottom:1px solid var(--border); font-size:14px; vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(255,255,255,.02); }
+
+    /* BADGES ESTADO */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+    .badge-aprobado  { background:rgba(34,197,94,.15);  color:var(--green); }
+    .badge-pendiente { background:rgba(245,158,11,.15); color:var(--yellow); }
+    .badge-enviado   { background:rgba(59,130,246,.15); color:var(--blue); }
+    .badge-entregado { background:rgba(99,102,241,.15); color:var(--accent2); }
+    .badge-cancelado { background:rgba(239,68,68,.15);  color:var(--red); }
+
+    .estado-select { background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:4px 8px; font-size:12px; cursor:pointer; }
+    .btn-ver { background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text2); padding:5px 10px; font-size:12px; cursor:pointer; }
+    .btn-ver:hover { color:var(--accent2); border-color:var(--accent); }
+
+    /* DETAIL MODAL */
+    .detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:100; display:none; align-items:center; justify-content:center; padding:20px; }
+    .detail-overlay.active { display:flex; }
+    .detail-modal { background:var(--bg2); border:1px solid var(--border); border-radius:20px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; padding:32px; position:relative; }
+    .detail-modal h3 { font-size:18px; font-weight:700; margin-bottom:20px; }
+    .detail-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:14px; }
+    .detail-row:last-child { border-bottom:none; }
+    .detail-row label { color:var(--text2); }
+    .detail-row span { font-weight:500; text-align:right; max-width:60%; word-break:break-word; }
+    .detail-close { position:absolute; top:16px; right:16px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text2); padding:6px 10px; cursor:pointer; font-size:13px; }
+    .detail-products { margin-top:16px; }
+    .detail-products h4 { font-size:13px; color:var(--text2); margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px; }
+    .prod-item { background:var(--bg3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:13px; display:flex; justify-content:space-between; }
+
+    /* EMPTY / LOADING */
+    .table-empty { text-align:center; padding:60px 20px; color:var(--text2); }
+    .table-empty i { font-size:40px; opacity:.3; margin-bottom:12px; display:block; }
+    .loading-row td { text-align:center; padding:40px; color:var(--text2); }
+    .spin { animation: spin 1s linear infinite; display:inline-block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media (max-width:768px) {
+      .admin-body { padding:16px; }
+      .admin-header { padding:14px 16px; }
+      table { font-size:13px; }
+      th, td { padding:10px 12px; }
+      .search-box { width:140px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="logo"><i class="fas fa-headphones-alt" style="color:#a78bfa"></i></div>
+    <h2>TecnoSmart Admin</h2>
+    <p>Panel de administración de pedidos</p>
+    <input type="email" id="adminEmail" placeholder="Correo administrador" />
+    <input type="password" id="adminPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="btn-login" onclick="doLogin()"><i class="fas fa-lock"></i> Ingresar</button>
+    <p class="login-error" id="loginError">Credenciales incorrectas</p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-wrap" id="adminWrap">
+  <header class="admin-header">
+    <div class="logo"><i class="fas fa-headphones-alt"></i> TecnoSmart <span style="color:var(--text3);font-weight:400;font-size:14px">/ Admin</span></div>
+    <div class="header-right">
+      <span id="adminUser"></span>
+      <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Salir</button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <!-- STATS -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <i class="fas fa-box stat-icon"></i>
+        <div class="stat-label">Total Pedidos</div>
+        <div class="stat-val" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-check-circle stat-icon" style="color:var(--green)"></i>
+        <div class="stat-label">Aprobados</div>
+        <div class="stat-val" id="statAprobados" style="color:var(--green)">—</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-shipping-fast stat-icon" style="color:var(--blue)"></i>
+        <div class="stat-label">Enviados</div>
+        <div class="stat-val" id="statEnviados" style="color:var(--blue)">—</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-dollar-sign stat-icon" style="color:var(--accent2)"></i>
+        <div class="stat-label">Ingresos totales</div>
+        <div class="stat-val" id="statIngresos" style="color:var(--accent2)">—</div>
+      </div>
+    </div>
+
+    <!-- TABLA PEDIDOS -->
+    <div class="table-section">
+      <div class="table-header">
+        <h3><i class="fas fa-list" style="color:var(--accent2);margin-right:8px"></i>Pedidos</h3>
+        <div class="table-controls">
+          <input type="text" class="search-box" id="searchBox" placeholder="Buscar nombre, ref..." oninput="filtrarPedidos()" />
+          <select class="filter-select" id="filterEstado" onchange="filtrarPedidos()">
+            <option value="">Todos</option>
+            <option value="APROBADO">Aprobados</option>
+            <option value="ENVIADO">Enviados</option>
+            <option value="ENTREGADO">Entregados</option>
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="CANCELADO">Cancelados</option>
+          </select>
+          <button class="btn-refresh" onclick="cargarPedidos()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Referencia</th>
+              <th>Cliente</th>
+              <th>Ciudad</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="pedidosBody">
+            <tr class="loading-row"><td colspan="7"><i class="fas fa-spinner spin"></i> Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)cerrarDetalle()">
+  <div class="detail-modal" id="detailModal">
+    <button class="detail-close" onclick="cerrarDetalle()"><i class="fas fa-times"></i></button>
+    <h3 id="detailTitle">Detalle del pedido</h3>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+
+<script type="module">
+  import { initializeApp }       from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, collection, getDocs, doc, updateDoc, orderBy, query }
+    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDCHxSYD4gtsCyNkgarDCXXu0p7GRuHPhQ",
+    authDomain:        "tecnosmart-f357b.firebaseapp.com",
+    projectId:         "tecnosmart-f357b",
+    storageBucket:     "tecnosmart-f357b.firebasestorage.app",
+    messagingSenderId: "4450157371657",
+    appId:             "1:4450157371657:web:997a15cc52c0dc18de73d8"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getFirestore(app);
+  const auth = getAuth(app);
+
+  let todosLosPedidos = [];
+
+  // ── AUTH ─────────────────────────────────────────────────────────────────
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      mostrarAdmin(user.email);
+      cargarPedidos();
+    } else {
+      mostrarLogin();
+    }
+  });
+
+  window.doLogin = async () => {
+    const email = document.getElementById('adminEmail').value.trim();
+    const pass  = document.getElementById('adminPass').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  };
+
+  window.doLogout = async () => {
+    await signOut(auth);
+  };
+
+  function mostrarAdmin(email) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').style.display   = 'flex';
+    document.getElementById('adminUser').textContent     = email;
+  }
+
+  function mostrarLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminWrap').style.display   = 'none';
+  }
+
+  // ── CARGAR PEDIDOS ────────────────────────────────────────────────────────
+  window.cargarPedidos = async () => {
+    document.getElementById('pedidosBody').innerHTML =
+      '<tr class="loading-row"><td colspan="7"><i class="fas fa-spinner spin"></i> Cargando...</td></tr>';
+    try {
+      const q = query(collection(db, 'pedidos'), orderBy('fecha', 'desc'));
+      const snap = await getDocs(q);
+      todosLosPedidos = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      actualizarStats(todosLosPedidos);
+      filtrarPedidos();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('pedidosBody').innerHTML =
+        `<tr class="loading-row"><td colspan="7" style="color:var(--red)">Error al cargar: ${err.message}</td></tr>`;
+    }
+  };
+
+  function actualizarStats(pedidos) {
+    const aprobados = pedidos.filter(p => p.estado === 'APROBADO' || p.estado === 'ENVIADO' || p.estado === 'ENTREGADO');
+    const enviados  = pedidos.filter(p => p.estado === 'ENVIADO');
+    const ingresos  = aprobados.reduce((s, p) => s + (Number(p.total) || 0), 0);
+    document.getElementById('statTotal').textContent    = pedidos.length;
+    document.getElementById('statAprobados').textContent = aprobados.length;
+    document.getElementById('statEnviados').textContent  = enviados.length;
+    document.getElementById('statIngresos').textContent  = formatCOP(ingresos);
+  }
+
+  window.filtrarPedidos = () => {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const e = document.getElementById('filterEstado').value;
+    const filtrados = todosLosPedidos.filter(p => {
+      const matchQ = !q || (p.nombre||'').toLowerCase().includes(q) || (p.reference||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q);
+      const matchE = !e || p.estado === e;
+      return matchQ && matchE;
+    });
+    renderTabla(filtrados);
+  };
+
+  function renderTabla(pedidos) {
+    const tbody = document.getElementById('pedidosBody');
+    if (!pedidos.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="table-empty"><i class="fas fa-inbox"></i><p>No hay pedidos</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = pedidos.map(p => `
+      <tr>
+        <td><code style="font-size:12px;color:var(--accent2)">${p.reference || '—'}</code></td>
+        <td>
+          <div style="font-weight:500">${p.nombre || '—'}</div>
+          <div style="font-size:12px;color:var(--text2)">${p.email || ''}</div>
+        </td>
+        <td>${p.ciudad || '—'}</td>
+        <td style="font-weight:600;color:var(--accent2)">${formatCOP(Number(p.total)||0)}</td>
+        <td>
+          <select class="estado-select" onchange="cambiarEstado('${p.docId}', this.value)">
+            ${['APROBADO','ENVIADO','ENTREGADO','PENDIENTE','CANCELADO'].map(s =>
+              `<option value="${s}" ${p.estado===s?'selected':''}>${s}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td style="color:var(--text2);font-size:12px">${(p.fechaLegible||p.fecha||'').substring(0,16)}</td>
+        <td><button class="btn-ver" onclick="verDetalle('${p.docId}')"><i class="fas fa-eye"></i> Ver</button></td>
+      </tr>
+    `).join('');
+  }
+
+  window.cambiarEstado = async (docId, nuevoEstado) => {
+    try {
+      await updateDoc(doc(db, 'pedidos', docId), { estado: nuevoEstado });
+      const p = todosLosPedidos.find(x => x.docId === docId);
+      if (p) p.estado = nuevoEstado;
+      actualizarStats(todosLosPedidos);
+    } catch (err) {
+      alert('Error al actualizar: ' + err.message);
+    }
+  };
+
+  window.verDetalle = (docId) => {
+    const p = todosLosPedidos.find(x => x.docId === docId);
+    if (!p) return;
+    let productos = [];
+    try { productos = JSON.parse(p.productos || '[]'); } catch {}
+    const prodHTML = productos.map(i =>
+      `<div class="prod-item"><span>${i.name} × ${i.qty}</span><span>${formatCOP(i.price * i.qty)}</span></div>`
+    ).join('');
+    document.getElementById('detailTitle').textContent = `Pedido ${p.reference || p.docId}`;
+    document.getElementById('detailContent').innerHTML = `
+      <div class="detail-row"><label>Estado</label><span>${badgeHTML(p.estado)}</span></div>
+      <div class="detail-row"><label>Cliente</label><span>${p.nombre || '—'}</span></div>
+      <div class="detail-row"><label>Email</label><span>${p.email || '—'}</span></div>
+      <div class="detail-row"><label>Teléfono</label><span>${p.telefono || '—'}</span></div>
+      <div class="detail-row"><label>Dirección</label><span>${p.direccion || '—'}</span></div>
+      <div class="detail-row"><label>Ciudad</label><span>${p.ciudad || '—'} · ${p.departamento || ''}</span></div>
+      <div class="detail-row"><label>Total</label><span style="color:var(--accent2);font-weight:700">${formatCOP(Number(p.total)||0)}</span></div>
+      <div class="detail-row"><label>Referencia</label><span style="font-family:monospace">${p.reference || '—'}</span></div>
+      <div class="detail-row"><label>Transaction ID</label><span style="font-family:monospace;font-size:12px">${p.transactionId || '—'}</span></div>
+      <div class="detail-row"><label>Fecha</label><span>${p.fechaLegible || p.fecha || '—'}</span></div>
+      <div class="detail-products"><h4>Productos</h4>${prodHTML || '<p style="color:var(--text2);font-size:13px">Sin detalle</p>'}</div>
+    `;
+    document.getElementById('detailOverlay').classList.add('active');
+  };
+
+  window.cerrarDetalle = () => {
+    document.getElementById('detailOverlay').classList.remove('active');
+  };
+
+  function badgeHTML(estado) {
+    const map = { APROBADO:'aprobado', ENVIADO:'enviado', ENTREGADO:'entregado', PENDIENTE:'pendiente', CANCELADO:'cancelado' };
+    return `<span class="badge badge-${map[estado]||'pendiente'}">${estado||'—'}</span>`;
+  }
+
+  function formatCOP(v) {
+    return '$' + Number(v).toLocaleString('es-CO');
+  }
+</script>
+</body>
+</html>
