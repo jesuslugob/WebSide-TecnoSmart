@@ -9,227 +9,289 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     :root {
-      --bg: #070711;
-      --bg2: #0e0e1a;
-      --bg3: #161625;
-      --bg4: #1e1e30;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.12);
-      --accent: #6366f1;
-      --accent2: #a78bfa;
-      --accent3: #818cf8;
-      --green: #22c55e;
-      --yellow: #f59e0b;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --cyan: #06b6d4;
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --text3: #475569;
-      --shadow: 0 4px 24px rgba(0,0,0,.4);
-      --shadow2: 0 8px 40px rgba(99,102,241,.15);
+      --bg:       #f4f6fb;
+      --bg2:      #ffffff;
+      --bg3:      #f0f2f8;
+      --border:   #e4e8f0;
+      --shadow:   0 2px 12px rgba(99,102,241,.08);
+      --shadow2:  0 4px 24px rgba(99,102,241,.13);
+      --accent:   #6366f1;
+      --accent2:  #4f46e5;
+      --green:    #16a34a;
+      --green-bg: #dcfce7;
+      --blue:     #2563eb;
+      --blue-bg:  #dbeafe;
+      --yellow:   #d97706;
+      --yellow-bg:#fef3c7;
+      --red:      #dc2626;
+      --red-bg:   #fee2e2;
+      --purple:   #7c3aed;
+      --purple-bg:#ede9fe;
+      --text:     #1e293b;
+      --text2:    #64748b;
+      --text3:    #94a3b8;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    ::-webkit-scrollbar { width:5px; height:5px; }
+    ::-webkit-scrollbar-track { background:var(--bg3); }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
 
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width:6px; height:6px; }
-    ::-webkit-scrollbar-track { background:var(--bg2); }
-    ::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:3px; }
-
-    /* ── LOGIN ── */
-    .login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:radial-gradient(ellipse at 60% 40%, rgba(99,102,241,.12) 0%, transparent 60%); }
-    .login-card { background:var(--bg2); border:1px solid var(--border2); border-radius:24px; padding:52px 44px; width:100%; max-width:420px; box-shadow:var(--shadow2); }
-    .login-logo { width:56px; height:56px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 20px; }
-    .login-card h2 { font-size:24px; font-weight:800; text-align:center; margin-bottom:6px; }
+    /* ══ LOGIN ══════════════════════════════════════════════════════════ */
+    .login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh;
+      background:linear-gradient(135deg,#eef2ff 0%,#f4f6fb 60%,#fdf4ff 100%); }
+    .login-card { background:var(--bg2); border:1px solid var(--border); border-radius:24px;
+      padding:52px 44px; width:100%; max-width:420px; box-shadow:var(--shadow2); }
+    .login-logo { width:60px; height:60px; background:linear-gradient(135deg,var(--accent),#818cf8);
+      border-radius:18px; display:flex; align-items:center; justify-content:center;
+      font-size:26px; color:#fff; margin:0 auto 20px; box-shadow:0 8px 24px rgba(99,102,241,.3); }
+    .login-card h2 { font-size:24px; font-weight:800; text-align:center; color:var(--text); margin-bottom:4px; }
     .login-card .sub { color:var(--text2); font-size:14px; text-align:center; margin-bottom:36px; }
     .input-group { position:relative; margin-bottom:14px; }
-    .input-group i { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:14px; }
-    .input-group input { width:100%; padding:13px 16px 13px 42px; background:var(--bg3); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:14px; outline:none; transition:.2s; }
-    .input-group input:focus { border-color:var(--accent); background:var(--bg4); }
-    .btn-login { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; letter-spacing:.3px; transition:.2s; }
-    .btn-login:hover { opacity:.9; transform:translateY(-1px); box-shadow:var(--shadow2); }
-    .login-error { color:var(--red); font-size:13px; text-align:center; margin-top:12px; display:none; padding:10px; background:rgba(239,68,68,.1); border-radius:8px; border:1px solid rgba(239,68,68,.2); }
+    .input-group i { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:14px; }
+    .input-group input { width:100%; padding:13px 14px 13px 40px; background:var(--bg3);
+      border:1.5px solid var(--border); border-radius:12px; color:var(--text);
+      font-size:14px; outline:none; transition:.2s; font-family:inherit; }
+    .input-group input:focus { border-color:var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+    .btn-login { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border:none; border-radius:12px; color:#fff; font-size:15px; font-weight:700;
+      cursor:pointer; margin-top:6px; font-family:inherit; transition:.2s; letter-spacing:.2px; }
+    .btn-login:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(99,102,241,.35); }
+    .login-error { color:var(--red); font-size:13px; text-align:center; margin-top:12px;
+      display:none; padding:10px 14px; background:var(--red-bg); border-radius:10px;
+      border:1px solid #fca5a5; }
 
-    /* ── ADMIN LAYOUT ── */
+    /* ══ LAYOUT ══════════════════════════════════════════════════════════ */
     .admin-wrap { display:none; min-height:100vh; }
-    .sidebar { position:fixed; left:0; top:0; bottom:0; width:240px; background:var(--bg2); border-right:1px solid var(--border); padding:24px 16px; display:flex; flex-direction:column; z-index:50; }
-    .sidebar-logo { display:flex; align-items:center; gap:10px; padding:8px 12px; margin-bottom:32px; }
-    .sidebar-logo .logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
-    .sidebar-logo .logo-text { font-size:16px; font-weight:800; }
-    .sidebar-logo .logo-sub { font-size:11px; color:var(--text3); }
-    .sidebar-nav { flex:1; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:var(--text2); font-size:14px; font-weight:500; cursor:pointer; transition:.15s; margin-bottom:4px; }
-    .nav-item:hover { background:var(--bg3); color:var(--text); }
-    .nav-item.active { background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(167,139,250,.1)); color:var(--accent2); border:1px solid rgba(99,102,241,.2); }
-    .nav-item i { width:18px; text-align:center; }
-    .sidebar-bottom { padding-top:16px; border-top:1px solid var(--border); }
-    .user-info { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; background:var(--bg3); margin-bottom:8px; }
-    .user-avatar { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
-    .user-email { font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .btn-logout { width:100%; display:flex; align-items:center; gap:8px; padding:9px 14px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--text2); font-size:13px; cursor:pointer; transition:.15s; }
-    .btn-logout:hover { color:var(--red); border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.05); }
+    .topbar { position:sticky; top:0; z-index:100; background:var(--bg2);
+      border-bottom:1px solid var(--border); padding:0 24px;
+      display:flex; align-items:center; justify-content:space-between; height:64px;
+      box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .topbar-logo { display:flex; align-items:center; gap:10px; }
+    .topbar-logo .tl-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--accent),#818cf8);
+      border-radius:10px; display:flex; align-items:center; justify-content:center;
+      font-size:16px; color:#fff; }
+    .topbar-logo .tl-name { font-size:16px; font-weight:800; color:var(--text); }
+    .topbar-logo .tl-badge { font-size:11px; font-weight:600; color:var(--accent);
+      background:#eef2ff; padding:2px 8px; border-radius:20px; margin-left:4px; }
+    .topbar-right { display:flex; align-items:center; gap:12px; }
+    .topbar-user { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text2); }
+    .topbar-user .av { width:30px; height:30px; background:linear-gradient(135deg,var(--accent),#818cf8);
+      border-radius:8px; display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:#fff; }
+    .btn-out { display:flex; align-items:center; gap:6px; padding:8px 14px;
+      background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+      color:var(--text2); font-size:13px; font-weight:500; cursor:pointer;
+      font-family:inherit; transition:.15s; }
+    .btn-out:hover { color:var(--red); border-color:#fca5a5; background:var(--red-bg); }
 
-    /* ── MAIN ── */
-    .main-content { margin-left:240px; padding:32px; min-height:100vh; }
-    .page-header { margin-bottom:28px; }
-    .page-header h1 { font-size:26px; font-weight:800; margin-bottom:4px; }
-    .page-header p { color:var(--text2); font-size:14px; }
+    .main-content { padding:28px 24px; max-width:1400px; margin:0 auto; }
 
-    /* ── STATS ── */
-    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
-    .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:22px 24px; position:relative; overflow:hidden; transition:.2s; }
-    .stat-card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow:var(--shadow); }
-    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
-    .stat-card.s1::before { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
-    .stat-card.s2::before { background:linear-gradient(90deg,var(--green),#16a34a); }
-    .stat-card.s3::before { background:linear-gradient(90deg,var(--blue),var(--cyan)); }
-    .stat-card.s4::before { background:linear-gradient(90deg,var(--yellow),#d97706); }
-    .stat-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
-    .stat-icon-wrap { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; }
-    .s1 .stat-icon-wrap { background:rgba(99,102,241,.15); color:var(--accent2); }
-    .s2 .stat-icon-wrap { background:rgba(34,197,94,.15); color:var(--green); }
-    .s3 .stat-icon-wrap { background:rgba(59,130,246,.15); color:var(--blue); }
-    .s4 .stat-icon-wrap { background:rgba(245,158,11,.15); color:var(--yellow); }
-    .stat-label { font-size:12px; color:var(--text2); font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
-    .stat-val { font-size:30px; font-weight:800; line-height:1; }
-    .stat-sub { font-size:12px; color:var(--text3); margin-top:6px; }
+    /* ══ PAGE TITLE ══════════════════════════════════════════════════════ */
+    .page-title { margin-bottom:24px; }
+    .page-title h1 { font-size:22px; font-weight:800; color:var(--text); }
+    .page-title p  { font-size:13px; color:var(--text2); margin-top:3px; }
 
-    /* ── TOOLBAR ── */
-    .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:12px; }
-    .toolbar-left { display:flex; align-items:center; gap:10px; }
-    .toolbar-right { display:flex; align-items:center; gap:10px; }
+    /* ══ STATS ══════════════════════════════════════════════════════════ */
+    .stats-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+    .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+      padding:20px; display:flex; align-items:center; gap:14px;
+      box-shadow:var(--shadow); transition:.2s; cursor:default; }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow2); }
+    .stat-icon { width:46px; height:46px; border-radius:12px; display:flex;
+      align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .si-total   { background:#eef2ff; color:var(--accent); }
+    .si-green   { background:var(--green-bg);  color:var(--green);  }
+    .si-blue    { background:var(--blue-bg);   color:var(--blue);   }
+    .si-purple  { background:var(--purple-bg); color:var(--purple); }
+    .si-red     { background:var(--red-bg);    color:var(--red);    }
+    .stat-info { min-width:0; }
+    .stat-info .sl { font-size:11px; font-weight:600; color:var(--text2);
+      text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+    .stat-info .sv { font-size:26px; font-weight:800; color:var(--text); line-height:1.1; }
+
+    /* ══ TOOLBAR ══════════════════════════════════════════════════════════ */
+    .toolbar { display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .toolbar-l, .toolbar-r { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .search-wrap { position:relative; }
-    .search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; }
-    .search-box { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:9px 14px 9px 34px; color:var(--text); font-size:13px; outline:none; width:240px; transition:.2s; }
-    .search-box:focus { border-color:var(--accent); background:var(--bg3); }
-    .filter-select { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:9px 12px; color:var(--text); font-size:13px; cursor:pointer; outline:none; }
-    .filter-select:focus { border-color:var(--accent); }
-    .btn-icon { background:var(--bg2); border:1px solid var(--border); border-radius:10px; color:var(--text2); padding:9px 14px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:.15s; white-space:nowrap; }
-    .btn-icon:hover { border-color:var(--border2); color:var(--text); }
-    .btn-danger { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); border-radius:10px; color:var(--red); padding:9px 14px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:.15s; white-space:nowrap; }
-    .btn-danger:hover { background:rgba(239,68,68,.18); }
-    .btn-danger:disabled { opacity:.4; cursor:not-allowed; }
-    .selected-count { font-size:13px; color:var(--accent2); font-weight:600; display:none; }
+    .search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:var(--text3); font-size:13px; pointer-events:none; }
+    .search-box { padding:9px 12px 9px 34px; background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:10px; font-size:13px; color:var(--text); outline:none;
+      font-family:inherit; width:230px; transition:.2s; }
+    .search-box:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+    .filter-sel { padding:9px 12px; background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:10px; font-size:13px; color:var(--text); outline:none;
+      font-family:inherit; cursor:pointer; }
+    .filter-sel:focus { border-color:var(--accent); }
+    .sel-count { font-size:13px; font-weight:600; color:var(--accent); }
+    .btn-ref { display:flex; align-items:center; gap:6px; padding:9px 14px;
+      background:var(--bg2); border:1.5px solid var(--border); border-radius:10px;
+      font-size:13px; font-weight:500; color:var(--text2); cursor:pointer;
+      font-family:inherit; transition:.15s; white-space:nowrap; }
+    .btn-ref:hover { border-color:var(--accent); color:var(--accent); background:#eef2ff; }
+    .btn-del { display:flex; align-items:center; gap:6px; padding:9px 14px;
+      background:var(--red-bg); border:1.5px solid #fca5a5; border-radius:10px;
+      font-size:13px; font-weight:600; color:var(--red); cursor:pointer;
+      font-family:inherit; transition:.15s; white-space:nowrap; }
+    .btn-del:hover:not(:disabled) { background:#fee2e2; border-color:var(--red); }
+    .btn-del:disabled { opacity:.4; cursor:not-allowed; }
 
-    /* ── TABLE ── */
-    .table-card { background:var(--bg2); border:1px solid var(--border); border-radius:18px; overflow:hidden; }
-    .table-wrap { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; }
+    /* ══ TABLE CARD ══════════════════════════════════════════════════════ */
+    .table-card { background:var(--bg2); border:1px solid var(--border);
+      border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
     thead tr { background:var(--bg3); }
-    th { padding:13px 16px; text-align:left; font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; white-space:nowrap; }
-    th.check-col { width:44px; }
-    td { padding:15px 16px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+    th { padding:12px 16px; text-align:left; font-size:11px; font-weight:700;
+      color:var(--text2); text-transform:uppercase; letter-spacing:.6px;
+      white-space:nowrap; border-bottom:1px solid var(--border); }
+    td { padding:14px 16px; border-bottom:1px solid var(--border);
+      font-size:13px; vertical-align:middle; }
     tr:last-child td { border-bottom:none; }
-    tbody tr { transition:.15s; }
-    tbody tr:hover td { background:rgba(255,255,255,.02); }
-    tbody tr.selected td { background:rgba(99,102,241,.06); }
+    tbody tr { transition:.12s; }
+    tbody tr:hover td { background:#fafbff; }
+    tbody tr.sel td { background:#eef2ff; }
 
     /* checkbox */
-    .check-wrap input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; border-radius:4px; }
+    input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
 
     /* ref */
-    .ref-code { font-family:'Courier New',monospace; font-size:11px; color:var(--accent3); background:rgba(99,102,241,.1); padding:3px 8px; border-radius:6px; }
+    .ref-pill { font-family:'Courier New',monospace; font-size:11px; font-weight:600;
+      color:var(--accent); background:#eef2ff; padding:3px 8px; border-radius:6px; }
 
-    /* client cell */
-    .client-name { font-weight:600; font-size:13px; margin-bottom:2px; }
-    .client-email { font-size:11px; color:var(--text2); }
+    /* client */
+    .cname { font-weight:600; color:var(--text); }
+    .cemail { font-size:11px; color:var(--text2); margin-top:2px; }
 
     /* total */
-    .total-val { font-weight:700; color:var(--accent2); }
+    .tval { font-weight:700; color:var(--text); }
 
-    /* estado badge */
-    .badge { display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.3px; white-space:nowrap; }
-    .badge::before { content:''; width:6px; height:6px; border-radius:50%; }
-    .badge-APROBADO  { background:rgba(34,197,94,.12);  color:#4ade80; border:1px solid rgba(34,197,94,.2); }
-    .badge-APROBADO::before  { background:#22c55e; }
-    .badge-ENVIADO   { background:rgba(59,130,246,.12); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
-    .badge-ENVIADO::before   { background:#3b82f6; }
-    .badge-ENTREGADO { background:rgba(99,102,241,.12); color:#a78bfa; border:1px solid rgba(99,102,241,.2); }
-    .badge-ENTREGADO::before { background:#6366f1; }
-    .badge-PENDIENTE { background:rgba(245,158,11,.12); color:#fbbf24; border:1px solid rgba(245,158,11,.2); }
-    .badge-PENDIENTE::before { background:#f59e0b; }
-    .badge-CANCELADO { background:rgba(239,68,68,.12);  color:#f87171; border:1px solid rgba(239,68,68,.2); }
-    .badge-CANCELADO::before { background:#ef4444; }
+    /* badge estado */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px;
+      border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .b-APROBADO  { background:var(--green-bg);  color:var(--green);  border:1px solid #86efac; }
+    .b-ENVIADO   { background:var(--blue-bg);   color:var(--blue);   border:1px solid #93c5fd; }
+    .b-ENTREGADO { background:var(--purple-bg); color:var(--purple); border:1px solid #c4b5fd; }
+    .b-PENDIENTE { background:var(--yellow-bg); color:var(--yellow); border:1px solid #fcd34d; }
+    .b-CANCELADO { background:var(--red-bg);    color:var(--red);    border:1px solid #fca5a5; }
 
-    .estado-select { background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:5px 8px; font-size:12px; cursor:pointer; outline:none; }
-    .estado-select:focus { border-color:var(--accent); }
+    .estado-sel { padding:5px 8px; background:var(--bg3); border:1.5px solid var(--border);
+      border-radius:8px; font-size:12px; color:var(--text); font-family:inherit;
+      cursor:pointer; outline:none; }
+    .estado-sel:focus { border-color:var(--accent); }
 
-    /* actions */
-    .btn-ver { background:var(--bg3); border:1px solid var(--border); border-radius:8px; color:var(--text2); padding:6px 12px; font-size:12px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:5px; }
-    .btn-ver:hover { color:var(--accent2); border-color:var(--accent); background:rgba(99,102,241,.08); }
+    /* btn ver */
+    .btn-ver { display:inline-flex; align-items:center; gap:5px; padding:6px 12px;
+      background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+      font-size:12px; font-weight:500; color:var(--text2); cursor:pointer;
+      font-family:inherit; transition:.15s; }
+    .btn-ver:hover { color:var(--accent); border-color:var(--accent); background:#eef2ff; }
 
     /* empty / loading */
-    .table-empty { text-align:center; padding:64px 20px; color:var(--text2); }
-    .table-empty .empty-icon { width:64px; height:64px; background:var(--bg3); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px; color:var(--text3); }
-    .table-empty h4 { font-size:15px; font-weight:600; margin-bottom:6px; }
-    .table-empty p { font-size:13px; }
-    .loading-cell { text-align:center; padding:48px; color:var(--text2); }
+    .empty-cell { text-align:center; padding:64px 20px; }
+    .empty-icon { width:64px; height:64px; background:var(--bg3); border-radius:16px;
+      display:flex; align-items:center; justify-content:center; font-size:26px;
+      color:var(--text3); margin:0 auto 14px; }
+    .empty-cell h4 { font-size:15px; font-weight:700; color:var(--text); margin-bottom:6px; }
+    .empty-cell p  { font-size:13px; color:var(--text2); }
+    .loading-cell  { text-align:center; padding:48px; color:var(--text2); font-size:14px; }
     .spin { animation:spin 1s linear infinite; display:inline-block; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* ── DETAIL MODAL ── */
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); backdrop-filter:blur(6px); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
+    /* ══ MODAL DETALLE ══════════════════════════════════════════════════ */
+    .overlay { position:fixed; inset:0; background:rgba(15,23,42,.45);
+      backdrop-filter:blur(4px); z-index:300; display:none;
+      align-items:center; justify-content:center; padding:16px; }
     .overlay.active { display:flex; }
-    .detail-modal { background:var(--bg2); border:1px solid var(--border2); border-radius:24px; width:100%; max-width:580px; max-height:88vh; overflow-y:auto; position:relative; box-shadow:0 24px 80px rgba(0,0,0,.6); }
-    .modal-header { padding:28px 28px 20px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; position:sticky; top:0; background:var(--bg2); z-index:1; }
-    .modal-header h3 { font-size:17px; font-weight:800; }
-    .modal-header .ref-tag { font-size:12px; color:var(--text2); margin-top:3px; font-family:monospace; }
-    .modal-close { background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text2); width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:.15s; }
-    .modal-close:hover { color:var(--text); border-color:var(--border2); }
-    .modal-body { padding:24px 28px 28px; }
-    .modal-section { margin-bottom:24px; }
-    .modal-section-title { font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px; }
-    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .det-modal { background:var(--bg2); border:1px solid var(--border);
+      border-radius:22px; width:100%; max-width:560px; max-height:90vh;
+      overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.18); }
+    .det-header { padding:24px 24px 18px; border-bottom:1px solid var(--border);
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; position:sticky; top:0; background:var(--bg2); z-index:1; }
+    .det-header h3 { font-size:17px; font-weight:800; color:var(--text); }
+    .det-header .ref-sm { font-size:11px; color:var(--text2); font-family:monospace; margin-top:3px; }
+    .det-close { width:32px; height:32px; background:var(--bg3); border:1px solid var(--border);
+      border-radius:8px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; color:var(--text2); font-size:13px; flex-shrink:0; transition:.15s; }
+    .det-close:hover { background:var(--red-bg); color:var(--red); border-color:#fca5a5; }
+    .det-body { padding:22px 24px 28px; }
+    .det-section { margin-bottom:20px; }
+    .det-sec-title { font-size:11px; font-weight:700; color:var(--text2);
+      text-transform:uppercase; letter-spacing:.7px; margin-bottom:10px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     .info-item { background:var(--bg3); border-radius:10px; padding:12px 14px; }
-    .info-item label { font-size:11px; color:var(--text2); display:block; margin-bottom:4px; }
-    .info-item span { font-size:13px; font-weight:500; word-break:break-word; }
+    .info-item label { font-size:11px; color:var(--text2); font-weight:600;
+      text-transform:uppercase; letter-spacing:.4px; display:block; margin-bottom:4px; }
+    .info-item span { font-size:13px; font-weight:500; color:var(--text); word-break:break-word; }
     .info-item.full { grid-column:1/-1; }
-    .prod-item { background:var(--bg3); border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
-    .prod-item .prod-name { font-size:13px; font-weight:500; }
-    .prod-item .prod-price { font-size:13px; font-weight:700; color:var(--accent2); }
-    .modal-total { background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(167,139,250,.05)); border:1px solid rgba(99,102,241,.2); border-radius:12px; padding:16px; display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
-    .modal-total span { font-size:14px; color:var(--text2); }
-    .modal-total strong { font-size:20px; font-weight:800; color:var(--accent2); }
+    .prod-row { background:var(--bg3); border-radius:10px; padding:12px 14px;
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .prod-row .pn { font-size:13px; font-weight:500; color:var(--text); }
+    .prod-row .pp { font-size:13px; font-weight:700; color:var(--accent); }
+    .total-bar { background:linear-gradient(135deg,#eef2ff,#f5f3ff);
+      border:1px solid #c7d2fe; border-radius:12px; padding:16px;
+      display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+    .total-bar span { font-size:14px; color:var(--text2); font-weight:500; }
+    .total-bar strong { font-size:22px; font-weight:800; color:var(--accent); }
 
-    /* ── CONFIRM DELETE ── */
-    .confirm-modal { background:var(--bg2); border:1px solid rgba(239,68,68,.3); border-radius:20px; width:100%; max-width:400px; padding:32px; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,.6); }
-    .confirm-icon { width:56px; height:56px; background:rgba(239,68,68,.12); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--red); margin:0 auto 16px; }
-    .confirm-modal h3 { font-size:18px; font-weight:800; margin-bottom:8px; }
-    .confirm-modal p { color:var(--text2); font-size:14px; margin-bottom:24px; line-height:1.6; }
-    .confirm-btns { display:flex; gap:10px; }
-    .confirm-btns button { flex:1; padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:.15s; }
-    .btn-cancel-del { background:var(--bg3); border:1px solid var(--border); color:var(--text2); }
-    .btn-cancel-del:hover { color:var(--text); }
-    .btn-confirm-del { background:var(--red); border:none; color:#fff; }
-    .btn-confirm-del:hover { background:#dc2626; }
+    /* ══ CONFIRM DELETE ══════════════════════════════════════════════════ */
+    .conf-modal { background:var(--bg2); border:1px solid #fca5a5;
+      border-radius:20px; width:100%; max-width:380px; padding:32px;
+      text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.15); }
+    .conf-icon { width:56px; height:56px; background:var(--red-bg); border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:22px;
+      color:var(--red); margin:0 auto 16px; }
+    .conf-modal h3 { font-size:18px; font-weight:800; color:var(--text); margin-bottom:8px; }
+    .conf-modal p  { color:var(--text2); font-size:14px; margin-bottom:24px; line-height:1.6; }
+    .conf-btns { display:flex; gap:10px; }
+    .conf-btns button { flex:1; padding:12px; border-radius:10px; font-size:14px;
+      font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
+    .btn-no  { background:var(--bg3); border:1.5px solid var(--border); color:var(--text2); }
+    .btn-no:hover { color:var(--text); }
+    .btn-yes { background:var(--red); border:none; color:#fff; }
+    .btn-yes:hover { background:#b91c1c; }
 
-    /* ── TOAST ── */
-    .toast { position:fixed; bottom:24px; right:24px; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:12px 18px; font-size:13px; font-weight:500; z-index:999; opacity:0; transform:translateY(10px); transition:.25s; pointer-events:none; display:flex; align-items:center; gap:8px; }
+    /* ══ TOAST ══════════════════════════════════════════════════════════ */
+    .toast { position:fixed; bottom:20px; right:20px; background:var(--bg2);
+      border:1.5px solid var(--border); border-radius:12px; padding:12px 18px;
+      font-size:13px; font-weight:600; z-index:999; opacity:0;
+      transform:translateY(8px); transition:.25s; pointer-events:none;
+      box-shadow:var(--shadow2); display:flex; align-items:center; gap:8px; color:var(--text); }
     .toast.show { opacity:1; transform:translateY(0); }
-    .toast.success { border-color:rgba(34,197,94,.3); color:var(--green); }
-    .toast.error { border-color:rgba(239,68,68,.3); color:var(--red); }
+    .toast.ok  { border-color:#86efac; color:var(--green); }
+    .toast.err { border-color:#fca5a5; color:var(--red); }
 
-    @media(max-width:1024px) {
-      .sidebar { display:none; }
-      .main-content { margin-left:0; padding:20px; }
-      .stats-grid { grid-template-columns:repeat(2,1fr); }
+    /* ══ RESPONSIVE ══════════════════════════════════════════════════════ */
+    @media(max-width:900px) {
+      .stats-grid { grid-template-columns:repeat(3,1fr); }
     }
     @media(max-width:640px) {
-      .stats-grid { grid-template-columns:1fr 1fr; }
+      .topbar { padding:0 16px; }
+      .topbar-logo .tl-badge { display:none; }
+      .main-content { padding:16px; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+      .stat-card { padding:16px; gap:10px; }
+      .stat-info .sv { font-size:22px; }
       .search-box { width:160px; }
       .info-grid { grid-template-columns:1fr; }
+      .topbar-user span { display:none; }
+    }
+    @media(max-width:380px) {
+      .stats-grid { grid-template-columns:1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
+<!-- ══ LOGIN ══ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo"><i class="fas fa-headphones-alt"></i></div>
     <h2>TecnoSmart</h2>
-    <p class="sub">Panel de administración</p>
+    <p class="sub">Panel de administración de pedidos</p>
     <div class="input-group">
       <i class="fas fa-envelope"></i>
       <input type="email" id="adminEmail" placeholder="Correo administrador" />
@@ -238,83 +300,91 @@
       <i class="fas fa-lock"></i>
       <input type="password" id="adminPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()" />
     </div>
-    <button class="btn-login" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Ingresar al panel</button>
-    <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i> Credenciales incorrectas</div>
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> Ingresar
+    </button>
+    <div class="login-error" id="loginError">
+      <i class="fas fa-exclamation-circle"></i> Correo o contraseña incorrectos
+    </div>
   </div>
 </div>
 
-<!-- ── ADMIN ── -->
+<!-- ══ ADMIN ══ -->
 <div class="admin-wrap" id="adminWrap">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><i class="fas fa-headphones-alt"></i></div>
-      <div>
-        <div class="logo-text">TecnoSmart</div>
-        <div class="logo-sub">Admin Panel</div>
-      </div>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="tl-icon"><i class="fas fa-headphones-alt"></i></div>
+      <span class="tl-name">TecnoSmart</span>
+      <span class="tl-badge">Admin</span>
     </div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active"><i class="fas fa-chart-bar"></i> Dashboard</div>
-      <div class="nav-item" onclick="cargarPedidos()"><i class="fas fa-refresh"></i> Actualizar</div>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="user-info">
-        <div class="user-avatar" id="userInitial">A</div>
-        <div class="user-email" id="adminUser"></div>
+    <div class="topbar-right">
+      <div class="topbar-user">
+        <div class="av" id="userInitial">A</div>
+        <span id="adminUser"></span>
       </div>
-      <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+      <button class="btn-out" onclick="doLogout()">
+        <i class="fas fa-sign-out-alt"></i> Salir
+      </button>
     </div>
-  </aside>
+  </header>
 
-  <!-- MAIN -->
-  <main class="main-content">
-    <div class="page-header">
-      <h1>Dashboard <span style="color:var(--accent2)">·</span> Pedidos</h1>
-      <p>Gestiona y monitorea todos los pedidos de TecnoSmart</p>
+  <!-- BODY -->
+  <div class="main-content">
+
+    <div class="page-title">
+      <h1>Pedidos</h1>
+      <p>Gestiona y monitorea todas las órdenes de TecnoSmart</p>
     </div>
 
     <!-- STATS -->
     <div class="stats-grid">
-      <div class="stat-card s1">
-        <div class="stat-top">
-          <div><div class="stat-label">Total Pedidos</div><div class="stat-val" id="statTotal">—</div></div>
-          <div class="stat-icon-wrap"><i class="fas fa-box"></i></div>
+      <div class="stat-card">
+        <div class="stat-icon si-total"><i class="fas fa-box"></i></div>
+        <div class="stat-info">
+          <div class="sl">Total</div>
+          <div class="sv" id="statTotal">—</div>
         </div>
-        <div class="stat-sub">Histórico completo</div>
       </div>
-      <div class="stat-card s2">
-        <div class="stat-top">
-          <div><div class="stat-label">Aprobados</div><div class="stat-val" id="statAprobados">—</div></div>
-          <div class="stat-icon-wrap"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-card">
+        <div class="stat-icon si-green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <div class="sl">Aprobados</div>
+          <div class="sv" id="statAprobados">—</div>
         </div>
-        <div class="stat-sub">Pagos confirmados</div>
       </div>
-      <div class="stat-card s3">
-        <div class="stat-top">
-          <div><div class="stat-label">Enviados</div><div class="stat-val" id="statEnviados">—</div></div>
-          <div class="stat-icon-wrap"><i class="fas fa-shipping-fast"></i></div>
+      <div class="stat-card">
+        <div class="stat-icon si-blue"><i class="fas fa-shipping-fast"></i></div>
+        <div class="stat-info">
+          <div class="sl">Enviados</div>
+          <div class="sv" id="statEnviados">—</div>
         </div>
-        <div class="stat-sub">En camino</div>
       </div>
-      <div class="stat-card s4">
-        <div class="stat-top">
-          <div><div class="stat-label">Ingresos</div><div class="stat-val" id="statIngresos">—</div></div>
-          <div class="stat-icon-wrap"><i class="fas fa-dollar-sign"></i></div>
+      <div class="stat-card">
+        <div class="stat-icon si-purple"><i class="fas fa-box-open"></i></div>
+        <div class="stat-info">
+          <div class="sl">Entregados</div>
+          <div class="sv" id="statEntregados">—</div>
         </div>
-        <div class="stat-sub">Total facturado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-red"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info">
+          <div class="sl">Cancelados</div>
+          <div class="sv" id="statCancelados">—</div>
+        </div>
       </div>
     </div>
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-      <div class="toolbar-left">
+      <div class="toolbar-l">
         <div class="search-wrap">
           <i class="fas fa-search"></i>
-          <input type="text" class="search-box" id="searchBox" placeholder="Buscar cliente, referencia..." oninput="filtrarPedidos()" />
+          <input class="search-box" id="searchBox" placeholder="Buscar cliente, referencia..." oninput="filtrarPedidos()" />
         </div>
-        <select class="filter-select" id="filterEstado" onchange="filtrarPedidos()">
+        <select class="filter-sel" id="filterEstado" onchange="filtrarPedidos()">
           <option value="">Todos los estados</option>
           <option value="APROBADO">Aprobados</option>
           <option value="ENVIADO">Enviados</option>
@@ -323,12 +393,12 @@
           <option value="CANCELADO">Cancelados</option>
         </select>
       </div>
-      <div class="toolbar-right">
-        <span class="selected-count" id="selectedCount"></span>
-        <button class="btn-danger" id="btnEliminar" onclick="confirmarEliminar()" disabled>
-          <i class="fas fa-trash-alt"></i> Eliminar seleccionados
+      <div class="toolbar-r">
+        <span class="sel-count" id="selCount" style="display:none"></span>
+        <button class="btn-del" id="btnDel" onclick="confirmarEliminar()" disabled>
+          <i class="fas fa-trash-alt"></i> Eliminar
         </button>
-        <button class="btn-icon" onclick="cargarPedidos()">
+        <button class="btn-ref" onclick="cargarPedidos()">
           <i class="fas fa-sync-alt"></i> Actualizar
         </button>
       </div>
@@ -340,48 +410,53 @@
         <table>
           <thead>
             <tr>
-              <th class="check-col"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" /></th>
+              <th style="width:40px"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" /></th>
               <th>Referencia</th>
               <th>Cliente</th>
               <th>Ciudad</th>
               <th>Total</th>
               <th>Estado</th>
               <th>Fecha</th>
-              <th>Acciones</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="pedidosBody">
-            <tr><td colspan="8" class="loading-cell"><i class="fas fa-spinner spin"></i> Cargando pedidos...</td></tr>
+            <tr><td colspan="8" class="loading-cell">
+              <i class="fas fa-spinner spin"></i> Cargando pedidos...
+            </td></tr>
           </tbody>
         </table>
       </div>
     </div>
-  </main>
-</div>
 
-<!-- DETAIL MODAL -->
-<div class="overlay" id="detailOverlay" onclick="if(event.target===this)cerrarDetalle()">
-  <div class="detail-modal">
-    <div class="modal-header">
+  </div><!-- /main-content -->
+</div><!-- /admin-wrap -->
+
+<!-- DETALLE -->
+<div class="overlay" id="detOverlay" onclick="if(event.target===this)cerrarDet()">
+  <div class="det-modal">
+    <div class="det-header">
       <div>
-        <h3 id="detailTitle">Detalle del pedido</h3>
-        <div class="ref-tag" id="detailRef"></div>
+        <h3 id="detTitle">Detalle</h3>
+        <div class="ref-sm" id="detRef"></div>
       </div>
-      <button class="modal-close" onclick="cerrarDetalle()"><i class="fas fa-times"></i></button>
+      <button class="det-close" onclick="cerrarDet()"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body" id="detailContent"></div>
+    <div class="det-body" id="detBody"></div>
   </div>
 </div>
 
-<!-- CONFIRM DELETE -->
-<div class="overlay" id="confirmOverlay">
-  <div class="confirm-modal">
-    <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
+<!-- CONFIRMAR ELIMINAR -->
+<div class="overlay" id="confOverlay">
+  <div class="conf-modal">
+    <div class="conf-icon"><i class="fas fa-trash-alt"></i></div>
     <h3>Eliminar pedidos</h3>
-    <p id="confirmMsg">¿Estás seguro de que quieres eliminar los pedidos seleccionados? Esta acción no se puede deshacer.</p>
-    <div class="confirm-btns">
-      <button class="btn-cancel-del" onclick="cerrarConfirm()">Cancelar</button>
-      <button class="btn-confirm-del" onclick="ejecutarEliminar()"><i class="fas fa-trash-alt"></i> Eliminar</button>
+    <p id="confMsg">¿Seguro que quieres eliminar los pedidos seleccionados?</p>
+    <div class="conf-btns">
+      <button class="btn-no" onclick="cerrarConf()">Cancelar</button>
+      <button class="btn-yes" onclick="ejecutarEliminar()">
+        <i class="fas fa-trash-alt"></i> Eliminar
+      </button>
     </div>
   </div>
 </div>
@@ -390,7 +465,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
@@ -409,17 +484,13 @@
   const db   = getFirestore(app);
   const auth = getAuth(app);
 
-  let todosLosPedidos  = [];
-  let pedidosSeleccionados = new Set();
+  let todos     = [];
+  let selected  = new Set();
 
   // ── AUTH ──────────────────────────────────────────────────────────────────
   onAuthStateChanged(auth, user => {
-    if (user) {
-      mostrarAdmin(user.email);
-      cargarPedidos();
-    } else {
-      mostrarLogin();
-    }
+    if (user) { showAdmin(user.email); cargarPedidos(); }
+    else        showLogin();
   });
 
   window.doLogin = async () => {
@@ -427,261 +498,209 @@
     const pass  = document.getElementById('adminPass').value;
     const err   = document.getElementById('loginError');
     err.style.display = 'none';
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch {
-      err.style.display = 'block';
-    }
+    try { await signInWithEmailAndPassword(auth, email, pass); }
+    catch { err.style.display = 'block'; }
   };
 
-  window.doLogout = async () => {
-    await signOut(auth);
-  };
+  window.doLogout = () => signOut(auth);
 
-  function mostrarAdmin(email) {
-    document.getElementById('loginScreen').style.display  = 'none';
-    document.getElementById('adminWrap').style.display    = 'block';
-    document.getElementById('adminUser').textContent      = email;
-    document.getElementById('userInitial').textContent    = email.charAt(0).toUpperCase();
+  function showAdmin(email) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').style.display   = 'block';
+    document.getElementById('adminUser').textContent     = email;
+    document.getElementById('userInitial').textContent   = email[0].toUpperCase();
   }
-
-  function mostrarLogin() {
-    document.getElementById('loginScreen').style.display  = 'flex';
-    document.getElementById('adminWrap').style.display    = 'none';
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminWrap').style.display   = 'none';
   }
 
   // ── CARGAR ────────────────────────────────────────────────────────────────
   window.cargarPedidos = async () => {
     document.getElementById('pedidosBody').innerHTML =
       '<tr><td colspan="8" class="loading-cell"><i class="fas fa-spinner spin"></i> Cargando pedidos...</td></tr>';
-    pedidosSeleccionados.clear();
-    actualizarBtnEliminar();
+    selected.clear(); syncBtnDel();
     try {
-      const q    = query(collection(db, 'pedidos'), orderBy('fecha', 'desc'));
-      const snap = await getDocs(q);
-      todosLosPedidos = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-      actualizarStats(todosLosPedidos);
+      const snap = await getDocs(query(collection(db,'pedidos'), orderBy('fecha','desc')));
+      todos = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      updateStats(todos);
       filtrarPedidos();
-    } catch (err) {
+    } catch(e) {
       document.getElementById('pedidosBody').innerHTML =
-        `<tr><td colspan="8" class="loading-cell" style="color:var(--red)"><i class="fas fa-exclamation-circle"></i> Error: ${err.message}</td></tr>`;
+        `<tr><td colspan="8" class="loading-cell" style="color:var(--red)">
+          <i class="fas fa-exclamation-circle"></i> Error: ${e.message}</td></tr>`;
     }
   };
 
-  function actualizarStats(pedidos) {
-    const aprobados = pedidos.filter(p => ['APROBADO','ENVIADO','ENTREGADO'].includes(p.estado));
-    const enviados  = pedidos.filter(p => p.estado === 'ENVIADO');
-    const ingresos  = aprobados.reduce((s, p) => s + (Number(p.total) || 0), 0);
-    document.getElementById('statTotal').textContent     = pedidos.length;
-    document.getElementById('statAprobados').textContent = aprobados.length;
-    document.getElementById('statEnviados').textContent  = enviados.length;
-    document.getElementById('statIngresos').textContent  = formatCOP(ingresos);
+  function updateStats(p) {
+    document.getElementById('statTotal').textContent      = p.length;
+    document.getElementById('statAprobados').textContent  = p.filter(x=>x.estado==='APROBADO').length;
+    document.getElementById('statEnviados').textContent   = p.filter(x=>x.estado==='ENVIADO').length;
+    document.getElementById('statEntregados').textContent = p.filter(x=>x.estado==='ENTREGADO').length;
+    document.getElementById('statCancelados').textContent = p.filter(x=>x.estado==='CANCELADO').length;
   }
 
+  // ── FILTRAR ───────────────────────────────────────────────────────────────
   window.filtrarPedidos = () => {
     const q = document.getElementById('searchBox').value.toLowerCase();
     const e = document.getElementById('filterEstado').value;
-    const filtrados = todosLosPedidos.filter(p => {
-      const mq = !q || (p.nombre||'').toLowerCase().includes(q)
-                    || (p.reference||'').toLowerCase().includes(q)
-                    || (p.email||'').toLowerCase().includes(q)
-                    || (p.ciudad||'').toLowerCase().includes(q);
-      const me = !e || p.estado === e;
-      return mq && me;
+    const r = todos.filter(p => {
+      const mq = !q || [p.nombre,p.reference,p.email,p.ciudad].some(v=>(v||'').toLowerCase().includes(q));
+      return mq && (!e || p.estado===e);
     });
-    renderTabla(filtrados);
+    renderTabla(r);
   };
 
   function renderTabla(pedidos) {
-    const tbody = document.getElementById('pedidosBody');
     document.getElementById('checkAll').checked = false;
+    const tbody = document.getElementById('pedidosBody');
     if (!pedidos.length) {
-      tbody.innerHTML = `
-        <tr><td colspan="8">
-          <div class="table-empty">
-            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-            <h4>Sin pedidos</h4>
-            <p>Aún no hay pedidos registrados</p>
-          </div>
-        </td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8">
+        <div class="empty-cell">
+          <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+          <h4>Sin pedidos</h4>
+          <p>No hay pedidos que coincidan con el filtro</p>
+        </div></td></tr>`;
       return;
     }
     tbody.innerHTML = pedidos.map(p => `
-      <tr id="row-${p.docId}" class="${pedidosSeleccionados.has(p.docId)?'selected':''}">
-        <td class="check-wrap">
-          <input type="checkbox" ${pedidosSeleccionados.has(p.docId)?'checked':''} onchange="toggleCheck('${p.docId}',this)" />
-        </td>
-        <td><span class="ref-code">${(p.reference||'—').substring(0,20)}</span></td>
+      <tr id="r-${p.docId}" class="${selected.has(p.docId)?'sel':''}">
+        <td><input type="checkbox" ${selected.has(p.docId)?'checked':''} onchange="toggleCheck('${p.docId}',this)" /></td>
+        <td><span class="ref-pill">${(p.reference||'—').slice(0,18)}</span></td>
         <td>
-          <div class="client-name">${p.nombre||'—'}</div>
-          <div class="client-email">${p.email||''}</div>
+          <div class="cname">${p.nombre||'—'}</div>
+          <div class="cemail">${p.email||''}</div>
         </td>
         <td>${p.ciudad||'—'}</td>
-        <td><span class="total-val">${formatCOP(Number(p.total)||0)}</span></td>
+        <td><span class="tval">${fCOP(p.total)}</span></td>
         <td>
-          <select class="estado-select" onchange="cambiarEstado('${p.docId}',this.value)">
+          <select class="estado-sel" onchange="cambiarEstado('${p.docId}',this.value)">
             ${['APROBADO','ENVIADO','ENTREGADO','PENDIENTE','CANCELADO'].map(s=>
               `<option value="${s}" ${p.estado===s?'selected':''}>${s}</option>`
             ).join('')}
           </select>
         </td>
-        <td style="color:var(--text2);font-size:12px;white-space:nowrap">${formatFecha(p.fechaLegible||p.fecha)}</td>
+        <td style="color:var(--text2);font-size:12px;white-space:nowrap">${fFecha(p.fechaLegible||p.fecha)}</td>
         <td><button class="btn-ver" onclick="verDetalle('${p.docId}')"><i class="fas fa-eye"></i> Ver</button></td>
-      </tr>
-    `).join('');
+      </tr>`).join('');
   }
 
   // ── CHECKBOXES ────────────────────────────────────────────────────────────
-  window.toggleCheck = (docId, cb) => {
-    if (cb.checked) pedidosSeleccionados.add(docId);
-    else pedidosSeleccionados.delete(docId);
-    const row = document.getElementById(`row-${docId}`);
-    if (row) row.classList.toggle('selected', cb.checked);
-    actualizarBtnEliminar();
+  window.toggleCheck = (id, cb) => {
+    cb.checked ? selected.add(id) : selected.delete(id);
+    document.getElementById(`r-${id}`)?.classList.toggle('sel', cb.checked);
+    syncBtnDel();
   };
-
   window.toggleAll = (cb) => {
     document.querySelectorAll('#pedidosBody input[type=checkbox]').forEach(c => {
-      const docId = c.getAttribute('onchange').match(/'([^']+)'/)[1];
+      const id = c.getAttribute('onchange').match(/'([^']+)'/)[1];
       c.checked = cb.checked;
-      if (cb.checked) pedidosSeleccionados.add(docId);
-      else pedidosSeleccionados.delete(docId);
-      const row = document.getElementById(`row-${docId}`);
-      if (row) row.classList.toggle('selected', cb.checked);
+      cb.checked ? selected.add(id) : selected.delete(id);
+      document.getElementById(`r-${id}`)?.classList.toggle('sel', cb.checked);
     });
-    actualizarBtnEliminar();
+    syncBtnDel();
   };
-
-  function actualizarBtnEliminar() {
-    const n   = pedidosSeleccionados.size;
-    const btn = document.getElementById('btnEliminar');
-    const cnt = document.getElementById('selectedCount');
-    btn.disabled = n === 0;
-    if (n > 0) {
-      cnt.textContent = `${n} seleccionado${n>1?'s':''}`;
-      cnt.style.display = 'inline';
-    } else {
-      cnt.style.display = 'none';
-    }
+  function syncBtnDel() {
+    const n = selected.size;
+    document.getElementById('btnDel').disabled = n === 0;
+    const sc = document.getElementById('selCount');
+    sc.textContent  = n ? `${n} seleccionado${n>1?'s':''}` : '';
+    sc.style.display = n ? 'inline' : 'none';
   }
 
   // ── ELIMINAR ──────────────────────────────────────────────────────────────
   window.confirmarEliminar = () => {
-    const n = pedidosSeleccionados.size;
-    document.getElementById('confirmMsg').textContent =
-      `¿Seguro que quieres eliminar ${n} pedido${n>1?'s':''} seleccionado${n>1?'s':''}? Esta acción no se puede deshacer.`;
-    document.getElementById('confirmOverlay').classList.add('active');
+    const n = selected.size;
+    document.getElementById('confMsg').textContent =
+      `¿Seguro que quieres eliminar ${n} pedido${n>1?'s':''}? Esta acción no se puede deshacer.`;
+    document.getElementById('confOverlay').classList.add('active');
   };
-
-  window.cerrarConfirm = () => {
-    document.getElementById('confirmOverlay').classList.remove('active');
-  };
-
+  window.cerrarConf = () => document.getElementById('confOverlay').classList.remove('active');
   window.ejecutarEliminar = async () => {
-    cerrarConfirm();
-    const ids = [...pedidosSeleccionados];
+    cerrarConf();
+    const ids = [...selected];
     try {
-      await Promise.all(ids.map(id => deleteDoc(doc(db, 'pedidos', id))));
-      todosLosPedidos = todosLosPedidos.filter(p => !ids.includes(p.docId));
-      pedidosSeleccionados.clear();
-      actualizarStats(todosLosPedidos);
+      await Promise.all(ids.map(id => deleteDoc(doc(db,'pedidos',id))));
+      todos = todos.filter(p => !ids.includes(p.docId));
+      selected.clear();
+      updateStats(todos);
       filtrarPedidos();
-      actualizarBtnEliminar();
-      showToast(`✅ ${ids.length} pedido${ids.length>1?'s':''} eliminado${ids.length>1?'s':''}`, 'success');
-    } catch (err) {
-      showToast('❌ Error al eliminar: ' + err.message, 'error');
-    }
+      syncBtnDel();
+      toast(`✅ ${ids.length} pedido${ids.length>1?'s':''} eliminado${ids.length>1?'s':''}`, 'ok');
+    } catch(e) { toast('❌ Error: '+e.message, 'err'); }
   };
 
   // ── CAMBIAR ESTADO ────────────────────────────────────────────────────────
-  window.cambiarEstado = async (docId, nuevoEstado) => {
+  window.cambiarEstado = async (id, estado) => {
     try {
-      await updateDoc(doc(db, 'pedidos', docId), { estado: nuevoEstado });
-      const p = todosLosPedidos.find(x => x.docId === docId);
-      if (p) p.estado = nuevoEstado;
-      actualizarStats(todosLosPedidos);
-      showToast('✅ Estado actualizado', 'success');
-    } catch (err) {
-      showToast('❌ Error: ' + err.message, 'error');
-    }
+      await updateDoc(doc(db,'pedidos',id), { estado });
+      const p = todos.find(x=>x.docId===id);
+      if (p) p.estado = estado;
+      updateStats(todos);
+      toast('✅ Estado actualizado', 'ok');
+    } catch(e) { toast('❌ Error: '+e.message, 'err'); }
   };
 
   // ── VER DETALLE ───────────────────────────────────────────────────────────
-  window.verDetalle = (docId) => {
-    const p = todosLosPedidos.find(x => x.docId === docId);
+  window.verDetalle = (id) => {
+    const p = todos.find(x=>x.docId===id);
     if (!p) return;
-    let productos = [];
-    try { productos = JSON.parse(p.productos || '[]'); } catch {}
-    const total = Number(p.total) || 0;
-
-    document.getElementById('detailTitle').textContent = p.nombre || 'Pedido';
-    document.getElementById('detailRef').textContent   = p.reference || p.docId;
-
-    document.getElementById('detailContent').innerHTML = `
-      <div class="modal-section">
-        <div class="modal-section-title">Estado del pedido</div>
-        <span class="badge badge-${p.estado||'PENDIENTE'}">${p.estado||'—'}</span>
+    let prods = [];
+    try { prods = JSON.parse(p.productos||'[]'); } catch {}
+    document.getElementById('detTitle').textContent = p.nombre || 'Pedido';
+    document.getElementById('detRef').textContent   = p.reference || id;
+    document.getElementById('detBody').innerHTML = `
+      <div class="det-section">
+        <div class="det-sec-title">Estado</div>
+        <span class="badge b-${p.estado||'PENDIENTE'}">${p.estado||'—'}</span>
       </div>
-      <div class="modal-section">
-        <div class="modal-section-title">Datos del cliente</div>
+      <div class="det-section">
+        <div class="det-sec-title">Cliente</div>
         <div class="info-grid">
           <div class="info-item"><label>Nombre</label><span>${p.nombre||'—'}</span></div>
           <div class="info-item"><label>Teléfono</label><span>${p.telefono||'—'}</span></div>
           <div class="info-item full"><label>Email</label><span>${p.email||'—'}</span></div>
         </div>
       </div>
-      <div class="modal-section">
-        <div class="modal-section-title">Dirección de envío</div>
+      <div class="det-section">
+        <div class="det-sec-title">Envío</div>
         <div class="info-grid">
           <div class="info-item full"><label>Dirección</label><span>${p.direccion||'—'}</span></div>
           <div class="info-item"><label>Ciudad</label><span>${p.ciudad||'—'}</span></div>
           <div class="info-item"><label>Departamento</label><span>${p.departamento||'—'}</span></div>
         </div>
       </div>
-      <div class="modal-section">
-        <div class="modal-section-title">Productos</div>
-        ${productos.map(i=>`
-          <div class="prod-item">
-            <span class="prod-name">${i.name} × ${i.qty}</span>
-            <span class="prod-price">${formatCOP(i.price*i.qty)}</span>
-          </div>
-        `).join('') || '<p style="color:var(--text2);font-size:13px">Sin detalle</p>'}
-        <div class="modal-total"><span>Total pagado</span><strong>${formatCOP(total)}</strong></div>
+      <div class="det-section">
+        <div class="det-sec-title">Productos</div>
+        ${prods.map(i=>`
+          <div class="prod-row">
+            <span class="pn">${i.name} × ${i.qty}</span>
+            <span class="pp">${fCOP(i.price*i.qty)}</span>
+          </div>`).join('') || '<p style="color:var(--text2);font-size:13px">Sin detalle</p>'}
+        <div class="total-bar"><span>Total pagado</span><strong>${fCOP(p.total)}</strong></div>
       </div>
-      <div class="modal-section">
-        <div class="modal-section-title">Información de pago</div>
+      <div class="det-section">
+        <div class="det-sec-title">Pago</div>
         <div class="info-grid">
           <div class="info-item"><label>Referencia</label><span style="font-family:monospace;font-size:11px">${p.reference||'—'}</span></div>
-          <div class="info-item"><label>Fecha</label><span>${formatFecha(p.fechaLegible||p.fecha)}</span></div>
+          <div class="info-item"><label>Fecha</label><span>${fFecha(p.fechaLegible||p.fecha)}</span></div>
           <div class="info-item full"><label>Transaction ID</label><span style="font-family:monospace;font-size:11px">${p.transactionId||'—'}</span></div>
         </div>
-      </div>
-    `;
-    document.getElementById('detailOverlay').classList.add('active');
+      </div>`;
+    document.getElementById('detOverlay').classList.add('active');
   };
-
-  window.cerrarDetalle = () => {
-    document.getElementById('detailOverlay').classList.remove('active');
-  };
+  window.cerrarDet = () => document.getElementById('detOverlay').classList.remove('active');
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
-  function formatCOP(v) {
-    return '$' + Number(v).toLocaleString('es-CO');
-  }
+  function fCOP(v)   { return '$' + Number(v||0).toLocaleString('es-CO'); }
+  function fFecha(f) { return f ? String(f).slice(0,16) : '—'; }
 
-  function formatFecha(f) {
-    if (!f) return '—';
-    return String(f).substring(0, 16);
+  let tt;
+  function toast(msg, type='') {
+    const el = document.getElementById('toast');
+    el.innerHTML = msg; el.className = `toast show ${type}`;
+    clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('show'), 3000);
   }
-
-  let toastTimer;
-  window.showToast = (msg, type='default') => {
-    const t = document.getElementById('toast');
-    t.innerHTML = msg;
-    t.className = `toast show ${type}`;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-  };
 </script>
 </body>
 </html>
