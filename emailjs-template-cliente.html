@@ -1,0 +1,69 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+
+  <!-- HEADER -->
+  <div style="background: linear-gradient(135deg, #6c63ff, #a78bfa); padding: 36px 24px; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 26px; font-weight: 800;">🎧 TecnoSmart</h1>
+    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">El Sonido del Futuro, Hoy en Tus Manos</p>
+  </div>
+
+  <!-- BODY -->
+  <div style="padding: 36px 24px;">
+
+    <h2 style="color: #1a1a2e; font-size: 22px; margin: 0 0 8px;">¡Gracias por tu compra, {{to_name}}! 🎉</h2>
+    <p style="color: #555; font-size: 15px; margin: 0 0 28px; line-height: 1.6;">
+      Hemos recibido tu pedido con éxito. Pronto nos pondremos en contacto contigo para coordinar el envío.
+    </p>
+
+    <!-- REFERENCIA -->
+    <div style="background: #f3f0ff; border-left: 4px solid #6c63ff; padding: 14px 18px; border-radius: 8px; margin-bottom: 28px;">
+      <p style="margin: 0; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Número de pedido</p>
+      <p style="margin: 4px 0 0; font-size: 18px; font-weight: 800; color: #6c63ff; font-family: monospace;">{{order_ref}}</p>
+    </div>
+
+    <!-- DIRECCIÓN -->
+    <h3 style="color: #1a1a2e; font-size: 15px; margin: 0 0 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">📦 Tu dirección de envío</h3>
+    <div style="background: #f8f9fa; padding: 14px 18px; border-radius: 8px; margin-bottom: 28px;">
+      <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.8;">
+        {{direccion}}<br>
+        {{ciudad}}, {{departamento}}
+      </p>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <h3 style="color: #1a1a2e; font-size: 15px; margin: 0 0 10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">🛒 Detalle de tu pedido</h3>
+    <div style="background: #f8f9fa; padding: 16px 18px; border-radius: 8px; margin-bottom: 28px;">
+      <p style="margin: 0; font-size: 14px; color: #333; white-space: pre-line; line-height: 1.8;">{{productos}}</p>
+    </div>
+
+    <!-- TOTAL -->
+    <div style="background: linear-gradient(135deg, #6c63ff, #a78bfa); padding: 18px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+      <p style="margin: 0; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 600;">Total pagado</p>
+      <p style="margin: 0; color: white; font-size: 26px; font-weight: 900;">{{total}}</p>
+    </div>
+
+    <!-- PRÓXIMOS PASOS -->
+    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 16px 18px; margin-bottom: 28px;">
+      <h4 style="color: #16a34a; margin: 0 0 10px; font-size: 14px;">✅ ¿Qué sigue?</h4>
+      <ol style="margin: 0; padding-left: 18px; color: #333; font-size: 13px; line-height: 1.8;">
+        <li>Estamos preparando tu pedido</li>
+        <li>Te contactaremos por WhatsApp para coordinar el envío</li>
+        <li>Recibirás tu producto con empaque seguro</li>
+      </ol>
+    </div>
+
+    <!-- CONTACTO -->
+    <div style="text-align: center; border-top: 1px solid #f0f0f0; padding-top: 24px;">
+      <p style="color: #555; font-size: 14px; margin: 0 0 12px;">¿Tienes alguna pregunta? Escríbenos:</p>
+      <a href="https://wa.me/573043659495" style="display: inline-block; background: #25d366; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; margin-right: 8px;">
+        📱 WhatsApp
+      </a>
+      <a href="mailto:tecnosmart1301@gmail.com" style="display: inline-block; background: #6c63ff; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;">
+        ✉️ Email
+      </a>
+      <p style="margin: 20px 0 0; font-size: 12px; color: #aaa;">
+        Pedido realizado el {{fecha}} · TecnoSmart — Medellín, Colombia
+      </p>
+    </div>
+
+  </div>
+</div>

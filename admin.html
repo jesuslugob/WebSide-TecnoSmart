@@ -254,6 +254,42 @@
     .btn-yes { background:var(--red); border:none; color:#fff; }
     .btn-yes:hover { background:#b91c1c; }
 
+    /* ══ TABS NAVEGACIÓN ═════════════════════════════════════════════════ */
+    .topbar-center { display:flex; align-items:center; gap:6px; }
+    .tab-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text2); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
+    .tab-btn:hover { border-color:var(--accent); color:var(--accent); background:#eef2ff; }
+    .tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+    /* ══ PANEL PRODUCTOS ═════════════════════════════════════════════════ */
+    #panelProductos { display:none; }
+    .prod-admin-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-top:16px; }
+    .prod-admin-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); transition:.2s; }
+    .prod-admin-card:hover { box-shadow:var(--shadow2); transform:translateY(-2px); }
+    .prod-admin-img { height:160px; overflow:hidden; background:#f0f0f0; }
+    .prod-admin-img img { width:100%; height:100%; object-fit:cover; }
+    .prod-admin-body { padding:14px 16px; }
+    .prod-admin-name { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .prod-admin-price { font-size:18px; font-weight:800; color:var(--accent); margin-bottom:12px; }
+    .prod-admin-actions { display:flex; gap:8px; }
+    .btn-edit { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:8px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text2); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
+    .btn-edit:hover { border-color:var(--accent); color:var(--accent); background:#eef2ff; }
+    .btn-toggle { padding:8px 12px; border-radius:8px; border:1.5px solid var(--green-bg); background:var(--green-bg); color:var(--green); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
+    .btn-toggle.inactivo { border-color:var(--red-bg); background:var(--red-bg); color:var(--red); }
+
+    /* ══ FORM PRODUCTO ═══════════════════════════════════════════════════ */
+    .prod-form-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); z-index:300; display:none; align-items:center; justify-content:center; padding:16px; }
+    .prod-form-overlay.active { display:flex; }
+    .prod-form-modal { background:var(--bg2); border:1px solid var(--border); border-radius:20px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.18); padding:28px; }
+    .prod-form-modal h3 { font-size:18px; font-weight:800; color:var(--text); margin-bottom:20px; }
+    .form-field { margin-bottom:14px; }
+    .form-field label { display:block; font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .form-field input, .form-field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; color:var(--text); outline:none; background:var(--bg3); transition:.2s; }
+    .form-field input:focus, .form-field textarea:focus { border-color:var(--accent); background:#fff; }
+    .form-row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn-save { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:10px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px; }
+    .btn-save:hover { opacity:.9; }
+    .btn-cancel-form { width:100%; padding:11px; background:var(--bg3); border:1.5px solid var(--border); border-radius:10px; color:var(--text2); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:8px; }
+
     /* ══ TOAST ══════════════════════════════════════════════════════════ */
     .toast { position:fixed; bottom:20px; right:20px; background:var(--bg2);
       border:1.5px solid var(--border); border-radius:12px; padding:12px 18px;
@@ -263,6 +299,48 @@
     .toast.show { opacity:1; transform:translateY(0); }
     .toast.ok  { border-color:#86efac; color:var(--green); }
     .toast.err { border-color:#fca5a5; color:var(--red); }
+
+    /* ══ IMG UPLOAD ══════════════════════════════════════════════════════ */
+    .img-upload-area { border:2px dashed var(--border); border-radius:12px; cursor:pointer;
+      transition:.2s; overflow:hidden; min-height:120px; position:relative;
+      display:flex; align-items:center; justify-content:center; background:var(--bg3); }
+    .img-upload-area:hover { border-color:var(--accent); background:#eef2ff; }
+    .img-upload-preview { display:flex; flex-direction:column; align-items:center;
+      gap:8px; padding:24px; color:var(--text3); text-align:center; width:100%; }
+    .img-upload-preview i { font-size:32px; }
+    .img-upload-preview span { font-size:13px; font-weight:600; color:var(--text2); }
+    .img-upload-preview small { font-size:11px; color:var(--text3); }
+    .img-upload-preview img { width:100%; max-height:160px; object-fit:contain;
+      border-radius:8px; display:none; }
+    .img-upload-area.has-img .img-upload-preview img  { display:block; }
+    .img-upload-area.has-img .img-upload-preview i,
+    .img-upload-area.has-img .img-upload-preview span,
+    .img-upload-area.has-img .img-upload-preview small { display:none; }
+    .img-upload-area.has-img { min-height:180px; }
+
+    .gallery-upload-zone { border:2px dashed var(--border); border-radius:12px;
+      padding:14px; background:var(--bg3); }
+    .gallery-upload-btn { display:flex; flex-direction:column; align-items:center;
+      gap:6px; padding:16px; cursor:pointer; border-radius:8px; transition:.15s;
+      color:var(--text3); text-align:center; }
+    .gallery-upload-btn:hover { background:#eef2ff; color:var(--accent); }
+    .gallery-upload-btn i { font-size:24px; }
+    .gallery-upload-btn span { font-size:13px; font-weight:600; color:var(--text2); }
+    .gallery-upload-btn small { font-size:11px; }
+    .gallery-thumbs { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .gthumb { position:relative; width:72px; height:72px; border-radius:8px;
+      overflow:hidden; border:2px solid var(--border); flex-shrink:0; }
+    .gthumb img { width:100%; height:100%; object-fit:cover; }
+    .gthumb-del { position:absolute; top:2px; right:2px; width:18px; height:18px;
+      background:rgba(220,38,38,.85); border:none; border-radius:4px;
+      color:#fff; font-size:9px; cursor:pointer; display:flex; align-items:center;
+      justify-content:center; }
+
+    .upload-progress { display:flex; align-items:center; gap:10px; margin-top:8px; }
+    .progress-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),#818cf8);
+      width:0%; transition:width .2s; border-radius:3px; }
+    .upload-progress span { font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap; }
 
     /* ══ RESPONSIVE ══════════════════════════════════════════════════════ */
     @media(max-width:900px) {
@@ -319,6 +397,14 @@
       <span class="tl-name">TecnoSmart</span>
       <span class="tl-badge">Admin</span>
     </div>
+    <div class="topbar-center">
+      <button class="tab-btn active" id="tabPedidos" onclick="switchTab('pedidos')">
+        <i class="fas fa-list"></i> Pedidos
+      </button>
+      <button class="tab-btn" id="tabProductos" onclick="switchTab('productos')">
+        <i class="fas fa-box"></i> Productos
+      </button>
+    </div>
     <div class="topbar-right">
       <div class="topbar-user">
         <div class="av" id="userInitial">A</div>
@@ -333,13 +419,13 @@
   <!-- BODY -->
   <div class="main-content">
 
-    <div class="page-title">
+    <div class="page-title" id="pedidosTitle">
       <h1>Pedidos</h1>
       <p>Gestiona y monitorea todas las órdenes de TecnoSmart</p>
     </div>
 
     <!-- STATS -->
-    <div class="stats-grid">
+    <div class="stats-grid" id="pedidosStats">
       <div class="stat-card">
         <div class="stat-icon si-total"><i class="fas fa-box"></i></div>
         <div class="stat-info">
@@ -378,7 +464,7 @@
     </div>
 
     <!-- TOOLBAR -->
-    <div class="toolbar">
+    <div class="toolbar" id="pedidosToolbar">
       <div class="toolbar-l">
         <div class="search-wrap">
           <i class="fas fa-search"></i>
@@ -405,7 +491,7 @@
     </div>
 
     <!-- TABLE -->
-    <div class="table-card">
+    <div class="table-card" id="pedidosTable">
       <div class="table-wrap">
         <table>
           <thead>
@@ -429,8 +515,142 @@
       </div>
     </div>
 
+    <!-- ══ PANEL PRODUCTOS ══ -->
+    <div id="panelProductos" style="display:none">
+      <div class="page-title">
+        <h1>Productos</h1>
+        <p>Gestiona el catálogo de TecnoSmart — los cambios se reflejan en la tienda automáticamente</p>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-l"></div>
+        <div class="toolbar-r">
+          <button class="btn-ref" onclick="cargarProductosAdmin()">
+            <i class="fas fa-sync-alt"></i> Actualizar
+          </button>
+          <button class="btn-ref" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-color:#6366f1" onclick="abrirFormProd(null)">
+            <i class="fas fa-plus"></i> Nuevo producto
+          </button>
+        </div>
+      </div>
+      <div class="prod-admin-grid" id="prodAdminGrid">
+        <div style="text-align:center;padding:48px;color:var(--text2);font-size:14px">
+          <i class="fas fa-spinner spin"></i> Cargando productos...
+        </div>
+      </div>
+    </div>
+
   </div><!-- /main-content -->
 </div><!-- /admin-wrap -->
+
+<!-- FORM PRODUCTO -->
+<div class="prod-form-overlay" id="prodFormOverlay" onclick="if(event.target===this)cerrarFormProd()">
+  <div class="prod-form-modal">
+    <h3 id="prodFormTitle">Nuevo producto</h3>
+    <input type="hidden" id="pfDocId" />
+
+    <div class="form-row2">
+      <div class="form-field">
+        <label>Nombre</label>
+        <input type="text" id="pfNombre" placeholder="AirPods Pro 3" />
+      </div>
+      <div class="form-field">
+        <label>Tag / Serie</label>
+        <input type="text" id="pfTag" placeholder="Pro Series" />
+      </div>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field">
+        <label>Precio ($)</label>
+        <input type="number" id="pfPrecio" placeholder="12500" />
+      </div>
+      <div class="form-field">
+        <label>Precio antes ($)</label>
+        <input type="number" id="pfPrecioAntes" placeholder="15000" />
+      </div>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field">
+        <label>Badge (ej: Nuevo)</label>
+        <input type="text" id="pfBadge" placeholder="Nuevo" />
+      </div>
+      <div class="form-field">
+        <label>Color badge (CSS)</label>
+        <input type="text" id="pfBadgeColor" placeholder="linear-gradient(135deg,#6c63ff,#a78bfa)" />
+      </div>
+    </div>
+
+    <!-- IMAGEN PRINCIPAL -->
+    <div class="form-field">
+      <label>Imagen principal</label>
+      <div class="img-upload-area" id="mainImgArea" onclick="document.getElementById('pfImagenFile').click()">
+        <div class="img-upload-preview" id="mainImgPreview">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Clic para subir foto principal</span>
+          <small>JPG, PNG, WEBP — máx. 5MB</small>
+        </div>
+      </div>
+      <input type="file" id="pfImagenFile" accept="image/*" style="display:none" onchange="previewMainImg(this)" />
+      <input type="text" id="pfImagen" placeholder="O pega una URL: https://... o img/..." style="margin-top:8px" />
+      <div class="upload-progress" id="mainImgProgress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="mainImgFill"></div></div>
+        <span id="mainImgPct">0%</span>
+      </div>
+    </div>
+
+    <!-- GALERÍA -->
+    <div class="form-field">
+      <label>Galería de fotos</label>
+      <div class="gallery-upload-zone" id="galleryZone">
+        <div class="gallery-upload-btn" onclick="document.getElementById('pfGaleriaFiles').click()">
+          <i class="fas fa-images"></i>
+          <span>Subir fotos para la galería</span>
+          <small>Selecciona varias fotos a la vez</small>
+        </div>
+        <div class="gallery-thumbs" id="galleryThumbs"></div>
+      </div>
+      <input type="file" id="pfGaleriaFiles" accept="image/*" multiple style="display:none" onchange="previewGalleryImgs(this)" />
+      <input type="text" id="pfGaleria" placeholder="O pega URLs separadas por coma" style="margin-top:8px" />
+      <div class="upload-progress" id="galleryProgress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="galleryFill"></div></div>
+        <span id="galleryPct">Subiendo...</span>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Descripción</label>
+      <textarea id="pfDesc" rows="3" placeholder="Descripción del producto..."></textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Características (una por línea)</label>
+      <textarea id="pfCaracts" rows="4" placeholder="2× mejor cancelación de ruido&#10;Sensor de frecuencia cardíaca"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Specs (clave: valor, uno por línea)</label>
+      <textarea id="pfSpecs" rows="4" placeholder="Chip: H3&#10;Batería: 6h + 30h estuche&#10;Bluetooth: 5.3"></textarea>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field">
+        <label>Orden</label>
+        <input type="number" id="pfOrden" placeholder="1" />
+      </div>
+      <div class="form-field" style="display:flex;align-items:flex-end;padding-bottom:2px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer">
+          <input type="checkbox" id="pfActivo" checked style="width:16px;height:16px" /> Producto activo (visible en tienda)
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-save" id="btnGuardarProd" onclick="guardarProducto()">
+      <i class="fas fa-save"></i> Guardar producto
+    </button>
+    <button class="btn-cancel-form" onclick="cerrarFormProd()">Cancelar</button>
+  </div>
+</div>
 
 <!-- DETALLE -->
 <div class="overlay" id="detOverlay" onclick="if(event.target===this)cerrarDet()">
@@ -466,10 +686,12 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query }
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, setDoc, orderBy, query }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
   const firebaseConfig = {
     apiKey:            "AIzaSyDCHxSYD4gtsCyNkgarDCXXu0p7GRuHPhQ",
@@ -480,9 +702,10 @@
     appId:             "1:4450157371657:web:997a15cc52c0dc18de73d8"
   };
 
-  const app  = initializeApp(firebaseConfig);
-  const db   = getFirestore(app);
-  const auth = getAuth(app);
+  const app     = initializeApp(firebaseConfig);
+  const db      = getFirestore(app);
+  const auth    = getAuth(app);
+  const storage = getStorage(app);
 
   let todos     = [];
   let selected  = new Set();
@@ -690,6 +913,284 @@
     document.getElementById('detOverlay').classList.add('active');
   };
   window.cerrarDet = () => document.getElementById('detOverlay').classList.remove('active');
+
+  // ── TABS ──────────────────────────────────────────────────────────────────
+  window.switchTab = (tab) => {
+    const isPedidos = tab === 'pedidos';
+    // Mostrar/ocultar paneles de pedidos
+    ['pedidosTitle','pedidosStats','pedidosToolbar','pedidosTable'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = isPedidos ? '' : 'none';
+    });
+    document.getElementById('panelProductos').style.display = isPedidos ? 'none' : '';
+    // Tabs activos
+    document.getElementById('tabPedidos').classList.toggle('active', isPedidos);
+    document.getElementById('tabProductos').classList.toggle('active', !isPedidos);
+    // Cargar productos si se abre el tab
+    if (!isPedidos) cargarProductosAdmin();
+  };
+
+  // ── PANEL PRODUCTOS ───────────────────────────────────────────────────────
+  let prodListAdmin  = [];
+  let galleryUrls    = [];
+  let mainImgPending = null;
+  let galleryPending = [];
+
+  window.cargarProductosAdmin = async () => {
+    const grid = document.getElementById('prodAdminGrid');
+    grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px"><i class="fas fa-spinner spin"></i> Cargando productos...</div>';
+    try {
+      const snap = await getDocs(query(collection(db, 'productos'), orderBy('orden', 'asc')));
+      prodListAdmin = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      renderProdAdmin();
+    } catch(e) {
+      grid.innerHTML = `<div style="text-align:center;padding:48px;color:var(--red);font-size:14px"><i class="fas fa-exclamation-circle"></i> Error: ${e.message}</div>`;
+    }
+  };
+
+  function renderProdAdmin() {
+    const grid = document.getElementById('prodAdminGrid');
+    if (!prodListAdmin.length) {
+      grid.innerHTML = '<div style="text-align:center;padding:64px;color:var(--text2);font-size:14px"><i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:12px"></i>Sin productos en Firestore</div>';
+      return;
+    }
+    grid.innerHTML = prodListAdmin.map(p => `
+      <div class="prod-admin-card">
+        <div class="prod-admin-img">
+          <img src="${p.imagenPrincipal || ''}" alt="${p.nombre}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+        </div>
+        <div class="prod-admin-body">
+          <div class="prod-admin-name">${p.nombre || '—'}</div>
+          <div class="prod-admin-price">${fCOP(p.precio)}</div>
+          <div class="prod-admin-actions">
+            <button class="btn-edit" onclick="abrirFormProd('${p.docId}')">
+              <i class="fas fa-pen"></i> Editar
+            </button>
+            <button class="btn-toggle ${p.activo ? '' : 'inactivo'}" onclick="toggleActivo('${p.docId}', ${p.activo})">
+              ${p.activo ? '<i class="fas fa-eye"></i> Activo' : '<i class="fas fa-eye-slash"></i> Inactivo'}
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.toggleActivo = async (docId, actual) => {
+    try {
+      await updateDoc(doc(db, 'productos', docId), { activo: !actual });
+      const p = prodListAdmin.find(x => x.docId === docId);
+      if (p) p.activo = !actual;
+      renderProdAdmin();
+      toast(`✅ Producto ${!actual ? 'activado' : 'desactivado'}`, 'ok');
+    } catch(e) { toast('❌ Error: ' + e.message, 'err'); }
+  };
+
+  // ── PREVIEW IMG PRINCIPAL ─────────────────────────────────────────────────
+  window.previewMainImg = (input) => {
+    const file = input.files[0];
+    if (!file) return;
+    mainImgPending = file;
+    const area    = document.getElementById('mainImgArea');
+    const preview = document.getElementById('mainImgPreview');
+    let img = preview.querySelector('img');
+    if (!img) { img = document.createElement('img'); preview.appendChild(img); }
+    img.src = URL.createObjectURL(file);
+    area.classList.add('has-img');
+    document.getElementById('pfImagen').placeholder = `Archivo: ${file.name}`;
+    document.getElementById('pfImagen').value = '';
+  };
+
+  // ── PREVIEW GALERÍA ───────────────────────────────────────────────────────
+  window.previewGalleryImgs = (input) => {
+    galleryPending = [...galleryPending, ...Array.from(input.files)];
+    renderGalleryThumbs();
+  };
+
+  function renderGalleryThumbs() {
+    const container = document.getElementById('galleryThumbs');
+    const urlItems = galleryUrls.map((url, i) => `
+      <div class="gthumb">
+        <img src="${url}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80'" />
+        <button class="gthumb-del" onclick="removeGalleryUrl(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
+      </div>`).join('');
+    const pendItems = galleryPending.map((f, i) => `
+      <div class="gthumb">
+        <img src="${URL.createObjectURL(f)}" />
+        <button class="gthumb-del" onclick="removeGalleryPending(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
+      </div>`).join('');
+    container.innerHTML = urlItems + pendItems;
+    if (galleryUrls.length) document.getElementById('pfGaleria').value = galleryUrls.join(', ');
+  }
+
+  window.removeGalleryUrl     = (i) => { galleryUrls.splice(i,1);    renderGalleryThumbs(); document.getElementById('pfGaleria').value = galleryUrls.join(', '); };
+  window.removeGalleryPending = (i) => { galleryPending.splice(i,1); renderGalleryThumbs(); };
+
+  // ── SUBIR A STORAGE ───────────────────────────────────────────────────────
+  function uploadFile(file, path, onProgress) {
+    return new Promise((resolve, reject) => {
+      const task = uploadBytesResumable(ref(storage, path), file);
+      task.on('state_changed',
+        s => onProgress && onProgress(s.bytesTransferred / s.totalBytes * 100),
+        reject,
+        async () => resolve(await getDownloadURL(task.snapshot.ref))
+      );
+    });
+  }
+
+  // ── ABRIR FORMULARIO ──────────────────────────────────────────────────────
+  window.abrirFormProd = (docId) => {
+    mainImgPending = null; galleryPending = []; galleryUrls = [];
+
+    // Reset preview imagen principal
+    const area    = document.getElementById('mainImgArea');
+    const preview = document.getElementById('mainImgPreview');
+    area.classList.remove('has-img');
+    preview.querySelector('img')?.remove();
+    document.getElementById('pfImagenFile').value = '';
+    document.getElementById('mainImgProgress').style.display = 'none';
+    document.getElementById('galleryProgress').style.display = 'none';
+    document.getElementById('galleryThumbs').innerHTML = '';
+
+    if (docId) {
+      const p = prodListAdmin.find(x => x.docId === docId);
+      if (!p) return;
+      document.getElementById('prodFormTitle').textContent = 'Editar producto';
+      document.getElementById('pfDocId').value       = p.docId;
+      document.getElementById('pfNombre').value      = p.nombre || '';
+      document.getElementById('pfTag').value         = p.tag || '';
+      document.getElementById('pfPrecio').value      = p.precio || '';
+      document.getElementById('pfPrecioAntes').value = p.precioAntes || '';
+      document.getElementById('pfBadge').value       = p.badge || '';
+      document.getElementById('pfBadgeColor').value  = p.badgeColor || '';
+      document.getElementById('pfImagen').value      = p.imagenPrincipal || '';
+      document.getElementById('pfGaleria').value     = (p.galeria || []).join(', ');
+      document.getElementById('pfDesc').value        = p.descripcion || '';
+      document.getElementById('pfCaracts').value     = (p.caracteristicas || []).join('\n');
+      document.getElementById('pfSpecs').value       = Object.entries(p.specs || {}).map(([k,v]) => `${k}: ${v}`).join('\n');
+      document.getElementById('pfOrden').value       = p.orden || '';
+      document.getElementById('pfActivo').checked    = p.activo !== false;
+      // Mostrar imagen actual
+      if (p.imagenPrincipal) {
+        const img = document.createElement('img');
+        img.src = p.imagenPrincipal;
+        preview.appendChild(img);
+        area.classList.add('has-img');
+      }
+      // Cargar galería actual
+      galleryUrls = [...(p.galeria || [])];
+      renderGalleryThumbs();
+    } else {
+      document.getElementById('prodFormTitle').textContent = 'Nuevo producto';
+      document.getElementById('pfDocId').value = '';
+      ['pfNombre','pfTag','pfPrecio','pfPrecioAntes','pfBadge','pfBadgeColor',
+       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfSpecs','pfOrden'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('pfActivo').checked = true;
+    }
+    document.getElementById('prodFormOverlay').classList.add('active');
+  };
+
+  window.cerrarFormProd = () => {
+    document.getElementById('prodFormOverlay').classList.remove('active');
+    mainImgPending = null; galleryPending = []; galleryUrls = [];
+  };
+
+  // ── GUARDAR PRODUCTO ──────────────────────────────────────────────────────
+  window.guardarProducto = async () => {
+    const btn    = document.getElementById('btnGuardarProd');
+    const docId  = document.getElementById('pfDocId').value.trim();
+    const nombre = document.getElementById('pfNombre').value.trim();
+    if (!nombre) { toast('❌ El nombre es obligatorio', 'err'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner spin"></i> Guardando...';
+
+    try {
+      const targetId    = docId || `prod_${Date.now()}`;
+      const prodFolder  = `productos/${targetId}`;
+
+      // 1. Imagen principal — archivo o URL de texto
+      let imagenPrincipal = document.getElementById('pfImagen').value.trim();
+      if (mainImgPending) {
+        const prog = document.getElementById('mainImgProgress');
+        const fill = document.getElementById('mainImgFill');
+        const pct  = document.getElementById('mainImgPct');
+        prog.style.display = 'flex';
+        btn.innerHTML = '<i class="fas fa-spinner spin"></i> Subiendo imagen principal...';
+        imagenPrincipal = await uploadFile(
+          mainImgPending,
+          `${prodFolder}/main_${mainImgPending.name}`,
+          p => { fill.style.width = p + '%'; pct.textContent = Math.round(p) + '%'; }
+        );
+        prog.style.display = 'none';
+      }
+
+      // 2. Galería — combinar URLs actuales + URLs manuales + archivos pendientes
+      let galeriaFinal = [...galleryUrls];
+      const galeriaTexto = document.getElementById('pfGaleria').value
+        .split(',').map(s => s.trim()).filter(s => s && !galleryUrls.includes(s));
+      galeriaFinal = [...galeriaFinal, ...galeriaTexto];
+
+      if (galleryPending.length) {
+        const prog = document.getElementById('galleryProgress');
+        const fill = document.getElementById('galleryFill');
+        const pct  = document.getElementById('galleryPct');
+        prog.style.display = 'flex';
+        for (let i = 0; i < galleryPending.length; i++) {
+          const f = galleryPending[i];
+          btn.innerHTML = `<i class="fas fa-spinner spin"></i> Galería ${i+1}/${galleryPending.length}...`;
+          const url = await uploadFile(
+            f, `${prodFolder}/gallery_${i}_${f.name}`,
+            p => {
+              fill.style.width = ((i + p/100) / galleryPending.length * 100) + '%';
+              pct.textContent  = `${i+1}/${galleryPending.length} — ${Math.round(p)}%`;
+            }
+          );
+          galeriaFinal.push(url);
+        }
+        prog.style.display = 'none';
+      }
+
+      if (!imagenPrincipal && galeriaFinal.length) imagenPrincipal = galeriaFinal[0];
+
+      // 3. Parsear campos de texto
+      const caracteristicas = document.getElementById('pfCaracts').value
+        .split('\n').map(s => s.trim()).filter(Boolean);
+      const specs = {};
+      document.getElementById('pfSpecs').value.split('\n').forEach(line => {
+        const idx = line.indexOf(':');
+        if (idx > 0) specs[line.substring(0,idx).trim()] = line.substring(idx+1).trim();
+      });
+
+      const data = {
+        nombre,
+        tag:            document.getElementById('pfTag').value.trim(),
+        precio:         Number(document.getElementById('pfPrecio').value) || 0,
+        precioAntes:    Number(document.getElementById('pfPrecioAntes').value) || 0,
+        badge:          document.getElementById('pfBadge').value.trim(),
+        badgeColor:     document.getElementById('pfBadgeColor').value.trim(),
+        imagenPrincipal,
+        galeria:        galeriaFinal,
+        descripcion:    document.getElementById('pfDesc').value.trim(),
+        caracteristicas,
+        specs,
+        orden:          Number(document.getElementById('pfOrden').value) || 99,
+        activo:         document.getElementById('pfActivo').checked
+      };
+
+      await setDoc(doc(db, 'productos', targetId), data, { merge: true });
+      cerrarFormProd();
+      await cargarProductosAdmin();
+      toast('✅ Producto guardado', 'ok');
+    } catch(e) {
+      toast('❌ Error: ' + e.message, 'err');
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Guardar producto';
+    }
+  };
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
   function fCOP(v)   { return '$' + Number(v||0).toLocaleString('es-CO'); }

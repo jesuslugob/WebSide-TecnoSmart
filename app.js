@@ -2,15 +2,22 @@
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 let currentPayMethod = 'card';
 
+// Llamar carga de productos desde Firestore (se ejecuta después del DOM)
+document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof window.cargarProductosTienda === 'function') {
+    await window.cargarProductosTienda();
+  }
+});
+
 // ===== EMAILJS CONFIG =====
-const EMAILJS_SERVICE_ID        = 'service_7liinxs';
-const EMAILJS_TEMPLATE_PEDIDO   = 'template_g2sa7yg'; // Pedido confirmado (Wompi)
-const EMAILJS_TEMPLATE_CONTACTO = 'template_contacto'; // Formulario de contacto
-const EMAILJS_TEMPLATE_NEWSLETTER = 'template_newsletter'; // Suscripción newsletter
+const EMAILJS_SERVICE_ID          = 'service_7liinxs';
+const EMAILJS_TEMPLATE_PEDIDO     = 'template_g2sa7yg';      // Notificación al dueño
+const EMAILJS_TEMPLATE_CLIENTE    = 'template_st3y1xl';       // Confirmación al cliente
+const EMAILJS_TEMPLATE_CONTACTO   = 'template_contacto';      // Formulario de contacto
+const EMAILJS_TEMPLATE_NEWSLETTER = 'template_newsletter';    // Suscripción newsletter
 
 /**
- * Envía email de confirmación de pedido al dueño de la tienda.
- * Se llama cuando Wompi confirma el pago (status === 'APPROVED').
+ * Envía email de notificación al dueño de la tienda.
  */
 function enviarEmailPedido(buyer, address, cartItems, reference) {
   const productos = cartItems.map(i =>
@@ -19,9 +26,34 @@ function enviarEmailPedido(buyer, address, cartItems, reference) {
   const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
 
   return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_PEDIDO, {
+    asunto:           `🛍️ Nuevo pedido TecnoSmart — ${reference}`,
     order_ref:        reference,
     cliente_nombre:   buyer.name    || 'No especificado',
     cliente_email:    buyer.email   || 'No especificado',
+    cliente_telefono: buyer.phone   || 'No especificado',
+    direccion:        address.street || 'No especificada',
+    ciudad:           address.city   || 'No especificada',
+    departamento:     address.dept   || 'No especificado',
+    productos,
+    total:            formatCOP(total),
+    fecha:            new Date().toLocaleString('es-CO')
+  });
+}
+
+/**
+ * Envía email de confirmación de compra al cliente.
+ */
+function enviarEmailCliente(buyer, address, cartItems, reference) {
+  const productos = cartItems.map(i =>
+    `• ${i.name} x${i.qty} — ${formatCOP(i.price * i.qty)}`
+  ).join('\n');
+  const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CLIENTE, {
+    to_email:         buyer.email   || '',
+    to_name:          buyer.name    || 'Cliente',
+    order_ref:        reference,
+    cliente_nombre:   buyer.name    || 'No especificado',
     cliente_telefono: buyer.phone   || 'No especificado',
     direccion:        address.street || 'No especificada',
     ciudad:           address.city   || 'No especificada',
@@ -40,32 +72,64 @@ function formatCOP(value) {
 
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 12500,
-    img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
+    id: 1, name: 'AirPods Pro 3', price: 12500, oldPrice: 15000,
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
+    img: 'img/Airpods Pro 3/pro3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
-    desc: 'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 36 horas de batería con el estuche MagSafe.',
-    specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 30h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
+    gallery: [
+      'img/Airpods Pro 3/pro3-1.jpg',
+      'img/Airpods Pro 3/pro3-2.jpg',
+      'img/Airpods Pro 3/pro3-3.jpg',
+      'img/Airpods Pro 3/pro3-4.jpg',
+      'img/Airpods Pro 3/pro3-5.jpg'
+    ],
+    desc: 'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 24 horas de batería con el estuche MagSafe.',
+    features: ['2× mejor cancelación de ruido activa', 'Sensor de frecuencia cardíaca', 'Audio espacial personalizado', 'Carga MagSafe y USB-C', 'Resistencia IPX4'],
+    specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 12500,
-    img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-pro-2-hero-select-202209?wid=600&hei=528&fmt=jpeg&qlt=90',
+    id: 2, name: 'AirPods Pro 2', price: 12500, oldPrice: 15000,
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    img: 'img/Airpods Pro 2/pro2-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
+    gallery: [
+      'img/Airpods Pro 2/pro2-1.jpg',
+      'img/Airpods Pro 2/pro2-2.jpg',
+      'img/Airpods Pro 2/pro2-3.jpg',
+      'img/Airpods Pro 2/pro2-4.jpg'
+    ],
     desc: 'Los AirPods Pro 2 con chip H2 ofrecen cancelación activa de ruido mejorada, modo de sonido ambiente y audio espacial personalizado. El estuche incluye altavoz integrado y correa.',
+    features: ['Cancelación activa de ruido H2', 'Modo de sonido ambiente', 'Estuche con altavoz integrado', 'Audio espacial personalizado', 'Resistencia IPX4'],
     specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 12500,
-    img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-3rd-gen-hero-select-202110?wid=600&hei=528&fmt=jpeg&qlt=90',
+    id: 3, name: 'AirPods Series 3', price: 12500, oldPrice: 15000,
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    img: 'img/Series 3/series3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
+    gallery: [
+      'img/Series 3/series3-1.jpg',
+      'img/Series 3/series3-2.jpg',
+      'img/Series 3/series3-3.jpg',
+      'img/Series 3/series3-4.jpg'
+    ],
     desc: 'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.',
-    specs: { 'Chip': 'H1', 'ANC': 'No', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.0', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
+    features: ['Audio espacial dinámico', 'EQ adaptativo automático', 'Tallo más corto inspirado en Pro', 'Resistencia IPX4', 'Carga MagSafe'],
+    specs: { 'Chip': 'H1', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   4: {
-    id: 4, name: 'AirPods Series 4', price: 12500,
-    img: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-4-hero-select-202409?wid=600&hei=528&fmt=jpeg&qlt=90',
+    id: 4, name: 'AirPods Series 4', price: 12500, oldPrice: 15000,
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    img: 'img/Series 4/series4-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
-    desc: 'Los AirPods de 4ta generación con chip H2, nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 30 horas totales de batería.',
-    specs: { 'Chip': 'H2', 'ANC': 'Activa (modelo ANC)', 'Batería': '5h + 25h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'USB-C / MagSafe' }
+    gallery: [
+      'img/Series 4/series4-1.jpg',
+      'img/Series 4/series4-2.jpg',
+      'img/Series 4/series4-3.jpg'
+    ],
+    desc: 'Los AirPods de 4ta generación con chip H2, nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas totales de batería.',
+    features: ['Nuevo diseño ergonómico sin almohadilla', 'Audio adaptativo', 'Detección de conversación', 'Carga USB-C y MagSafe', 'Hasta 24h con estuche'],
+    specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '5h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'USB-C / MagSafe' }
   }
 };
 
@@ -177,31 +241,175 @@ function toggleCart() {
 }
 
 // ===== PRODUCT MODAL =====
+let modalQty = 1;
+let currentModalProduct = null;
+
 function openModal(id) {
   const p = products[id];
   if (!p) return;
+  currentModalProduct = p;
+  modalQty = 1;
+
+  const discount = Math.round((1 - p.price / p.oldPrice) * 100);
   const specsHTML = Object.entries(p.specs).map(([k, v]) => `
     <div class="modal-spec"><label>${k}</label><span>${v}</span></div>
   `).join('');
+  const featuresHTML = (p.features || []).map(f => `
+    <li><i class="fas fa-check-circle"></i> ${f}</li>
+  `).join('');
+  const galleryThumbs = [
+    // Primero el video como miniatura
+    `<button class="gallery-thumb active" onclick="changeGalleryMedia(this,'video','img/Series 4/airpods-promo.mp4')">
+      <video muted loop style="width:100%;height:100%;object-fit:cover;pointer-events:none">
+        <source src="img/Series 4/airpods-promo.mp4" type="video/mp4"/>
+      </video>
+     </button>`,
+    // Luego las fotos
+    ...(p.gallery || [p.img]).map((src, i) => `
+      <button class="gallery-thumb" onclick="changeGalleryMedia(this,'img','${src}')">
+        <img src="${src}" alt="foto ${i+1}" onerror="this.src='${p.fallback}'" />
+      </button>
+    `)
+  ].join('');
+
   document.getElementById('modalContent').innerHTML = `
-    <img class="modal-img" src="${p.img}" alt="${p.name}" onerror="this.src='${p.fallback}'" />
-    <h2>${p.name}</h2>
-    <div class="price">${formatCOP(p.price)}</div>
-    <p class="desc">${p.desc}</p>
-    <div class="modal-specs-list">${specsHTML}</div>
-    <button class="btn-primary full-width" onclick="addToCart(${p.id},'${p.name}',${p.price},'${p.fallback}'); closeModal();">
-      <i class="fas fa-bag-shopping"></i> Agregar al carrito
-    </button>
+    <div class="product-detail">
+      <!-- Galería -->
+      <div class="pd-gallery">
+        <div class="pd-main-img-wrap">
+          <video id="pdMainVideo" autoplay muted loop playsinline style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px">
+            <source id="pdMainVideoSrc" src="img/Series 4/airpods-promo.mp4" type="video/mp4" />
+          </video>
+          <img id="pdMainImg" src="${p.gallery?.[0]||p.img}" alt="${p.name}" onerror="this.src='${p.fallback}'" style="display:block" />
+          ${p.badge ? `<div class="pd-badge" style="background:${p.badgeColor}">${p.badge}</div>` : ''}
+          <div class="pd-discount-badge">-${discount}%</div>
+        </div>
+        <div class="pd-thumbs">${galleryThumbs}</div>
+      </div>
+
+      <!-- Info -->
+      <div class="pd-info">
+        <div class="pd-tag">🎧 AirPods Calidad 1.1</div>
+        <h2 class="pd-title">${p.name}</h2>
+
+        <div class="pd-price-row">
+          <span class="pd-price">${formatCOP(p.price)}</span>
+          <span class="pd-old-price">${formatCOP(p.oldPrice)}</span>
+          <span class="pd-save-badge">Ahorras ${formatCOP(p.oldPrice - p.price)}</span>
+        </div>
+
+        <div class="pd-stock"><i class="fas fa-circle" style="color:#22c55e;font-size:8px"></i> En stock — Envío hoy</div>
+
+        <p class="pd-desc">${p.desc}</p>
+
+        <ul class="pd-features">${featuresHTML}</ul>
+
+        <!-- Cantidad -->
+        <div class="pd-qty-row">
+          <span class="pd-qty-label">Cantidad:</span>
+          <div class="pd-qty-ctrl">
+            <button class="pd-qty-btn" onclick="changeModalQty(-1)">−</button>
+            <span id="pdQtyNum">1</span>
+            <button class="pd-qty-btn" onclick="changeModalQty(1)">+</button>
+          </div>
+          <span class="pd-qty-total" id="pdQtyTotal">${formatCOP(p.price)}</span>
+        </div>
+
+        <!-- Botones -->
+        <div class="pd-btns">
+          <button class="pd-btn-cart" onclick="addToCartFromModal()">
+            <i class="fas fa-bag-shopping"></i> Agregar al carrito
+          </button>
+          <button class="pd-btn-buy" onclick="buyNowFromModal()">
+            <i class="fas fa-lock"></i> Comprar ahora
+          </button>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="pd-trust">
+          <div class="pd-trust-item"><i class="fas fa-shipping-fast"></i><span>Envío gratis</span></div>
+          <div class="pd-trust-item"><i class="fas fa-shield-alt"></i><span>Garantía 1 mes</span></div>
+          <div class="pd-trust-item"><i class="fas fa-undo"></i><span>Devolución 30 días</span></div>
+          <div class="pd-trust-item"><i class="fas fa-lock"></i><span>Pago seguro</span></div>
+        </div>
+
+        <!-- Specs -->
+        <details class="pd-specs-details">
+          <summary>Ver especificaciones técnicas</summary>
+          <div class="modal-specs-list">${specsHTML}</div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Sticky bar (móvil) -->
+    <div class="pd-sticky-bar">
+      <div class="pd-sticky-info">
+        <span class="pd-sticky-name">${p.name}</span>
+        <span class="pd-sticky-price">${formatCOP(p.price)}</span>
+      </div>
+      <button class="pd-btn-buy" onclick="addToCartFromModal(); closeModal()">
+        <i class="fas fa-bag-shopping"></i> Agregar
+      </button>
+    </div>
   `;
+
   document.getElementById('modalOverlay').classList.add('active');
   document.getElementById('productModal').classList.add('active');
   document.body.style.overflow = 'hidden';
+}
+
+function changeGalleryMedia(btn, type, src) {
+  const img   = document.getElementById('pdMainImg');
+  const video = document.getElementById('pdMainVideo');
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (type === 'video') {
+    img.style.display   = 'none';
+    video.style.display = 'block';
+    const vsrc = document.getElementById('pdMainVideoSrc');
+    if (vsrc.src !== src) { vsrc.src = src; video.load(); }
+    video.play();
+  } else {
+    video.style.display = 'none';
+    video.pause();
+    img.style.display = 'block';
+    img.src = src;
+  }
+}
+
+function changeModalQty(delta) {
+  modalQty = Math.max(1, modalQty + delta);
+  document.getElementById('pdQtyNum').textContent = modalQty;
+  if (currentModalProduct) {
+    document.getElementById('pdQtyTotal').textContent = formatCOP(currentModalProduct.price * modalQty);
+  }
+}
+
+function addToCartFromModal() {
+  if (!currentModalProduct) return;
+  const p = currentModalProduct;
+  const img = p.gallery?.[0] || p.img;
+  const existing = cart.find(i => i.id === p.id);
+  if (existing) existing.qty += modalQty;
+  else cart.push({ id: p.id, name: p.name, price: p.price, img, qty: modalQty });
+  saveCart();
+  renderCart();
+  showToast(`✅ ${p.name} × ${modalQty} agregado`, 'success');
+  closeModal();
+}
+
+function buyNowFromModal() {
+  if (!currentModalProduct) return;
+  addToCartFromModal();
+  setTimeout(() => openCheckout(), 300);
 }
 
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('active');
   document.getElementById('productModal').classList.remove('active');
   document.body.style.overflow = '';
+  currentModalProduct = null;
+  modalQty = 1;
 }
 
 // ===== CHECKOUT =====
@@ -216,6 +424,27 @@ function openCheckout() {
     document.getElementById('checkoutModal').classList.add('active');
     document.body.style.overflow = 'hidden';
     goStep(1);
+
+    // Pre-rellenar con datos del usuario logueado
+    const u = window.currentUser;
+    if (u) {
+      const nameEl  = document.getElementById('co-name');
+      const emailEl = document.getElementById('co-email');
+      const phoneEl = document.getElementById('co-phone');
+      if (nameEl  && !nameEl.value)  nameEl.value  = u.name  || '';
+      if (emailEl && !emailEl.value) emailEl.value = u.email || '';
+      if (phoneEl && !phoneEl.value) phoneEl.value = u.phone || '';
+
+      // Pre-rellenar dirección guardada
+      if (u.address?.street) {
+        const addrEl = document.getElementById('co-address');
+        const cityEl = document.getElementById('co-city');
+        const deptEl = document.getElementById('co-dept');
+        if (addrEl) addrEl.value = u.address.street || '';
+        if (cityEl) cityEl.value = u.address.city   || '';
+        if (deptEl) deptEl.value = u.address.dept   || '';
+      }
+    }
   }, 400);
 }
 
@@ -307,6 +536,9 @@ async function processPayment() {
     payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
     payBtn.disabled = false;
 
+    // Liberar scroll del body para que el widget de Wompi funcione bien
+    document.body.style.overflow = '';
+
     checkout.open(async (result) => {
       const { transaction } = result;
       console.log('Wompi:', transaction);
@@ -340,10 +572,22 @@ async function processPayment() {
           console.error('❌ Error guardando pedido:', err);
         }
 
+        // Guardar dirección del cliente para próximas compras
+        if (window.currentUser && address.street) {
+          window.guardarDireccion(address)
+            .then(() => console.log('✅ Dirección guardada'))
+            .catch(err => console.error('❌ Error guardando dirección:', err));
+        }
+
         // 2. Enviar email de notificación al dueño de la tienda
         enviarEmailPedido(buyer, address, cartSnapshot, data.reference)
-          .then(() => console.log('✅ Email de pedido enviado'))
-          .catch(err => console.error('❌ Error enviando email:', err));
+          .then(() => console.log('✅ Email al dueño enviado'))
+          .catch(err => console.error('❌ Error email dueño:', err));
+
+        // 3. Enviar email de confirmación al cliente
+        enviarEmailCliente(buyer, address, cartSnapshot, data.reference)
+          .then(() => console.log('✅ Email de confirmación al cliente enviado'))
+          .catch(err => console.error('❌ Error email cliente:', err));
 
         // 3. Mostrar pantalla de éxito
         [1, 2, 3].forEach(s => {
@@ -396,7 +640,61 @@ function formatExpiry(input) {
   input.value = v;
 }
 
-// ===== TOAST =====
+// ===== CARD SLIDESHOW =====
+function initCardSlideshows() {
+  [1, 2, 3, 4].forEach(id => {
+    const wrap = document.getElementById(`slide-${id}`);
+    if (!wrap) return;
+    const imgs = wrap.querySelectorAll('img');
+    const dotsEl = document.getElementById(`dots-${id}`);
+    if (imgs.length <= 1) return;
+
+    // Crear dots
+    imgs.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = (e) => { e.stopPropagation(); goSlide(id, i); };
+      dotsEl?.appendChild(dot);
+    });
+
+    let current = 0;
+    const intervals = {};
+    intervals[id] = setInterval(() => {
+      current = (current + 1) % imgs.length;
+      goSlide(id, current);
+    }, 2800 + id * 400); // offset para que no cambien todas al mismo tiempo
+  });
+}
+
+function goSlide(cardId, idx) {
+  const wrap = document.getElementById(`slide-${cardId}`);
+  if (!wrap) return;
+  const imgs = wrap.querySelectorAll('img');
+  const dots = wrap.querySelectorAll('.slide-dot');
+  imgs.forEach((img, i) => {
+    img.style.opacity = i === idx ? '1' : '0';
+    img.classList.toggle('active-slide', i === idx);
+  });
+  dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCardSlideshows();
+});
+function toggleWaMenu() {
+  const menu = document.getElementById('waMenu');
+  menu.classList.toggle('open');
+}
+
+// Cerrar menú WA al hacer clic fuera
+document.addEventListener('click', (e) => {
+  const float = document.getElementById('waFloat');
+  if (float && !float.contains(e.target)) {
+    document.getElementById('waMenu')?.classList.remove('open');
+  }
+});
+
+
 let toastTimer;
 function showToast(msg, type = 'default') {
   const toast = document.getElementById('toast');
@@ -439,20 +737,36 @@ function subscribeNewsletter(e) {
 // ===== CONTACT FORM =====
 function sendContact(e) {
   e.preventDefault();
-  const form   = e.target;
-  const nombre = form.querySelector('input[type="text"]').value.trim();
-  const email  = form.querySelector('input[type="email"]').value.trim();
+  const form    = e.target;
+  const nombre  = form.querySelector('input[type="text"]').value.trim();
+  const email   = form.querySelector('input[type="email"]').value.trim();
+  const telefono= form.querySelector('input[type="tel"]')?.value.trim() || '—';
+  const tema    = form.querySelector('.cf-select')?.value || '—';
   const mensaje = form.querySelector('textarea').value.trim();
-  const btn    = form.querySelector('button[type="submit"]');
+  const btn     = form.querySelector('button[type="submit"]');
 
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONTACTO, {
-    from_name:    nombre,
-    from_email:   email,
-    message:      mensaje,
-    fecha:        new Date().toLocaleString('es-CO')
+  const temaTexto = {
+    pedido:   'Consulta sobre un pedido',
+    producto: 'Información de producto',
+    garantia: 'Garantía / devolución',
+    envio:    'Tiempos de envío',
+    otro:     'Otro'
+  }[tema] || tema;
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_PEDIDO, {
+    asunto:          `📩 ${temaTexto} — ${nombre}`,
+    cliente_nombre:  nombre,
+    cliente_email:   email,
+    cliente_telefono: telefono,
+    direccion:       temaTexto,
+    ciudad:          '—',
+    departamento:    '—',
+    productos:       mensaje,
+    total:           '— Formulario de contacto —',
+    fecha:           new Date().toLocaleString('es-CO')
   })
   .then(() => {
     showToast('✅ Mensaje enviado. ¡Te responderemos pronto!', 'success');
@@ -546,11 +860,21 @@ const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
 
 // ===== AUTH SYSTEM =====
-let currentUser = JSON.parse(localStorage.getItem('tsUser') || 'null');
+// currentUser es manejado por Firebase (ver script en index.html)
+// window.currentUser se actualiza via onAuthStateChanged
 
 function openAuthModal(tab = 'login') {
-  if (currentUser) {
+  if (window.currentUser) {
     switchAuth('profile');
+    // Poblar datos del perfil
+    document.getElementById('profileGreeting').textContent = `¡Hola, ${window.currentUser.name}!`;
+    document.getElementById('profileEmail').textContent = window.currentUser.email;
+    const addr = window.currentUser.address || {};
+    document.getElementById('profileInfo').innerHTML = `
+      <div class="profile-row"><i class="fas fa-phone"></i> ${window.currentUser.phone || 'Sin teléfono'}</div>
+      <div class="profile-row"><i class="fas fa-map-marker-alt"></i> ${addr.street ? `${addr.street}, ${addr.city}` : 'Sin dirección guardada'}</div>
+      <div class="profile-row"><i class="fas fa-calendar"></i> Miembro activo</div>
+    `;
   } else {
     switchAuth(tab);
   }
@@ -572,55 +896,57 @@ function switchAuth(panel) {
   document.getElementById(`auth${panel.charAt(0).toUpperCase() + panel.slice(1)}`).style.display = 'block';
 }
 
-function registerUser(e) {
+async function registerUser(e) {
   e.preventDefault();
   const name     = document.getElementById('regName').value.trim();
   const email    = document.getElementById('regEmail').value.trim();
   const phone    = document.getElementById('regPhone').value.trim();
   const password = document.getElementById('regPassword').value;
+  const btn      = e.target.querySelector('button[type="submit"]');
 
-  // Verificar si ya existe
-  const users = JSON.parse(localStorage.getItem('tsUsers') || '[]');
-  if (users.find(u => u.email === email)) {
-    showToast('❌ Ya existe una cuenta con ese email', 'error');
-    return;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando cuenta...';
+
+  try {
+    await window.firebaseRegister(name, email, phone, password);
+    showToast(`✅ ¡Bienvenido, ${name}! Cuenta creada.`, 'success');
+    closeAuthModal();
+  } catch (err) {
+    const msg = err.code === 'auth/email-already-in-use'
+      ? 'Ya existe una cuenta con ese email'
+      : err.code === 'auth/weak-password'
+      ? 'La contraseña debe tener al menos 6 caracteres'
+      : err.message;
+    showToast(`❌ ${msg}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Crear cuenta';
   }
-
-  const newUser = { name, email, phone, password, createdAt: new Date().toISOString() };
-  users.push(newUser);
-  localStorage.setItem('tsUsers', JSON.stringify(users));
-
-  // Auto-login
-  currentUser = { name, email, phone };
-  localStorage.setItem('tsUser', JSON.stringify(currentUser));
-  updateNavForUser();
-  showToast(`✅ ¡Bienvenido, ${name}! Cuenta creada exitosamente.`, 'success');
-  closeAuthModal();
 }
 
-function loginUser(e) {
+async function loginUser(e) {
   e.preventDefault();
   const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
+  const btn      = e.target.querySelector('button[type="submit"]');
 
-  const users = JSON.parse(localStorage.getItem('tsUsers') || '[]');
-  const user  = users.find(u => u.email === email && u.password === password);
-  if (!user) {
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ingresando...';
+
+  try {
+    await window.firebaseLogin(email, password);
+    showToast(`✅ ¡Bienvenido de nuevo!`, 'success');
+    closeAuthModal();
+  } catch (err) {
     showToast('❌ Email o contraseña incorrectos', 'error');
-    return;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Ingresar';
   }
-
-  currentUser = { name: user.name, email: user.email, phone: user.phone };
-  localStorage.setItem('tsUser', JSON.stringify(currentUser));
-  updateNavForUser();
-  showToast(`✅ ¡Hola de nuevo, ${user.name}!`, 'success');
-  closeAuthModal();
 }
 
-function logoutUser() {
-  currentUser = null;
-  localStorage.removeItem('tsUser');
-  updateNavForUser();
+async function logoutUser() {
+  await window.firebaseLogout();
   showToast('Sesión cerrada', 'default');
   closeAuthModal();
 }
@@ -630,125 +956,16 @@ function updateNavForUser() {
   const registerBtn = document.querySelector('.nav-btn-register');
   if (!loginBtn || !registerBtn) return;
 
-  if (currentUser) {
-    loginBtn.innerHTML   = `<i class="fas fa-user-circle"></i> ${currentUser.name.split(' ')[0]}`;
+  if (window.currentUser) {
+    loginBtn.innerHTML        = `<i class="fas fa-user-circle"></i> ${window.currentUser.name.split(' ')[0]}`;
     registerBtn.style.display = 'none';
   } else {
-    loginBtn.innerHTML   = '<i class="fas fa-user"></i> Ingresar';
+    loginBtn.innerHTML        = '<i class="fas fa-user"></i> Ingresar';
     registerBtn.style.display = '';
   }
 }
 
-// Show profile when logged in
-document.getElementById('authOverlay')?.addEventListener('click', closeAuthModal);
-
 // ===== REVIEWS =====
-let reviews = JSON.parse(localStorage.getItem('tsReviews') || '[]');
-let selectedRating = 5;
-let reviewImagesData = [];
-
-function initStarSelector() {
-  const stars = document.querySelectorAll('#starInput i');
-  stars.forEach(star => {
-    star.addEventListener('mouseover', () => {
-      const val = parseInt(star.dataset.val);
-      stars.forEach((s, idx) => {
-        s.style.color = idx < val ? '#f59e0b' : '#d1d5db';
-      });
-    });
-    star.addEventListener('mouseleave', () => {
-      stars.forEach((s, idx) => {
-        s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
-      });
-    });
-    star.addEventListener('click', () => {
-      selectedRating = parseInt(star.dataset.val);
-      document.getElementById('reviewRating').value = selectedRating;
-      stars.forEach((s, idx) => {
-        s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
-      });
-    });
-  });
-  // Init color
-  document.querySelectorAll('#starInput i').forEach((s, idx) => {
-    s.style.color = idx < selectedRating ? '#f59e0b' : '#d1d5db';
-  });
-}
-
-function previewReviewImages(event) {
-  const files   = Array.from(event.target.files).slice(0, 3);
-  const preview = document.getElementById('imgPreviewRow');
-  reviewImagesData = [];
-  preview.innerHTML = '';
-
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      reviewImagesData.push(e.target.result);
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.className = 'preview-thumb';
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function submitReview(e) {
-  e.preventDefault();
-  const name    = document.getElementById('reviewName').value.trim();
-  const city    = document.getElementById('reviewCity').value.trim();
-  const product = document.getElementById('reviewProduct').value;
-  const rating  = parseInt(document.getElementById('reviewRating').value);
-  const text    = document.getElementById('reviewText').value.trim();
-
-  const review = {
-    id: Date.now(),
-    name, city, product, rating, text,
-    images: [...reviewImagesData],
-    date: new Date().toLocaleDateString('es-CO')
-  };
-
-  reviews.unshift(review);
-  localStorage.setItem('tsReviews', JSON.stringify(reviews));
-  renderUserReviews();
-
-  // Reset form
-  e.target.reset();
-  selectedRating = 5;
-  reviewImagesData = [];
-  document.getElementById('imgPreviewRow').innerHTML = '';
-  initStarSelector();
-
-  showToast('✅ ¡Reseña publicada! Gracias por compartir tu experiencia.', 'success');
-  document.getElementById('reviewsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderUserReviews() {
-  const grid = document.getElementById('reviewsGrid');
-  // Remove previous user reviews
-  grid.querySelectorAll('.review-card.user-review').forEach(el => el.remove());
-
-  reviews.forEach(r => {
-    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-    const imgsHTML = r.images && r.images.length
-      ? `<div class="review-imgs-row">${r.images.map(src => `<img src="${src}" class="review-img-thumb" alt="Foto del producto" />`).join('')}</div>`
-      : '';
-    const card = document.createElement('div');
-    card.className = 'review-card user-review verified';
-    card.innerHTML = `
-      <div class="review-header">
-        <div class="stars" style="color:#f59e0b">${stars}</div>
-        <span class="verified-badge"><i class="fas fa-check-circle"></i> Compra verificada</span>
-      </div>
-      <p class="review-product-tag"><i class="fas fa-tag"></i> ${r.product}</p>
-      <p>"${r.text}"</p>
-      <div class="reviewer">
-        <div class="reviewer-avatar">${r.name.charAt(0).toUpperCase()}</div>
-        <div><strong>${r.name}</strong><span>${r.city} · ${r.date}</span></div>
-      </div>
-      ${imgsHTML}
-    `;
-    grid.prepend(card);
-  });
-}
+// Sección eliminada — no se usa
+function initStarSelector() {}
+function renderUserReviews() {}

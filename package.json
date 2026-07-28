@@ -1,5 +1,13 @@
 {
   "name": "tecnosmart",
   "version": "1.0.0",
-  "description": "TecnoSmart - Tienda online"
+  "description": "TecnoSmart - Tienda online",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Sin paso de build necesario'",
+    "deploy": "git add . && git commit -m \"Deploy: $(date)\" && git push origin main"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
 }
