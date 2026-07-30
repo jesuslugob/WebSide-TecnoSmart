@@ -7,7 +7,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     await window.cargarProductosTienda();
     actualizarPreciosDOM();
   }
+  // Detectar retorno de Wompi (pago por PSE / Bancolombia / Nequi)
+  procesarRetornoWompi();
 });
+
+// ===== WOMPI REDIRECT HANDLER =====
+// Guarda el pedido pendiente antes de abrir el widget (por si Wompi redirige)
+function guardarPedidoPendiente(buyer, address, cartItems, reference) {
+  const pedido = { buyer, address, cartItems, reference, ts: Date.now() };
+  localStorage.setItem('wompPedidoPendiente', JSON.stringify(pedido));
+}
+
+// Al cargar la página detecta si venimos de un redirect de Wompi
+async function procesarRetornoWompi() {
+  const params = new URLSearchParams(window.location.search);
+  const transactionId = params.get('id') || params.get('transaction_id');
+  if (!transactionId) return;
+
+  // Limpiar la URL sin recargar
+  window.history.replaceState({}, '', window.location.pathname);
+
+  const pendienteRaw = localStorage.getItem('wompPedidoPendiente');
+  if (!pendienteRaw) return;
+
+  let pedido;
+  try { pedido = JSON.parse(pendienteRaw); } catch { return; }
+
+  // Evitar procesar dos veces
+  localStorage.removeItem('wompPedidoPendiente');
+
+  // Verificar estado de la transacción con Wompi
+  try {
+    const res  = await fetch(`https://production.wompi.co/v1/transactions/${transactionId}`);
+    const json = await res.json();
+    const status = json?.data?.status;
+    if (status !== 'APPROVED') return;
+  } catch { /* si falla la verificación igual procesamos */ }
+
+  const { buyer, address, cartItems, reference } = pedido;
+  const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  // Guardar pedido en Firebase
+  try {
+    await fetch(`${SERVER_URL}/guardar-pedido`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyer, address, items: cartItems, reference, transactionId, total })
+    });
+  } catch (err) { console.error('❌ Error guardando pedido:', err); }
+
+  // Enviar emails
+  enviarEmailPedido(buyer, address, cartItems, reference)
+    .catch(err => console.error('❌ Email dueño:', err));
+  enviarEmailCliente(buyer, address, cartItems, reference)
+    .catch(err => console.error('❌ Email cliente:', err));
+
+  clearCart();
+  showToast('✅ ¡Pago confirmado! Revisa tu correo.', 'success');
+}
 
 // Actualiza las tarjetas de producto en el DOM con los datos de Firebase
 function actualizarPreciosDOM() {
@@ -525,6 +582,14 @@ async function processPayment() {
     const data = await response.json();
     if (data.error) throw new Error(data.error);
 
+    // Guardar pedido pendiente por si Wompi redirige (PSE/Bancolombia/Nequi)
+    const address = {
+      street: document.getElementById('co-address')?.value || '',
+      city:   document.getElementById('co-city')?.value    || '',
+      dept:   document.getElementById('co-dept')?.value    || ''
+    };
+    guardarPedidoPendiente(buyer, address, [...cart], data.reference);
+
     // Abrir widget de Wompi con firma de integridad
     const checkout = new WidgetCheckout({
       currency:        data.currency,
@@ -532,6 +597,7 @@ async function processPayment() {
       reference:       data.reference,
       publicKey:       data.publicKey,
       signature:       { integrity: data.signature },
+      redirectUrl:     'https://tecnosmartstore.com/',
       customerData: {
         email:             buyer.email,
         fullName:          buyer.name,
@@ -552,6 +618,9 @@ async function processPayment() {
       const { transaction } = result;
       console.log('Wompi:', transaction);
       if (transaction?.status === 'APPROVED') {
+        // Limpiar pedido pendiente — ya lo procesamos aquí
+        localStorage.removeItem('wompPedidoPendiente');
+
         // Capturar datos de envío en el momento del pago
         const address = {
           street: document.getElementById('co-address')?.value || '',
