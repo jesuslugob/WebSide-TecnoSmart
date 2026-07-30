@@ -345,20 +345,77 @@
     /* ══ RESPONSIVE ══════════════════════════════════════════════════════ */
     @media(max-width:900px) {
       .stats-grid { grid-template-columns:repeat(3,1fr); }
+      .prod-admin-grid { grid-template-columns:repeat(2,1fr); }
     }
     @media(max-width:640px) {
-      .topbar { padding:0 16px; }
+      /* Topbar */
+      .topbar { padding:0 14px; height:56px; }
       .topbar-logo .tl-badge { display:none; }
-      .main-content { padding:16px; }
-      .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
-      .stat-card { padding:16px; gap:10px; }
-      .stat-info .sv { font-size:22px; }
-      .search-box { width:160px; }
-      .info-grid { grid-template-columns:1fr; }
-      .topbar-user span { display:none; }
+      .topbar-logo .tl-name  { display:none; }
+      .topbar-logo img { height:36px; }
+      .topbar-center { gap:4px; }
+      .tab-btn { padding:7px 12px; font-size:12px; gap:5px; }
+      .tab-btn span { display:none; }
+      .topbar-user > span { display:none; }
+      .btn-out span { display:none; }
+      .btn-out { padding:7px 10px; }
+
+      /* Layout */
+      .main-content { padding:14px 12px; }
+
+      /* Stats — 2 col */
+      .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+      .stat-card  { padding:14px 12px; gap:10px; border-radius:12px; }
+      .stat-icon  { width:38px; height:38px; font-size:15px; border-radius:10px; }
+      .stat-info .sv { font-size:20px; }
+      .stat-info .sl { font-size:10px; }
+
+      /* Toolbar */
+      .toolbar { flex-direction:column; align-items:stretch; gap:8px; }
+      .toolbar-l { flex-wrap:wrap; }
+      .toolbar-r { display:flex; gap:8px; }
+      .search-wrap { flex:1; min-width:0; }
+      .search-box  { width:100%; }
+      .filter-sel  { flex:1; }
+      .btn-ref, .btn-del { flex:1; justify-content:center; }
+
+      /* Table */
+      .table-card  { border-radius:14px; }
+      table { font-size:12px; }
+      th, td { padding:10px 10px; }
+      .estado-sel { font-size:11px; padding:4px 6px; }
+      .btn-ver    { padding:5px 9px; font-size:11px; }
+
+      /* Productos — 2 col en mobile */
+      .prod-admin-grid { grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px; }
+      .prod-admin-card { border-radius:12px; }
+      .prod-admin-img  { height:120px; }
+      .prod-admin-body { padding:10px 12px; }
+      .prod-admin-name  { font-size:13px; margin-bottom:3px; }
+      .prod-admin-price { font-size:15px; margin-bottom:8px; }
+      .prod-admin-actions { gap:6px; }
+      .btn-edit   { padding:7px 6px; font-size:11px; }
+      .btn-toggle { padding:7px 8px; font-size:11px; }
+
+      /* Modal detalle */
+      .det-modal { border-radius:18px; }
+      .det-header { padding:18px 16px 14px; }
+      .det-body   { padding:14px 16px 20px; }
+      .info-grid  { grid-template-columns:1fr; }
+      .total-bar strong { font-size:18px; }
+
+      /* Form producto */
+      .prod-form-modal { padding:20px 16px; border-radius:18px; }
+      .form-row2 { grid-template-columns:1fr; gap:0; }
+
+      /* Page title */
+      .page-title { margin-bottom:16px; }
+      .page-title h1 { font-size:18px; }
+      .page-title p  { font-size:12px; }
     }
     @media(max-width:380px) {
-      .stats-grid { grid-template-columns:1fr 1fr; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .prod-admin-grid { grid-template-columns:1fr 1fr; }
     }
   </style>
 </head>
@@ -393,16 +450,16 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-logo">
-      <div class="tl-icon"><i class="fas fa-headphones-alt"></i></div>
+      <img src="img/Logo/LOGO TECNO SMART BLANCO.png" alt="TecnoSmart" style="height:44px;width:auto;object-fit:contain;display:block;" />
       <span class="tl-name">TecnoSmart</span>
       <span class="tl-badge">Admin</span>
     </div>
     <div class="topbar-center">
       <button class="tab-btn active" id="tabPedidos" onclick="switchTab('pedidos')">
-        <i class="fas fa-list"></i> Pedidos
+        <i class="fas fa-list"></i> <span>Pedidos</span>
       </button>
       <button class="tab-btn" id="tabProductos" onclick="switchTab('productos')">
-        <i class="fas fa-box"></i> Productos
+        <i class="fas fa-box"></i> <span>Productos</span>
       </button>
     </div>
     <div class="topbar-right">
@@ -922,7 +979,7 @@
       const el = document.getElementById(id);
       if (el) el.style.display = isPedidos ? '' : 'none';
     });
-    document.getElementById('panelProductos').style.display = isPedidos ? 'none' : '';
+    document.getElementById('panelProductos').style.display = isPedidos ? 'none' : 'block';
     // Tabs activos
     document.getElementById('tabPedidos').classList.toggle('active', isPedidos);
     document.getElementById('tabProductos').classList.toggle('active', !isPedidos);
@@ -940,8 +997,9 @@
     const grid = document.getElementById('prodAdminGrid');
     grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px"><i class="fas fa-spinner spin"></i> Cargando productos...</div>';
     try {
-      const snap = await getDocs(query(collection(db, 'productos'), orderBy('orden', 'asc')));
+      const snap = await getDocs(collection(db, 'productos'));
       prodListAdmin = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      prodListAdmin.sort((a, b) => (a.orden || 0) - (b.orden || 0));
       renderProdAdmin();
     } catch(e) {
       grid.innerHTML = `<div style="text-align:center;padding:48px;color:var(--red);font-size:14px"><i class="fas fa-exclamation-circle"></i> Error: ${e.message}</div>`;

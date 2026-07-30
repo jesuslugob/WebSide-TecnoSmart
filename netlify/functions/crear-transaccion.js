@@ -1,8 +1,8 @@
 // ===== NETLIFY FUNCTION — WOMPI con firma de integridad =====
 const crypto = require('crypto');
 
-const WOMPI_PUBLIC_KEY     = process.env.WOMPI_PUBLIC_KEY     || 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
-const WOMPI_INTEGRITY_KEY  = process.env.WOMPI_INTEGRITY_KEY  || 'test_integrity_DTqO5s4edS02Lo7hvgMkN6k5OKcXCp6q';
+const WOMPI_PUBLIC_KEY     = process.env.WOMPI_PUBLIC_KEY     || 'pub_prod_LwLNiMwdT5z9TX4w01aiRB5rbzNzLADV';
+const WOMPI_INTEGRITY_KEY  = process.env.WOMPI_INTEGRITY_KEY  || 'prod_integrity_cFbyIGSxCmI2urffQBA5gFII0254Ysaj';
 
 exports.handler = async (event) => {
   const headers = {

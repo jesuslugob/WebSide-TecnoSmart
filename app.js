@@ -1,20 +1,36 @@
 // ===== STATE =====
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
-let currentPayMethod = 'card';
 
 // Llamar carga de productos desde Firestore (se ejecuta después del DOM)
 document.addEventListener('DOMContentLoaded', async () => {
   if (typeof window.cargarProductosTienda === 'function') {
     await window.cargarProductosTienda();
+    actualizarPreciosDOM();
   }
 });
 
+// Actualiza las tarjetas de producto en el DOM con los datos de Firebase
+function actualizarPreciosDOM() {
+  Object.values(products).forEach(p => {
+    // Actualizar precio en tarjeta
+    const card = document.querySelector(`.product-card[data-id="${p.id}"]`);
+    if (!card) return;
+    const priceEl    = card.querySelector('.price');
+    const priceOldEl = card.querySelector('.price-old');
+    const btn        = card.querySelector('.add-cart-btn');
+    if (priceEl)    priceEl.textContent    = formatCOP(p.price);
+    if (priceOldEl) priceOldEl.textContent = formatCOP(p.oldPrice);
+    if (btn) {
+      btn.setAttribute('onclick',
+        `event.stopPropagation();addToCart(${p.id},'${p.name}',${p.price},'${p.img}')`);
+    }
+  });
+}
+
 // ===== EMAILJS CONFIG =====
-const EMAILJS_SERVICE_ID          = 'service_7liinxs';
-const EMAILJS_TEMPLATE_PEDIDO     = 'template_g2sa7yg';      // Notificación al dueño
-const EMAILJS_TEMPLATE_CLIENTE    = 'template_st3y1xl';       // Confirmación al cliente
-const EMAILJS_TEMPLATE_CONTACTO   = 'template_contacto';      // Formulario de contacto
-const EMAILJS_TEMPLATE_NEWSLETTER = 'template_newsletter';    // Suscripción newsletter
+const EMAILJS_SERVICE_ID       = 'service_7liinxs';
+const EMAILJS_TEMPLATE_PEDIDO  = 'template_g2sa7yg';   // Notificación al dueño
+const EMAILJS_TEMPLATE_CLIENTE = 'template_st3y1xl';   // Confirmación al cliente
 
 /**
  * Envía email de notificación al dueño de la tienda.
@@ -72,7 +88,7 @@ function formatCOP(value) {
 
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 12500, oldPrice: 15000,
+    id: 1, name: 'AirPods Pro 3', price: 1600, oldPrice: 2000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 3/pro3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
@@ -88,7 +104,7 @@ const products = {
     specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 12500, oldPrice: 15000,
+    id: 2, name: 'AirPods Pro 2', price: 1600, oldPrice: 2000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
     img: 'img/Airpods Pro 2/pro2-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
@@ -103,7 +119,7 @@ const products = {
     specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 12500, oldPrice: 15000,
+    id: 3, name: 'AirPods Series 3', price: 1600, oldPrice: 2000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
     img: 'img/Series 3/series3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
@@ -118,7 +134,7 @@ const products = {
     specs: { 'Chip': 'H1', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
   },
   4: {
-    id: 4, name: 'AirPods Series 4', price: 12500, oldPrice: 15000,
+    id: 4, name: 'AirPods Series 4', price: 1600, oldPrice: 2000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
     img: 'img/Series 4/series4-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
@@ -467,13 +483,6 @@ function goStep(n) {
   currentStep = n;
 }
 
-function selectPay(method) {
-  currentPayMethod = method;
-  document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('active'));
-  document.getElementById(`pay-${method}`).classList.add('active');
-  document.getElementById('card-form').style.display = method === 'card' ? 'block' : 'none';
-}
-
 function renderOrderSummary() {
   const summary = document.getElementById('orderSummary');
   if (!summary) return;
@@ -611,35 +620,6 @@ async function processPayment() {
   }
 }
 
-function shakeInput(el) {
-  el.style.borderColor = 'var(--red)';
-  el.style.animation = 'shake 0.4s ease';
-  setTimeout(() => {
-    el.style.borderColor = '';
-    el.style.animation = '';
-  }, 800);
-}
-
-// ===== CARD FORMATTING =====
-function formatCard(input) {
-  let v = input.value.replace(/\D/g, '').substring(0, 16);
-  input.value = v.replace(/(.{4})/g, '$1 ').trim();
-  // Detect card brand
-  const brands = document.querySelectorAll('.card-brands i');
-  if (!brands.length) return;
-  brands.forEach(b => b.style.color = 'var(--text3)');
-  if (/^4/.test(v)) brands[0].style.color = '#1a1f71';
-  else if (/^5[1-5]/.test(v) || /^2[2-7]/.test(v)) brands[1].style.color = '#eb001b';
-  else if (/^3[47]/.test(v)) brands[2].style.color = '#007bc1';
-  else if (/^6/.test(v)) brands[3].style.color = '#e65c00';
-}
-
-function formatExpiry(input) {
-  let v = input.value.replace(/\D/g, '').substring(0, 4);
-  if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
-  input.value = v;
-}
-
 // ===== CARD SLIDESHOW =====
 function initCardSlideshows() {
   [1, 2, 3, 4].forEach(id => {
@@ -702,36 +682,6 @@ function showToast(msg, type = 'default') {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// ===== NEWSLETTER =====
-function subscribeNewsletter(e) {
-  e.preventDefault();
-  const input = e.target.querySelector('input');
-  const email = input.value.trim();
-  const btn   = e.target.querySelector('button');
-
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NEWSLETTER, {
-    suscriptor_email: email,
-    fecha:            new Date().toLocaleString('es-CO')
-  })
-  .then(() => {
-    showToast(`✅ ¡${email} suscrito! Revisa tu correo.`, 'success');
-    input.value = '';
-  })
-  .catch(err => {
-    console.error('Error newsletter:', err);
-    // Igual mostramos éxito al usuario aunque el email falle
-    showToast(`✅ ¡${email} suscrito!`, 'success');
-    input.value = '';
-  })
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = 'Suscribirme <i class="fas fa-paper-plane"></i>';
-  });
 }
 
 // ===== CONTACT FORM =====
@@ -817,10 +767,8 @@ document.addEventListener('DOMContentLoaded', () => {
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }`;
   document.head.appendChild(style);
 
-  // ---- AUTH + REVIEWS init ----
+  // ---- AUTH init ----
   updateNavForUser();
-  initStarSelector();
-  renderUserReviews();
 
   // Update nav login button behaviour
   document.querySelector('.nav-btn-login')?.addEventListener('click', () => {
@@ -856,7 +804,6 @@ window.addEventListener('scroll', () => {
   });
 });
 
-const WOMPI_PUBLIC_KEY = 'pub_test_TGKHUGlVCnz9SKz2BcUr1GpBKJxFEUoM';
 const SERVER_URL = '/.netlify/functions';
 
 // ===== AUTH SYSTEM =====
@@ -965,7 +912,4 @@ function updateNavForUser() {
   }
 }
 
-// ===== REVIEWS =====
-// Sección eliminada — no se usa
-function initStarSelector() {}
-function renderUserReviews() {}
+
