@@ -58,11 +58,12 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   try {
-    const { reference, buyer, address, items, total, status, transactionId } = JSON.parse(event.body);
+    const { reference, buyer, address, items, total, status, transactionId,
+            esContraEntrega, valorProducto, valorEnvio, estadoRecaudo } = JSON.parse(event.body);
 
     const pedido = {
-      reference:     reference     || '',
-      estado:        status         || 'APROBADO',
+      reference:     reference      || '',
+      estado:        esContraEntrega ? 'Contra entrega - Envío pagado' : (status || 'APROBADO'),
       nombre:        buyer?.name    || '',
       email:         buyer?.email   || '',
       telefono:      buyer?.phone   || '',
@@ -70,10 +71,16 @@ exports.handler = async (event) => {
       ciudad:        address?.city   || '',
       departamento:  address?.dept   || '',
       productos:     JSON.stringify(items || []),
-      total:         total          || 0,
-      transactionId: transactionId  || '',
+      total:         total           || 0,
+      transactionId: transactionId   || '',
       fecha:         new Date().toISOString(),
-      fechaLegible:  new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })
+      fechaLegible:  new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+      // Campos contra entrega
+      esContraEntrega:  esContraEntrega  || false,
+      valorProducto:    valorProducto    || 0,
+      valorEnvio:       valorEnvio       || 0,
+      estadoEnvio:      esContraEntrega  ? 'Pendiente' : '',
+      estadoRecaudo:    estadoRecaudo    || (esContraEntrega ? 'Pendiente' : '')
     };
 
     const result = await firestorePost('pedidos', pedido);

@@ -269,12 +269,11 @@
     .prod-admin-img img { width:100%; height:100%; object-fit:cover; }
     .prod-admin-body { padding:14px 16px; }
     .prod-admin-name { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
-    .prod-admin-price { font-size:18px; font-weight:800; color:var(--accent); margin-bottom:12px; }
+    .prod-admin-price { font-size:18px; font-weight:800; color:var(--accent); margin-bottom:6px; }
+    .prod-admin-desc { font-size:12px; color:var(--text2); line-height:1.5; margin-bottom:12px; min-height:36px; }
     .prod-admin-actions { display:flex; gap:8px; }
     .btn-edit { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:8px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text2); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
     .btn-edit:hover { border-color:var(--accent); color:var(--accent); background:#eef2ff; }
-    .btn-toggle { padding:8px 12px; border-radius:8px; border:1.5px solid var(--green-bg); background:var(--green-bg); color:var(--green); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:.15s; }
-    .btn-toggle.inactivo { border-color:var(--red-bg); background:var(--red-bg); color:var(--red); }
 
     /* ══ FORM PRODUCTO ═══════════════════════════════════════════════════ */
     .prod-form-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); z-index:300; display:none; align-items:center; justify-content:center; padding:16px; }
@@ -299,6 +298,35 @@
     .toast.show { opacity:1; transform:translateY(0); }
     .toast.ok  { border-color:#86efac; color:var(--green); }
     .toast.err { border-color:#fca5a5; color:var(--red); }
+
+    /* ══ CALIFICACIONES ══════════════════════════════════════════════════ */
+    .cal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-top:16px; }
+    .cal-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:var(--shadow); }
+    .cal-card-name { font-size:15px; font-weight:700; color:var(--text); margin-bottom:10px; }
+    .cal-stars-display { display:flex; align-items:center; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+    .cal-stars-display i { font-size:17px; color:#f59e0b; }
+    .cal-stars-display span { font-size:20px; font-weight:800; color:var(--text); }
+    .cal-stars-display small { font-size:12px; color:var(--text2); }
+    .cal-manual-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:#eef2ff; color:var(--accent); border:1px solid #c7d2fe; margin-bottom:10px; }
+    .cal-fields { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+    .cal-field { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .cal-field label { font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.4px; flex-shrink:0; }
+    .cal-field input[type=number] { width:90px; padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; color:var(--text); outline:none; background:var(--bg3); text-align:right; }
+    .cal-field input:focus { border-color:var(--accent); background:#fff; }
+    .cal-toggle { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:10px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .cal-toggle label { font-size:13px; font-weight:600; color:var(--text); }
+    .toggle-switch { position:relative; width:42px; height:24px; flex-shrink:0; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; inset:0; background:var(--border); border-radius:24px; cursor:pointer; transition:.2s; }
+    .toggle-slider:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:white; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .toggle-switch input:checked + .toggle-slider { background:var(--accent); }
+    .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
+    .cal-real { background:var(--bg3); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text2); margin-bottom:12px; }
+    .cal-real strong { font-weight:700; color:var(--text); }
+    .btn-cal-save { width:100%; padding:11px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:10px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:.15s; }
+    .btn-cal-save:hover { opacity:.9; }
+    .btn-cal-reset { width:100%; padding:9px; background:var(--red-bg); border:1.5px solid #fca5a5; border-radius:10px; color:var(--red); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:6px; transition:.15s; }
+    .btn-cal-reset:hover { background:#fee2e2; }
 
     /* ══ IMG UPLOAD ══════════════════════════════════════════════════════ */
     .img-upload-area { border:2px dashed var(--border); border-radius:12px; cursor:pointer;
@@ -395,7 +423,6 @@
       .prod-admin-price { font-size:15px; margin-bottom:8px; }
       .prod-admin-actions { gap:6px; }
       .btn-edit   { padding:7px 6px; font-size:11px; }
-      .btn-toggle { padding:7px 8px; font-size:11px; }
 
       /* Modal detalle */
       .det-modal { border-radius:18px; }
@@ -460,6 +487,9 @@
       </button>
       <button class="tab-btn" id="tabProductos" onclick="switchTab('productos')">
         <i class="fas fa-box"></i> <span>Productos</span>
+      </button>
+      <button class="tab-btn" id="tabCalificaciones" onclick="switchTab('calificaciones')">
+        <i class="fas fa-star"></i> <span>Calificaciones</span>
       </button>
     </div>
     <div class="topbar-right">
@@ -596,6 +626,27 @@
       </div>
     </div>
 
+    <!-- ══ PANEL CALIFICACIONES ══ -->
+    <div id="panelCalificaciones" style="display:none">
+      <div class="page-title">
+        <h1>Calificaciones</h1>
+        <p>Gestiona las calificaciones de cada producto — modo manual o calificaciones reales de clientes</p>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-l"></div>
+        <div class="toolbar-r">
+          <button class="btn-ref" onclick="cargarCalificacionesAdmin()">
+            <i class="fas fa-sync-alt"></i> Actualizar
+          </button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid">
+        <div style="text-align:center;padding:48px;color:var(--text2);font-size:14px">
+          <i class="fas fa-spinner spin"></i> Cargando...
+        </div>
+      </div>
+    </div>
+
   </div><!-- /main-content -->
 </div><!-- /admin-wrap -->
 
@@ -686,20 +737,8 @@
     </div>
 
     <div class="form-field">
-      <label>Specs (clave: valor, uno por línea)</label>
-      <textarea id="pfSpecs" rows="4" placeholder="Chip: H3&#10;Batería: 6h + 30h estuche&#10;Bluetooth: 5.3"></textarea>
-    </div>
-
-    <div class="form-row2">
-      <div class="form-field">
-        <label>Orden</label>
-        <input type="number" id="pfOrden" placeholder="1" />
-      </div>
-      <div class="form-field" style="display:flex;align-items:flex-end;padding-bottom:2px">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer">
-          <input type="checkbox" id="pfActivo" checked style="width:16px;height:16px" /> Producto activo (visible en tienda)
-        </label>
-      </div>
+      <label>Orden</label>
+      <input type="number" id="pfOrden" placeholder="1" />
     </div>
 
     <button class="btn-save" id="btnGuardarProd" onclick="guardarProducto()">
@@ -743,7 +782,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, setDoc, orderBy, query }
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, setDoc, getDoc, addDoc, orderBy, query, onSnapshot }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -855,9 +894,10 @@
         <td><span class="tval">${fCOP(p.total)}</span></td>
         <td>
           <select class="estado-sel" onchange="cambiarEstado('${p.docId}',this.value)">
-            ${['APROBADO','ENVIADO','ENTREGADO','PENDIENTE','CANCELADO'].map(s=>
-              `<option value="${s}" ${p.estado===s?'selected':''}>${s}</option>`
-            ).join('')}
+            ${(p.esContraEntrega
+              ? ['Contra entrega - Envío pagado','ENVIADO','ENTREGADO','CANCELADO']
+              : ['APROBADO','ENVIADO','ENTREGADO','PENDIENTE','CANCELADO']
+            ).map(s => `<option value="${s}" ${p.estado===s?'selected':''}>${s}</option>`).join('')}
           </select>
         </td>
         <td style="color:var(--text2);font-size:12px;white-space:nowrap">${fFecha(p.fechaLegible||p.fecha)}</td>
@@ -921,6 +961,15 @@
     } catch(e) { toast('❌ Error: '+e.message, 'err'); }
   };
 
+  window.cambiarCampo = async (id, campo, valor) => {
+    try {
+      await updateDoc(doc(db,'pedidos',id), { [campo]: valor });
+      const p = todos.find(x=>x.docId===id);
+      if (p) p[campo] = valor;
+      toast('✅ Actualizado', 'ok');
+    } catch(e) { toast('❌ Error: '+e.message, 'err'); }
+  };
+
   // ── VER DETALLE ───────────────────────────────────────────────────────────
   window.verDetalle = (id) => {
     const p = todos.find(x=>x.docId===id);
@@ -932,7 +981,10 @@
     document.getElementById('detBody').innerHTML = `
       <div class="det-section">
         <div class="det-sec-title">Estado</div>
-        <span class="badge b-${p.estado||'PENDIENTE'}">${p.estado||'—'}</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge b-${p.estado||'PENDIENTE'}">${p.estado||'—'}</span>
+          ${p.esContraEntrega ? '<span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d"><i class="fas fa-truck"></i> Contra Entrega</span>' : ''}
+        </div>
       </div>
       <div class="det-section">
         <div class="det-sec-title">Cliente</div>
@@ -957,8 +1009,39 @@
             <span class="pn">${i.name} × ${i.qty}</span>
             <span class="pp">${fCOP(i.price*i.qty)}</span>
           </div>`).join('') || '<p style="color:var(--text2);font-size:13px">Sin detalle</p>'}
-        <div class="total-bar"><span>Total pagado</span><strong>${fCOP(p.total)}</strong></div>
+        ${p.esContraEntrega ? `
+          <div class="total-bar" style="background:#fff7ed;border-color:#fcd34d;margin-top:8px">
+            <span style="color:#92400e">Envío cobrado (Wompi)</span>
+            <strong style="color:#d97706">${fCOP(p.valorEnvio||8000)}</strong>
+          </div>
+          <div class="total-bar" style="background:#fff7ed;border-color:#fcd34d;margin-top:6px">
+            <span style="color:#92400e">Producto (pendiente por cobrar)</span>
+            <strong style="color:#d97706">${fCOP(p.valorProducto||0)}</strong>
+          </div>
+          <div class="total-bar" style="margin-top:6px">
+            <span>Total del pedido</span>
+            <strong>${fCOP(p.total)}</strong>
+          </div>` : `
+          <div class="total-bar"><span>Total pagado</span><strong>${fCOP(p.total)}</strong></div>`}
       </div>
+      ${p.esContraEntrega ? `
+      <div class="det-section">
+        <div class="det-sec-title">Contra Entrega</div>
+        <div class="info-grid">
+          <div class="info-item"><label>Método de pago</label><span>Contra Entrega</span></div>
+          <div class="info-item"><label>Estado del envío</label>
+            <select class="estado-sel" style="width:100%" onchange="cambiarCampo('${p.docId}','estadoEnvio',this.value)">
+              ${['Pendiente','Enviado','Entregado'].map(s=>`<option value="${s}" ${(p.estadoEnvio||'Pendiente')===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div class="info-item"><label>Estado del recaudo</label>
+            <select class="estado-sel" style="width:100%" onchange="cambiarCampo('${p.docId}','estadoRecaudo',this.value)">
+              ${['Pendiente','Cobrado'].map(s=>`<option value="${s}" ${(p.estadoRecaudo||'Pendiente')===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div class="info-item"><label>Envío pagado</label><span style="color:#16a34a;font-weight:700">${fCOP(p.valorEnvio||8000)}</span></div>
+        </div>
+      </div>` : ''}
       <div class="det-section">
         <div class="det-sec-title">Pago</div>
         <div class="info-grid">
@@ -973,18 +1056,23 @@
 
   // ── TABS ──────────────────────────────────────────────────────────────────
   window.switchTab = (tab) => {
-    const isPedidos = tab === 'pedidos';
-    // Mostrar/ocultar paneles de pedidos
+    const isPedidos        = tab === 'pedidos';
+    const isProductos      = tab === 'productos';
+    const isCalificaciones = tab === 'calificaciones';
+
     ['pedidosTitle','pedidosStats','pedidosToolbar','pedidosTable'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = isPedidos ? '' : 'none';
     });
-    document.getElementById('panelProductos').style.display = isPedidos ? 'none' : 'block';
-    // Tabs activos
-    document.getElementById('tabPedidos').classList.toggle('active', isPedidos);
-    document.getElementById('tabProductos').classList.toggle('active', !isPedidos);
-    // Cargar productos si se abre el tab
-    if (!isPedidos) cargarProductosAdmin();
+    document.getElementById('panelProductos').style.display      = isProductos      ? 'block' : 'none';
+    document.getElementById('panelCalificaciones').style.display = isCalificaciones ? 'block' : 'none';
+
+    document.getElementById('tabPedidos').classList.toggle('active',        isPedidos);
+    document.getElementById('tabProductos').classList.toggle('active',      isProductos);
+    document.getElementById('tabCalificaciones').classList.toggle('active', isCalificaciones);
+
+    if (isProductos)      cargarProductosAdmin();
+    if (isCalificaciones) cargarCalificacionesAdmin();
   };
 
   // ── PANEL PRODUCTOS ───────────────────────────────────────────────────────
@@ -993,17 +1081,17 @@
   let mainImgPending = null;
   let galleryPending = [];
 
-  window.cargarProductosAdmin = async () => {
+  window.cargarProductosAdmin = () => {
     const grid = document.getElementById('prodAdminGrid');
     grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px"><i class="fas fa-spinner spin"></i> Cargando productos...</div>';
-    try {
-      const snap = await getDocs(collection(db, 'productos'));
+    // Tiempo real con onSnapshot
+    onSnapshot(collection(db, 'productos'), (snap) => {
       prodListAdmin = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
       prodListAdmin.sort((a, b) => (a.orden || 0) - (b.orden || 0));
       renderProdAdmin();
-    } catch(e) {
+    }, (e) => {
       grid.innerHTML = `<div style="text-align:center;padding:48px;color:var(--red);font-size:14px"><i class="fas fa-exclamation-circle"></i> Error: ${e.message}</div>`;
-    }
+    });
   };
 
   function renderProdAdmin() {
@@ -1019,29 +1107,17 @@
         </div>
         <div class="prod-admin-body">
           <div class="prod-admin-name">${p.nombre || '—'}</div>
-          <div class="prod-admin-price">${fCOP(p.precio)}</div>
+          <div class="prod-admin-price">${fCOP(p.precio)}<span style="font-size:12px;color:var(--text2);font-weight:400;text-decoration:line-through;margin-left:8px">${fCOP(p.precioAntes)}</span></div>
+          <div class="prod-admin-desc">${(p.descripcion||'').slice(0,60)}${(p.descripcion||'').length>60?'…':''}</div>
           <div class="prod-admin-actions">
             <button class="btn-edit" onclick="abrirFormProd('${p.docId}')">
               <i class="fas fa-pen"></i> Editar
-            </button>
-            <button class="btn-toggle ${p.activo ? '' : 'inactivo'}" onclick="toggleActivo('${p.docId}', ${p.activo})">
-              ${p.activo ? '<i class="fas fa-eye"></i> Activo' : '<i class="fas fa-eye-slash"></i> Inactivo'}
             </button>
           </div>
         </div>
       </div>
     `).join('');
   }
-
-  window.toggleActivo = async (docId, actual) => {
-    try {
-      await updateDoc(doc(db, 'productos', docId), { activo: !actual });
-      const p = prodListAdmin.find(x => x.docId === docId);
-      if (p) p.activo = !actual;
-      renderProdAdmin();
-      toast(`✅ Producto ${!actual ? 'activado' : 'desactivado'}`, 'ok');
-    } catch(e) { toast('❌ Error: ' + e.message, 'err'); }
-  };
 
   // ── PREVIEW IMG PRINCIPAL ─────────────────────────────────────────────────
   window.previewMainImg = (input) => {
@@ -1124,9 +1200,7 @@
       document.getElementById('pfGaleria').value     = (p.galeria || []).join(', ');
       document.getElementById('pfDesc').value        = p.descripcion || '';
       document.getElementById('pfCaracts').value     = (p.caracteristicas || []).join('\n');
-      document.getElementById('pfSpecs').value       = Object.entries(p.specs || {}).map(([k,v]) => `${k}: ${v}`).join('\n');
       document.getElementById('pfOrden').value       = p.orden || '';
-      document.getElementById('pfActivo').checked    = p.activo !== false;
       // Mostrar imagen actual
       if (p.imagenPrincipal) {
         const img = document.createElement('img');
@@ -1141,10 +1215,9 @@
       document.getElementById('prodFormTitle').textContent = 'Nuevo producto';
       document.getElementById('pfDocId').value = '';
       ['pfNombre','pfTag','pfPrecio','pfPrecioAntes','pfBadge','pfBadgeColor',
-       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfSpecs','pfOrden'].forEach(id => {
+       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfOrden'].forEach(id => {
         document.getElementById(id).value = '';
       });
-      document.getElementById('pfActivo').checked = true;
     }
     document.getElementById('prodFormOverlay').classList.add('active');
   };
@@ -1216,10 +1289,7 @@
       const caracteristicas = document.getElementById('pfCaracts').value
         .split('\n').map(s => s.trim()).filter(Boolean);
       const specs = {};
-      document.getElementById('pfSpecs').value.split('\n').forEach(line => {
-        const idx = line.indexOf(':');
-        if (idx > 0) specs[line.substring(0,idx).trim()] = line.substring(idx+1).trim();
-      });
+      // specs vacío — campo eliminado del formulario
 
       const data = {
         nombre,
@@ -1234,7 +1304,7 @@
         caracteristicas,
         specs,
         orden:          Number(document.getElementById('pfOrden').value) || 99,
-        activo:         document.getElementById('pfActivo').checked
+        activo:         true
       };
 
       await setDoc(doc(db, 'productos', targetId), data, { merge: true });
@@ -1248,6 +1318,121 @@
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save"></i> Guardar producto';
     }
+  };
+
+  // ── CALIFICACIONES ────────────────────────────────────────────────────────
+  let calData = {}; // { prod_1: { nombre, modoManual, manualEstrellas, manualCantidad, promedioReal, cantidadReal, sumaReal } }
+
+  window.cargarCalificacionesAdmin = async () => {
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px"><i class="fas fa-spinner spin"></i> Cargando...</div>';
+    try {
+      // Cargar productos para tener los nombres
+      const snapProds = await getDocs(collection(db, 'productos'));
+      const prods = {};
+      snapProds.docs.forEach(d => { prods[d.id] = d.data().nombre || d.id; });
+
+      // Cargar calificaciones
+      const snapCal = await getDocs(collection(db, 'calificaciones'));
+      calData = {};
+      snapCal.docs.forEach(d => { calData[d.id] = { docId: d.id, nombre: prods[d.id] || d.id, ...d.data() }; });
+
+      // Asegurar que exista una entrada por cada producto
+      Object.keys(prods).forEach(id => {
+        if (!calData[id]) calData[id] = { docId: id, nombre: prods[id], modoManual: false, manualEstrellas: 4.9, manualCantidad: 327, promedioReal: 0, cantidadReal: 0, sumaReal: 0 };
+      });
+
+      renderCalGrid();
+    } catch(e) {
+      grid.innerHTML = `<div style="text-align:center;padding:48px;color:var(--red);font-size:14px"><i class="fas fa-exclamation-circle"></i> Error: ${e.message}</div>`;
+    }
+  };
+
+  function renderCalGrid() {
+    const grid = document.getElementById('calGrid');
+    const items = Object.values(calData);
+    if (!items.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2)">Sin productos</div>'; return; }
+    grid.innerHTML = items.map(p => {
+      const avg   = p.modoManual ? p.manualEstrellas : (p.promedioReal || 0);
+      const count = p.modoManual ? p.manualCantidad  : (p.cantidadReal || 0);
+      const stars = renderAdminStars(avg);
+      return `
+      <div class="cal-card">
+        <div class="cal-card-name">${p.nombre}</div>
+        <div class="cal-stars-display">
+          ${stars}
+          <span>${Number(avg||0).toFixed(1)}</span>
+          <small>(${Number(count||0).toLocaleString('es-CO')} calif.)</small>
+        </div>
+        ${p.modoManual ? '<div class="cal-manual-badge"><i class="fas fa-sliders-h"></i> Modo manual activo</div>' : ''}
+        <div class="cal-toggle">
+          <label>Modo manual</label>
+          <label class="toggle-switch">
+            <input type="checkbox" ${p.modoManual ? 'checked' : ''} onchange="toggleModoManual('${p.docId}', this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="cal-fields">
+          <div class="cal-field">
+            <label>Estrellas (manual)</label>
+            <input type="number" id="cal-est-${p.docId}" min="1" max="5" step="0.1" value="${p.manualEstrellas||4.9}" />
+          </div>
+          <div class="cal-field">
+            <label>Cantidad (manual)</label>
+            <input type="number" id="cal-cnt-${p.docId}" min="0" value="${p.manualCantidad||327}" />
+          </div>
+        </div>
+        <div class="cal-real">
+          <span>Promedio real clientes</span>
+          <strong>${p.cantidadReal ? Number(p.promedioReal).toFixed(1) + ' (' + p.cantidadReal + ')' : 'Sin datos'}</strong>
+        </div>
+        <button class="btn-cal-save" onclick="guardarCalAdmin('${p.docId}')"><i class="fas fa-save"></i> Guardar</button>
+        <button class="btn-cal-reset" onclick="resetCalAdmin('${p.docId}')"><i class="fas fa-undo"></i> Reiniciar calificaciones reales</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderAdminStars(avg) {
+    const full  = Math.floor(avg || 0);
+    const half  = ((avg||0) - full) >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '<i class="fas fa-star" style="color:#f59e0b;font-size:16px"></i>'.repeat(full)
+      + (half ? '<i class="fas fa-star-half-alt" style="color:#f59e0b;font-size:16px"></i>' : '')
+      + '<i class="far fa-star" style="color:#f59e0b;font-size:16px"></i>'.repeat(empty);
+  }
+
+  window.toggleModoManual = async (docId, activo) => {
+    try {
+      await setDoc(doc(db, 'calificaciones', docId), { modoManual: activo }, { merge: true });
+      if (calData[docId]) calData[docId].modoManual = activo;
+      renderCalGrid();
+      toast(`✅ Modo ${activo ? 'manual' : 'real'} activado`, 'ok');
+    } catch(e) { toast('❌ ' + e.message, 'err'); }
+  };
+
+  window.guardarCalAdmin = async (docId) => {
+    const est = parseFloat(document.getElementById(`cal-est-${docId}`)?.value) || 4.9;
+    const cnt = parseInt(document.getElementById(`cal-cnt-${docId}`)?.value)   || 0;
+    try {
+      await setDoc(doc(db, 'calificaciones', docId), { manualEstrellas: est, manualCantidad: cnt }, { merge: true });
+      if (calData[docId]) { calData[docId].manualEstrellas = est; calData[docId].manualCantidad = cnt; }
+      renderCalGrid();
+      toast('✅ Calificación guardada', 'ok');
+    } catch(e) { toast('❌ ' + e.message, 'err'); }
+  };
+
+  window.resetCalAdmin = async (docId) => {
+    if (!confirm('¿Reiniciar todas las calificaciones reales de este producto? No se puede deshacer.')) return;
+    try {
+      // Borrar todos los votos individuales
+      const votosSnap = await getDocs(collection(db, 'calificaciones', docId, 'votos'));
+      await Promise.all(votosSnap.docs.map(v => deleteDoc(v.ref)));
+      // Resetear contadores
+      await setDoc(doc(db, 'calificaciones', docId), { sumaReal: 0, cantidadReal: 0, promedioReal: 0 }, { merge: true });
+      if (calData[docId]) { calData[docId].sumaReal = 0; calData[docId].cantidadReal = 0; calData[docId].promedioReal = 0; }
+      renderCalGrid();
+      toast('✅ Calificaciones reales reiniciadas', 'ok');
+    } catch(e) { toast('❌ ' + e.message, 'err'); }
   };
 
   // ── HELPERS ───────────────────────────────────────────────────────────────

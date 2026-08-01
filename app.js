@@ -7,9 +7,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     await window.cargarProductosTienda();
     actualizarPreciosDOM();
   }
+  if (typeof window.cargarCalificaciones === 'function') {
+    window.cargarCalificaciones(); // onSnapshot — no necesita await
+  }
   // Detectar retorno de Wompi (pago por PSE / Bancolombia / Nequi)
   procesarRetornoWompi();
 });
+
+// ===== STARS HELPER =====
+function renderStarHTML(avg, count) {
+  const full  = Math.floor(avg);
+  const half  = (avg - full) >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  const stars = '<i class="fas fa-star"></i>'.repeat(full)
+    + (half ? '<i class="fas fa-star-half-alt"></i>' : '')
+    + '<i class="far fa-star"></i>'.repeat(empty);
+  return `<div class="stars">${stars}</div><span class="star-count">${avg.toFixed(1)} (${count.toLocaleString('es-CO')})</span>`;
+}
 
 // ===== WOMPI REDIRECT HANDLER =====
 // Guarda el pedido pendiente antes de abrir el widget (por si Wompi redirige)
@@ -44,8 +58,13 @@ async function procesarRetornoWompi() {
     if (status !== 'APPROVED') return;
   } catch { /* si falla la verificación igual procesamos */ }
 
-  const { buyer, address, cartItems, reference } = pedido;
+  const { buyer, address, cartItems, reference, esContraEntrega, valorProducto, valorEnvio } = pedido;
   const total = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  if (esContraEntrega) {
+    await completarPedidoCE({ buyer, address, cartSnapshot: cartItems, referencia: reference, transactionId, total });
+    return;
+  }
 
   // Guardar pedido en Firebase
   try {
@@ -66,21 +85,58 @@ async function procesarRetornoWompi() {
   showToast('✅ ¡Pago confirmado! Revisa tu correo.', 'success');
 }
 
-// Actualiza las tarjetas de producto en el DOM con los datos de Firebase
+// Actualiza las tarjetas de producto en el DOM con TODOS los datos de Firebase
 function actualizarPreciosDOM() {
   Object.values(products).forEach(p => {
-    // Actualizar precio en tarjeta
     const card = document.querySelector(`.product-card[data-id="${p.id}"]`);
     if (!card) return;
+
+    // Nombre
+    const titleEl = card.querySelector('.card-title');
+    if (titleEl) titleEl.textContent = p.name;
+
+    // Tag
+    const tagEl = card.querySelector('.card-tag');
+    if (tagEl && p.tag) tagEl.textContent = p.tag;
+
+    // Descripción corta
+    const descEl = card.querySelector('.card-desc');
+    if (descEl && p.desc) descEl.textContent = p.desc.length > 80 ? p.desc.slice(0, 80) + '…' : p.desc;
+
+    // Precio y precio anterior
     const priceEl    = card.querySelector('.price');
     const priceOldEl = card.querySelector('.price-old');
-    const btn        = card.querySelector('.add-cart-btn');
     if (priceEl)    priceEl.textContent    = formatCOP(p.price);
     if (priceOldEl) priceOldEl.textContent = formatCOP(p.oldPrice);
+
+    // Badge — siempre visible, nunca vacío
+    const badgeEl = card.querySelector('.card-badge');
+    if (badgeEl) {
+      const badgeText  = (p.badge && p.badge.trim()) ? p.badge.trim() : 'Nuevo';
+      const badgeColor = (p.badgeColor && p.badgeColor.trim()) ? p.badgeColor : 'linear-gradient(135deg,#6c63ff,#a78bfa)';
+      badgeEl.textContent      = badgeText;
+      badgeEl.style.background = badgeColor;
+      badgeEl.style.display    = '';
+    }
+
+    // Imagen principal
+    const firstImg = card.querySelector('.card-img-wrap img.active-slide');
+    if (firstImg && p.img) {
+      firstImg.src = p.img;
+      firstImg.alt = p.name;
+    }
+
+    // Botón agregar
+    const btn = card.querySelector('.add-cart-btn');
     if (btn) {
       btn.setAttribute('onclick',
-        `event.stopPropagation();addToCart(${p.id},'${p.name}',${p.price},'${p.img}')`);
+        `event.stopPropagation();addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.img}')`);
     }
+
+    // onclick de la card
+    card.setAttribute('onclick', `openModal(${p.id})`);
+    const qvBtn = card.querySelector('.quick-view');
+    if (qvBtn) qvBtn.setAttribute('onclick', `event.stopPropagation();openModal(${p.id})`);
   });
 }
 
@@ -156,13 +212,14 @@ const products = {
       'img/Airpods Pro 3/pro3-4.jpg',
       'img/Airpods Pro 3/pro3-5.jpg'
     ],
-    desc: 'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 24 horas de batería con el estuche MagSafe.',
-    features: ['2× mejor cancelación de ruido activa', 'Sensor de frecuencia cardíaca', 'Audio espacial personalizado', 'Carga MagSafe y USB-C', 'Resistencia IPX4'],
-    specs: { 'Chip': 'H3', 'ANC': 'Ultra (2×)', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning / USB-C' }
+    tag: 'Pro Series',
+    desc: 'Disfruta de un sonido potente con cancelación activa de ruido (ANC), modo transparencia y audio espacial personalizado. Calidad 1.1 con hasta 24h de batería total.',
+    features: ['2× mejor cancelación de ruido activa', 'Modo transparencia', 'Audio espacial personalizado', 'Carga MagSafe y USB-C', 'Resistencia IPX4'],
+    specs: {}
   },
   2: {
     id: 2, name: 'AirPods Pro 2', price: 1600, oldPrice: 2000,
-    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 2/pro2-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
     gallery: [
@@ -171,13 +228,14 @@ const products = {
       'img/Airpods Pro 2/pro2-3.jpg',
       'img/Airpods Pro 2/pro2-4.jpg'
     ],
-    desc: 'Los AirPods Pro 2 con chip H2 ofrecen cancelación activa de ruido mejorada, modo de sonido ambiente y audio espacial personalizado. El estuche incluye altavoz integrado y correa.',
-    features: ['Cancelación activa de ruido H2', 'Modo de sonido ambiente', 'Estuche con altavoz integrado', 'Audio espacial personalizado', 'Resistencia IPX4'],
-    specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
+    tag: 'Pro Series',
+    desc: 'Audífonos inalámbricos Calidad 1.1 con sonido de alta definición, cancelación de ruido activa y estuche con altavoz integrado. Compatibles con iOS y Android.',
+    features: ['Cancelación activa de ruido', 'Modo de sonido ambiente', 'Estuche con altavoz integrado', 'Audio espacial personalizado', 'Resistencia IPX4'],
+    specs: {}
   },
   3: {
     id: 3, name: 'AirPods Series 3', price: 1600, oldPrice: 2000,
-    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Series 3/series3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
     gallery: [
@@ -186,13 +244,14 @@ const products = {
       'img/Series 3/series3-3.jpg',
       'img/Series 3/series3-4.jpg'
     ],
-    desc: 'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.',
-    features: ['Audio espacial dinámico', 'EQ adaptativo automático', 'Tallo más corto inspirado en Pro', 'Resistencia IPX4', 'Carga MagSafe'],
-    specs: { 'Chip': 'H1', 'ANC': 'Activa', 'Batería': '6h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'MagSafe / Lightning' }
+    tag: 'Standard Series',
+    desc: 'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.',
+    features: ['Audio espacial dinámico', 'EQ adaptativo automático', 'Diseño ergonómico ligero', 'Resistencia IPX4', 'Carga MagSafe'],
+    specs: {}
   },
   4: {
     id: 4, name: 'AirPods Series 4', price: 1600, oldPrice: 2000,
-    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
+    badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Series 4/series4-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
     gallery: [
@@ -200,9 +259,10 @@ const products = {
       'img/Series 4/series4-2.jpg',
       'img/Series 4/series4-3.jpg'
     ],
-    desc: 'Los AirPods de 4ta generación con chip H2, nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas totales de batería.',
+    tag: 'Standard Series',
+    desc: 'Los AirPods de 4ta generación con nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas de batería total.',
     features: ['Nuevo diseño ergonómico sin almohadilla', 'Audio adaptativo', 'Detección de conversación', 'Carga USB-C y MagSafe', 'Hasta 24h con estuche'],
-    specs: { 'Chip': 'H2', 'ANC': 'Activa', 'Batería': '5h + 24h estuche', 'Bluetooth': '5.3', 'Resistencia': 'IPX4', 'Carga': 'USB-C / MagSafe' }
+    specs: {}
   }
 };
 
@@ -257,30 +317,59 @@ function saveCart() {
 
 function renderCart() {
   const container = document.getElementById('cartItems');
-  const footer = document.getElementById('cartFooter');
+  const footer    = document.getElementById('cartFooter');
+  const countEl   = document.getElementById('cartItemCount');
+
   if (cart.length === 0) {
-    container.innerHTML = '<div class="cart-empty"><i class="fas fa-bag-shopping"></i><p>Tu carrito está vacío</p></div>';
+    container.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon"><i class="fas fa-bag-shopping"></i></div>
+        <h4>Tu carrito está vacío</h4>
+        <p>Aún no has agregado ningún producto. Explora nuestra colección y encuentra los AirPods ideales para ti.</p>
+        <button class="cart-empty-btn" onclick="toggleCart(); document.getElementById('productos').scrollIntoView({behavior:'smooth'})">
+          <i class="fas fa-headphones-alt"></i> Explorar productos
+        </button>
+      </div>`;
     footer.style.display = 'none';
+    if (countEl) countEl.textContent = '0 productos';
     return;
   }
-  footer.style.display = 'block';
-  container.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <img src="${item.img}" alt="${item.name}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80&q=80'" />
-      <div class="cart-item-info">
-        <h4>${item.name}</h4>
-        <p>${formatCOP(item.price)}</p>
-        <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
-          <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+
+  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  if (countEl) countEl.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''}`;
+
+  container.innerHTML = cart.map(item => {
+    const subtotal = item.price * item.qty;
+    return `
+    <div class="cart-item" id="cart-item-${item.id}">
+      <img class="cart-item-img"
+           src="${item.img}"
+           alt="${item.name}"
+           onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80&q=80'" />
+      <div class="cart-item-body">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${formatCOP(item.price)} c/u</div>
+        <div class="cart-item-row">
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty(${item.id}, -1)" aria-label="Reducir">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id}, 1)" aria-label="Aumentar">+</button>
+          </div>
+          <span class="cart-item-subtotal">${formatCOP(subtotal)}</span>
         </div>
       </div>
-      <button class="remove-item" onclick="removeItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
-    </div>
-  `).join('');
-  const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-  document.getElementById('cartTotal').textContent = formatCOP(total);
+      <button class="remove-item" onclick="removeItem(${item.id})" aria-label="Eliminar ${item.name}">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>`;
+  }).join('');
+
+  const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const subtotalEl = document.getElementById('cartSubtotal');
+  const totalEl    = document.getElementById('cartTotal');
+  if (subtotalEl) subtotalEl.textContent = formatCOP(subtotal);
+  if (totalEl)    totalEl.textContent    = formatCOP(subtotal);
+  footer.style.display = 'block';
 }
 
 function changeQty(id, delta) {
@@ -293,9 +382,19 @@ function changeQty(id, delta) {
 }
 
 function removeItem(id) {
-  cart = cart.filter(i => i.id !== id);
-  saveCart();
-  renderCart();
+  const el = document.getElementById(`cart-item-${id}`);
+  if (el) {
+    el.classList.add('removing');
+    setTimeout(() => {
+      cart = cart.filter(i => i.id !== id);
+      saveCart();
+      renderCart();
+    }, 250);
+  } else {
+    cart = cart.filter(i => i.id !== id);
+    saveCart();
+    renderCart();
+  }
   showToast('Producto eliminado del carrito');
 }
 
@@ -324,9 +423,6 @@ function openModal(id) {
   modalQty = 1;
 
   const discount = Math.round((1 - p.price / p.oldPrice) * 100);
-  const specsHTML = Object.entries(p.specs).map(([k, v]) => `
-    <div class="modal-spec"><label>${k}</label><span>${v}</span></div>
-  `).join('');
   const featuresHTML = (p.features || []).map(f => `
     <li><i class="fas fa-check-circle"></i> ${f}</li>
   `).join('');
@@ -364,6 +460,15 @@ function openModal(id) {
       <div class="pd-info">
         <div class="pd-tag">🎧 AirPods Calidad 1.1</div>
         <h2 class="pd-title">${p.name}</h2>
+        <div class="pd-stars" id="pd-stars-${p.id}">
+          ${(()=>{
+            const cal = window._calificaciones?.[p.id];
+            if (!cal) return '<i class="fas fa-star"></i>'.repeat(5) + '<span>4.9 (327)</span>';
+            const avg   = cal.modoManual ? cal.manualEstrellas : cal.promedioReal;
+            const count = cal.modoManual ? cal.manualCantidad  : cal.cantidadReal;
+            return avg ? renderStarHTML(avg, count) : '<i class="fas fa-star"></i>'.repeat(5) + '<span>4.9 (327)</span>';
+          })()}
+        </div>
 
         <div class="pd-price-row">
           <span class="pd-price">${formatCOP(p.price)}</span>
@@ -406,11 +511,28 @@ function openModal(id) {
           <div class="pd-trust-item"><i class="fas fa-lock"></i><span>Pago seguro</span></div>
         </div>
 
-        <!-- Specs -->
-        <details class="pd-specs-details">
-          <summary>Ver especificaciones técnicas</summary>
-          <div class="modal-specs-list">${specsHTML}</div>
-        </details>
+        <!-- Widget calificación cliente -->
+        <div class="rating-widget" id="ratingWidget-${p.id}">
+          ${(()=>{
+            const lsKey = `cal_voted_prod_${p.id}`;
+            const last  = parseInt(localStorage.getItem(lsKey) || '0');
+            const yaCalifico = (Date.now() - last) < 24 * 60 * 60 * 1000;
+            if (yaCalifico) return `
+              <p style="color:var(--text2);font-size:13px;text-align:center">
+                <i class="fas fa-check-circle" style="color:#22c55e"></i> Ya calificaste este producto. ¡Gracias!
+              </p>`;
+            return `
+              <p>¿Qué te pareció este producto?</p>
+              <div class="star-picker" id="picker-${p.id}">
+                ${[1,2,3,4,5].map(n=>`<button onclick="hoverStar(${p.id},${n})" onmouseout="resetStarHover(${p.id})" data-val="${n}">★</button>`).join('')}
+              </div>
+              <button class="btn-rate" id="btnRate-${p.id}" disabled onclick="enviarCalificacion(${p.id}, '${`prod_${p.id}`}')">
+                Enviar calificación
+              </button>`;
+          })()}
+        </div>
+
+      </div>
       </div>
     </div>
 
@@ -528,6 +650,27 @@ function closeCheckout() {
   currentStep = 1;
 }
 
+// Variable global para el método de pago seleccionado
+let selectedPaymentMethod = 'wompi';
+const COSTO_ENVIO = 8000; // $8.000 COP — costo del envío para contra entrega
+
+function selectPaymentMethod(method) {
+  selectedPaymentMethod = method;
+  document.getElementById('pmWompi').classList.toggle('active', method === 'wompi');
+  document.getElementById('pmContraEntrega').classList.toggle('active', method === 'contraentrega');
+  document.getElementById('infoWompi').style.display         = method === 'wompi' ? '' : 'none';
+  document.getElementById('infoContraEntrega').style.display = method === 'contraentrega' ? '' : 'none';
+  const btn = document.getElementById('btnPagar');
+  if (method === 'contraentrega') {
+    btn.innerHTML = '<i class="fas fa-truck"></i> Confirmar y pagar envío';
+    const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    document.getElementById('ceEnvioVal').textContent    = formatCOP(COSTO_ENVIO);
+    document.getElementById('ceProductoVal').textContent = formatCOP(total);
+  } else {
+    btn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
+  }
+}
+
 function goStep(n) {
   [1, 2, 3].forEach(s => {
     document.getElementById(`checkoutStep${s}`).style.display = s === n ? 'block' : 'none';
@@ -538,6 +681,8 @@ function goStep(n) {
   });
   document.getElementById('checkoutSuccess').style.display = 'none';
   currentStep = n;
+  // Reset método de pago al entrar al step 3
+  if (n === 3) selectPaymentMethod('wompi');
 }
 
 function renderOrderSummary() {
@@ -547,15 +692,16 @@ function renderOrderSummary() {
     <div class="order-summary-item"><span>${i.name} × ${i.qty}</span><span>${formatCOP(i.price * i.qty)}</span></div>
   `).join('');
   const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const esCE  = selectedPaymentMethod === 'contraentrega';
   summary.innerHTML = `
     ${items}
-    <div class="order-summary-item"><span>Envío</span><span style="color: var(--green)">GRATIS</span></div>
-    <div class="order-summary-item"><span>Total</span><span style="color: var(--accent2)">${formatCOP(total)}</span></div>
+    <div class="order-summary-item"><span>Envío</span><span style="color:${esCE ? 'var(--accent)' : 'var(--green)'}">${esCE ? formatCOP(COSTO_ENVIO) : 'GRATIS'}</span></div>
+    <div class="order-summary-item"><span>${esCE ? 'Total (envío + producto)' : 'Total'}</span><span style="color:var(--accent2)">${formatCOP(esCE ? total + COSTO_ENVIO : total)}</span></div>
   `;
 }
 
 async function processPayment() {
-  const payBtn = document.querySelector('#checkoutStep3 .btn-primary:last-child');
+  const payBtn = document.getElementById('btnPagar');
 
   const buyer = {
     name:  document.getElementById('co-name')?.value  || '',
@@ -565,6 +711,12 @@ async function processPayment() {
 
   if (!buyer.email || !buyer.email.includes('@')) {
     showToast('Por favor regresa y completa tu correo electrónico', 'error');
+    return;
+  }
+
+  // ── FLUJO CONTRA ENTREGA ──────────────────────────────────────────────────
+  if (selectedPaymentMethod === 'contraentrega') {
+    await processContraEntrega(payBtn, buyer);
     return;
   }
 
@@ -687,6 +839,156 @@ async function processPayment() {
     payBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
     payBtn.disabled = false;
   }
+}
+
+// ===== RATING WIDGET =====
+let _selectedStar = {}; // { prodId: número }
+
+function hoverStar(prodId, val) {
+  _selectedStar[prodId] = val;
+  const picker = document.getElementById(`picker-${prodId}`);
+  if (!picker) return;
+  picker.querySelectorAll('button').forEach((btn, i) => {
+    btn.classList.toggle('active', i < val);
+  });
+  const btnRate = document.getElementById(`btnRate-${prodId}`);
+  if (btnRate) btnRate.disabled = false;
+}
+
+function resetStarHover(prodId) {
+  // Mantener la selección activa, no resetear al salir
+}
+
+async function enviarCalificacion(prodId, prodDocId) {
+  const estrellas = _selectedStar[prodId];
+  if (!estrellas) return;
+
+  const btn = document.getElementById(`btnRate-${prodId}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; }
+
+  const resultado = await window.guardarCalificacionCliente(prodDocId, estrellas);
+
+  const widget = document.getElementById(`ratingWidget-${prodId}`);
+  if (!widget) return;
+
+  if (resultado === 'ok') {
+    widget.innerHTML = '<p style="color:#22c55e;font-size:14px;font-weight:700;text-align:center"><i class="fas fa-check-circle"></i> ¡Gracias por tu calificación!</p>';
+    // onSnapshot actualiza automáticamente las estrellas en tarjeta y modal
+  } else if (resultado === 'ya_voto') {
+    widget.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center"><i class="fas fa-info-circle"></i> Ya calificaste este producto hoy. ¡Gracias!</p>';
+  } else {
+    widget.innerHTML = '<p style="color:var(--red);font-size:13px;text-align:center"><i class="fas fa-exclamation-circle"></i> Error al enviar. Intenta de nuevo.</p>';
+  }
+}
+
+// ===== CONTRA ENTREGA =====
+async function processContraEntrega(payBtn, buyer) {
+  payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando pago del envío...';
+  payBtn.disabled = true;
+
+  const address = {
+    street: document.getElementById('co-address')?.value || '',
+    city:   document.getElementById('co-city')?.value    || '',
+    dept:   document.getElementById('co-dept')?.value    || ''
+  };
+
+  const total        = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const cartSnapshot = [...cart];
+
+  try {
+    // Cobrar solo el envío por Wompi
+    const response = await fetch(`${SERVER_URL}/crear-transaccion`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: [{ price: COSTO_ENVIO, qty: 1, name: 'Costo de envío' }], buyer })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+
+    // Guardar pedido CE pendiente antes de abrir widget
+    const referencia = data.reference;
+    const pedidoCE = {
+      buyer, address,
+      cartItems:      cartSnapshot,
+      reference:      referencia,
+      esContraEntrega: true,
+      valorEnvio:     COSTO_ENVIO,
+      valorProducto:  total,
+      ts: Date.now()
+    };
+    localStorage.setItem('wompPedidoPendiente', JSON.stringify(pedidoCE));
+
+    const checkout = new WidgetCheckout({
+      currency:      data.currency,
+      amountInCents: data.amountInCents,
+      reference:     referencia,
+      publicKey:     data.publicKey,
+      signature:     { integrity: data.signature },
+      redirectUrl:   'https://tecnosmartstore.com/',
+      customerData: {
+        email:             buyer.email,
+        fullName:          buyer.name,
+        phoneNumber:       buyer.phone || '3000000000',
+        phoneNumberPrefix: '+57',
+        legalId:           '1000000000',
+        legalIdType:       'CC'
+      }
+    });
+
+    payBtn.innerHTML = '<i class="fas fa-truck"></i> Confirmar y pagar envío';
+    payBtn.disabled = false;
+    document.body.style.overflow = '';
+
+    checkout.open(async (result) => {
+      const { transaction } = result;
+      if (transaction?.status === 'APPROVED') {
+        localStorage.removeItem('wompPedidoPendiente');
+        await completarPedidoCE({ buyer, address, cartSnapshot, referencia, transactionId: transaction.id || '', total });
+      } else if (transaction?.status === 'DECLINED') {
+        showToast('❌ Pago rechazado. Intenta de nuevo.', 'error');
+      } else {
+        showToast('⚠️ Pago cancelado.', 'error');
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    showToast(`Error: ${err.message}`, 'error');
+    payBtn.innerHTML = '<i class="fas fa-truck"></i> Confirmar y pagar envío';
+    payBtn.disabled = false;
+  }
+}
+
+async function completarPedidoCE({ buyer, address, cartSnapshot, referencia, transactionId, total }) {
+  try {
+    await fetch(`${SERVER_URL}/guardar-pedido`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        buyer, address, items: cartSnapshot,
+        reference:       referencia,
+        transactionId,
+        total:           total + COSTO_ENVIO,
+        valorProducto:   total,
+        valorEnvio:      COSTO_ENVIO,
+        esContraEntrega: true,
+        estadoRecaudo:   'Pendiente',
+        estado:          'Contra entrega - Envío pagado'
+      })
+    });
+  } catch (err) { console.error('❌ Error guardando pedido CE:', err); }
+
+  enviarEmailPedido(buyer, address, cartSnapshot, referencia)
+    .catch(err => console.error('❌ Email dueño:', err));
+  enviarEmailCliente(buyer, address, cartSnapshot, referencia)
+    .catch(err => console.error('❌ Email cliente:', err));
+
+  [1, 2, 3].forEach(s => {
+    document.getElementById(`checkoutStep${s}`).style.display = 'none';
+    document.getElementById(`step${s}-indicator`).classList.add('done');
+  });
+  document.getElementById('checkoutSuccess').style.display = 'block';
+  clearCart();
 }
 
 // ===== CARD SLIDESHOW =====

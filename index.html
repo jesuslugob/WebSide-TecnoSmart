@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile }
       from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, orderBy, query, addDoc }
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, orderBy, query, addDoc, onSnapshot }
       from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -97,10 +97,10 @@
     // ── Seed productos (ejecutar desde consola: seedProductos()) ──────────
     window.seedProductos = async () => {
       const lista = [
-        { id:'prod_1', nombre:'AirPods Pro 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Los AirPods Pro 3 son los auriculares más avanzados de Apple. Con 2× mejor cancelación de ruido activa, chip H3, sensor de frecuencia cardíaca integrado y hasta 36 horas de batería con el estuche MagSafe.', caracteristicas:['2× mejor cancelación de ruido activa','Sensor de frecuencia cardíaca','Audio espacial personalizado','Carga MagSafe y USB-C','Resistencia IPX4'], specs:{Chip:'H3',ANC:'Ultra (2×)',Batería:'6h + 30h estuche',Bluetooth:'5.3',Resistencia:'IPX4',Carga:'MagSafe / Lightning / USB-C'}, imagenPrincipal:'img/Airpods Pro 3/pro3-1.jpg', galeria:['img/Airpods Pro 3/pro3-1.jpg','img/Airpods Pro 3/pro3-2.jpg','img/Airpods Pro 3/pro3-3.jpg','img/Airpods Pro 3/pro3-4.jpg','img/Airpods Pro 3/pro3-5.jpg'], orden:1, activo:true },
-        { id:'prod_2', nombre:'AirPods Pro 2', precio:12500, precioAntes:15000, badge:'Best Seller', badgeColor:'linear-gradient(135deg,#d97706,#f59e0b)', tag:'Pro Series', descripcion:'Los AirPods Pro 2 con chip H2 ofrecen cancelación activa de ruido mejorada, modo de sonido ambiente y audio espacial personalizado. El estuche incluye altavoz integrado y correa.', caracteristicas:['Cancelación activa de ruido H2','Modo de sonido ambiente','Estuche con altavoz integrado','Audio espacial personalizado','Resistencia IPX4'], specs:{Chip:'H2',ANC:'Activa',Batería:'6h + 24h estuche',Bluetooth:'5.3',Resistencia:'IPX4',Carga:'MagSafe / Lightning'}, imagenPrincipal:'img/Airpods Pro 2/pro2-1.jpg', galeria:['img/Airpods Pro 2/pro2-1.jpg','img/Airpods Pro 2/pro2-2.jpg','img/Airpods Pro 2/pro2-3.jpg','img/Airpods Pro 2/pro2-4.jpg'], orden:2, activo:true },
-        { id:'prod_3', nombre:'AirPods Series 3', precio:12500, precioAntes:15000, badge:'', badgeColor:'', tag:'Standard Series', descripcion:'Los AirPods de 3ra generación con audio espacial dinámico, EQ adaptativo y resistencia al sudor IPX4. Diseño remodelado con tallo más corto, inspirado en los Pro.', caracteristicas:['Audio espacial dinámico','EQ adaptativo automático','Tallo más corto inspirado en Pro','Resistencia IPX4','Carga MagSafe'], specs:{Chip:'H1',ANC:'No',Batería:'6h + 24h estuche',Bluetooth:'5.0',Resistencia:'IPX4',Carga:'MagSafe / Lightning'}, imagenPrincipal:'img/Series 3/series3-1.jpg', galeria:['img/Series 3/series3-1.jpg','img/Series 3/series3-2.jpg','img/Series 3/series3-3.jpg','img/Series 3/series3-4.jpg'], orden:3, activo:true },
-        { id:'prod_4', nombre:'AirPods Series 4', precio:12500, precioAntes:15000, badge:'Serie 4', badgeColor:'linear-gradient(135deg,#0ea5e9,#6366f1)', tag:'Standard Series', descripcion:'Los AirPods de 4ta generación con chip H2, nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y Hasta 24 horas totales de batería.', caracteristicas:['Nuevo diseño ergonómico sin almohadilla','Audio adaptativo','Detección de conversación','Carga USB-C y MagSafe','Hasta 30h con estuche'], specs:{Chip:'H2',ANC:'Activa (modelo ANC)',Batería:'5h + 25h estuche',Bluetooth:'5.3',Resistencia:'IPX4',Carga:'USB-C / MagSafe'}, imagenPrincipal:'img/Series 4/series4-1.jpg', galeria:['img/Series 4/series4-1.jpg','img/Series 4/series4-2.jpg','img/Series 4/series4-3.jpg'], orden:4, activo:true }
+        { id:'prod_1', nombre:'AirPods Pro 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Disfruta de un sonido potente con cancelación activa de ruido (ANC), modo transparencia y audio espacial personalizado. Calidad 1.1 con hasta 24h de batería total.', caracteristicas:['2× mejor cancelación de ruido activa','Modo transparencia','Audio espacial personalizado','Carga MagSafe y USB-C','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 3/pro3-1.jpg', galeria:['img/Airpods Pro 3/pro3-1.jpg','img/Airpods Pro 3/pro3-2.jpg','img/Airpods Pro 3/pro3-3.jpg','img/Airpods Pro 3/pro3-4.jpg','img/Airpods Pro 3/pro3-5.jpg'], orden:1, activo:true },
+        { id:'prod_2', nombre:'AirPods Pro 2', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Audífonos inalámbricos Calidad 1.1 con sonido de alta definición, cancelación de ruido activa y estuche con altavoz integrado. Compatibles con iOS y Android.', caracteristicas:['Cancelación activa de ruido','Modo de sonido ambiente','Estuche con altavoz integrado','Audio espacial personalizado','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 2/pro2-1.jpg', galeria:['img/Airpods Pro 2/pro2-1.jpg','img/Airpods Pro 2/pro2-2.jpg','img/Airpods Pro 2/pro2-3.jpg','img/Airpods Pro 2/pro2-4.jpg'], orden:2, activo:true },
+        { id:'prod_3', nombre:'AirPods Series 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.', caracteristicas:['Audio espacial dinámico','EQ adaptativo automático','Diseño ergonómico ligero','Resistencia IPX4','Carga MagSafe'], specs:{}, imagenPrincipal:'img/Series 3/series3-1.jpg', galeria:['img/Series 3/series3-1.jpg','img/Series 3/series3-2.jpg','img/Series 3/series3-3.jpg','img/Series 3/series3-4.jpg'], orden:3, activo:true },
+        { id:'prod_4', nombre:'AirPods Series 4', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Los AirPods de 4ta generación con nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas de batería total.', caracteristicas:['Nuevo diseño ergonómico sin almohadilla','Audio adaptativo','Detección de conversación','Carga USB-C y MagSafe','Hasta 24h con estuche'], specs:{}, imagenPrincipal:'img/Series 4/series4-1.jpg', galeria:['img/Series 4/series4-1.jpg','img/Series 4/series4-2.jpg','img/Series 4/series4-3.jpg'], orden:4, activo:true }
       ];
       for (const p of lista) {
         const { id, ...data } = p;
@@ -110,28 +110,116 @@
       alert('✅ 4 productos subidos a Firestore');
     };
 
-    // ── Cargar productos desde Firestore al abrir la tienda ────────────────
+    // ── Calificaciones en tiempo real con onSnapshot ───────────────────────
+    window.cargarCalificaciones = () => {
+      window._calificaciones = window._calificaciones || {};
+
+      // Escuchar cambios en tiempo real en la colección calificaciones
+      onSnapshot(collection(db, 'calificaciones'), (snap) => {
+        snap.docs.forEach(d => {
+          const data  = d.data();
+          const orden = parseInt(d.id.replace('prod_','')) || 0;
+
+          window._calificaciones[orden] = {
+            modoManual:      data.modoManual      || false,
+            manualEstrellas: parseFloat(data.manualEstrellas) || 4.9,
+            manualCantidad:  parseInt(data.manualCantidad)    || 327,
+            promedioReal:    parseFloat(data.promedioReal)    || 0,
+            cantidadReal:    parseInt(data.cantidadReal)      || 0,
+            docId:           d.id
+          };
+
+          const cal   = window._calificaciones[orden];
+          const avg   = cal.modoManual ? cal.manualEstrellas : cal.promedioReal;
+          const count = cal.modoManual ? cal.manualCantidad  : cal.cantidadReal;
+          if (!avg) return;
+
+          // Actualizar tarjeta
+          const cardEl = document.querySelector(`.product-card[data-id="${orden}"] .star-row`);
+          if (cardEl) cardEl.innerHTML = renderStarHTML(avg, count);
+
+          // Actualizar modal si está abierto para este producto
+          const starsEl = document.getElementById(`pd-stars-${orden}`);
+          if (starsEl) starsEl.innerHTML = renderStarHTML(avg, count);
+        });
+      }, (e) => { console.warn('Cal snapshot error:', e.message); });
+    };
+
+    // Guarda un voto individual y recalcula el promedio
+    window.guardarCalificacionCliente = async (prodDocId, estrellas) => {
+      try {
+        // Anti-spam: 24h por producto por dispositivo
+        const lsKey = `cal_voted_${prodDocId}`;
+        const last  = parseInt(localStorage.getItem(lsKey) || '0');
+        if (Date.now() - last < 24 * 60 * 60 * 1000) return 'ya_voto';
+
+        // 1. Guardar voto individual
+        await addDoc(collection(db, 'calificaciones', prodDocId, 'votos'), {
+          estrellas,
+          fecha: new Date().toISOString()
+        });
+
+        // 2. Recalcular promedio leyendo todos los votos
+        const votosSnap = await getDocs(collection(db, 'calificaciones', prodDocId, 'votos'));
+        const total     = votosSnap.docs.reduce((s, v) => s + (v.data().estrellas || 0), 0);
+        const cantidad  = votosSnap.size;
+        const promedio  = Math.round((total / cantidad) * 10) / 10;
+
+        // 3. Actualizar documento principal
+        await setDoc(doc(db, 'calificaciones', prodDocId),
+          { sumaReal: total, cantidadReal: cantidad, promedioReal: promedio },
+          { merge: true }
+        );
+
+        // 4. Marcar en localStorage
+        localStorage.setItem(lsKey, String(Date.now()));
+        return 'ok';
+      } catch(e) { console.error('Error cal:', e.message); return 'error'; }
+    };
+
+    // ── Cargar productos desde Firestore al abrir la tienda (tiempo real) ─
     window.cargarProductosTienda = async () => {
       try {
         const q = query(collection(db, 'productos'), orderBy('orden'));
+        // Primera carga con getDocs para tener datos rápido
         const snap = await getDocs(q);
         let orden = 1;
         snap.docs.forEach(d => {
           const p = d.data();
           if (!p.activo) return;
-          // Usar orden numérico como clave para compatibilidad con openModal(1), addToCart(1,...)
           const numKey = p.orden || orden;
           products[numKey] = {
             id: numKey, name: p.nombre, price: p.precio, oldPrice: p.precioAntes,
-            badge: p.badge || null, badgeColor: p.badgeColor || '', tag: p.tag || '',
-            img: p.imagenPrincipal,
+            badge: p.badge || 'Nuevo', badgeColor: p.badgeColor || 'linear-gradient(135deg,#6c63ff,#a78bfa)',
+            tag: p.tag || '', img: p.imagenPrincipal,
             fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
             gallery: p.galeria || [p.imagenPrincipal],
-            desc: p.descripcion, features: p.caracteristicas || [], specs: p.specs || {}
+            desc: p.descripcion, features: p.caracteristicas || [], specs: {}
           };
           orden++;
         });
         console.log('✅ Productos cargados desde Firestore:', snap.size);
+
+        // Escuchar cambios en tiempo real
+        onSnapshot(query(collection(db, 'productos'), orderBy('orden')), (snap2) => {
+          let ord = 1;
+          snap2.docs.forEach(d => {
+            const p = d.data();
+            if (!p.activo) return;
+            const numKey = p.orden || ord;
+            products[numKey] = {
+              id: numKey, name: p.nombre, price: p.precio, oldPrice: p.precioAntes,
+              badge: p.badge || 'Nuevo', badgeColor: p.badgeColor || 'linear-gradient(135deg,#6c63ff,#a78bfa)',
+              tag: p.tag || '', img: p.imagenPrincipal,
+              fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
+              gallery: p.galeria || [p.imagenPrincipal],
+              desc: p.descripcion, features: p.caracteristicas || [], specs: {}
+            };
+            ord++;
+          });
+          // Actualizar DOM en tiempo real
+          if (typeof actualizarPreciosDOM === 'function') actualizarPreciosDOM();
+        });
       } catch(err) {
         console.warn('⚠️ Usando productos locales:', err.message);
       }
@@ -231,12 +319,9 @@
         <div class="card-body">
           <div class="card-tag">Pro Series</div>
           <h3 class="card-title">AirPods Pro 3</h3>
+          <div class="star-row" id="stars-card-1"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
           <p class="card-desc">2× mejor cancelación de ruido, sensor de frecuencia cardíaca, audio espacial personalizado.</p>
-          <div class="card-specs">
-            <span><i class="fas fa-battery-full"></i> 24h total</span>
-            <span><i class="fas fa-wifi"></i> BT 5.3</span>
-            <span><i class="fas fa-microphone"></i> ANC ✓</span>
-          </div>
+          <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap">
               <span class="price-old">$2.000</span>
@@ -262,12 +347,9 @@
         <div class="card-body">
           <div class="card-tag">Pro Series</div>
           <h3 class="card-title">AirPods Pro 2</h3>
+          <div class="star-row" id="stars-card-2"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
           <p class="card-desc">Cancelación activa de ruido, chip H2, audio espacial y estuche con altavoz integrado.</p>
-          <div class="card-specs">
-            <span><i class="fas fa-battery-full"></i> 24h total</span>
-            <span><i class="fas fa-wifi"></i> BT 5.3</span>
-            <span><i class="fas fa-microphone"></i> ANC ✓</span>
-          </div>
+          <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap">
               <span class="price-old">$2.000</span>
@@ -293,12 +375,9 @@
         <div class="card-body">
           <div class="card-tag">Standard Series</div>
           <h3 class="card-title">AirPods Series 3</h3>
+          <div class="star-row" id="stars-card-3"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
           <p class="card-desc">Audio espacial dinámico, resistencia al agua IPX4, carga MagSafe incluida.</p>
-          <div class="card-specs">
-            <span><i class="fas fa-battery-full"></i> 24h total</span>
-            <span><i class="fas fa-wifi"></i> BT 5.3</span>
-            <span><i class="fas fa-microphone"></i> ANC ✓</span>
-          </div>
+          <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap">
               <span class="price-old">$2.000</span>
@@ -324,12 +403,9 @@
         <div class="card-body">
           <div class="card-tag">Standard Series</div>
           <h3 class="card-title">AirPods Series 4</h3>
+          <div class="star-row" id="stars-card-4"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
           <p class="card-desc">Nuevo diseño ergonómico, chip H2, audio adaptativo y Hasta 24 horas de batería total.</p>
-          <div class="card-specs">
-            <span><i class="fas fa-battery-full"></i> 24h total</span>
-            <span><i class="fas fa-wifi"></i> BT 5.3</span>
-            <span><i class="fas fa-microphone"></i> ANC ✓</span>
-          </div>
+          <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap">
               <span class="price-old">$2.000</span>
@@ -578,19 +654,62 @@
 <!-- CART SIDEBAR -->
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-sidebar" id="cartSidebar">
+
+  <!-- Header -->
   <div class="cart-header">
-    <h3><i class="fas fa-shopping-bag"></i> Mi Carrito</h3>
-    <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="cart-items" id="cartItems">
-    <div class="cart-empty"><i class="fas fa-bag-shopping"></i><p>Tu carrito está vacío</p></div>
-  </div>
-  <div class="cart-footer" id="cartFooter" style="display:none">
-    <div class="cart-total"><span>Total:</span><span id="cartTotal">$0</span></div>
-    <button class="btn-primary full-width" onclick="openCheckout()">
-      <i class="fas fa-lock"></i> Proceder al pago
+    <div class="cart-header-left">
+      <div class="cart-header-icon"><i class="fas fa-shopping-bag"></i></div>
+      <div>
+        <h3>Mi Carrito</h3>
+        <span class="cart-item-count" id="cartItemCount">0 productos</span>
+      </div>
+    </div>
+    <button class="cart-close-btn" onclick="toggleCart()" aria-label="Cerrar carrito">
+      <i class="fas fa-times"></i>
     </button>
   </div>
+
+  <!-- Items -->
+  <div class="cart-items" id="cartItems">
+    <!-- renderCart() inyecta aquí -->
+  </div>
+
+  <!-- Footer con resumen y métodos de pago -->
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-summary">
+      <div class="cart-summary-row">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">$0</span>
+      </div>
+      <div class="cart-summary-row">
+        <span>Envío</span>
+        <span class="cart-free-ship"><i class="fas fa-truck"></i> Gratis</span>
+      </div>
+      <div class="cart-summary-divider"></div>
+      <div class="cart-summary-row cart-summary-total">
+        <span>Total</span>
+        <span id="cartTotal">$0</span>
+      </div>
+    </div>
+
+    <button class="cart-checkout-btn" onclick="openCheckout()">
+      <i class="fas fa-lock"></i> Finalizar compra
+    </button>
+
+    <!-- Métodos de pago -->
+    <div class="cart-payment-methods">
+      <span class="cart-payment-label">Pago seguro con</span>
+      <div class="cart-payment-logos">
+        <i class="fab fa-cc-visa" title="Visa"></i>
+        <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+        <span class="wompi-badge">PSE</span>
+        <span class="wompi-badge nequi">Nequi</span>
+        <span class="wompi-badge bancol">Bancolombia</span>
+        <span class="wompi-badge" style="color:#64748b;border-color:#e2e8f0"><i class="fas fa-truck" style="margin-right:4px"></i>Contra Entrega</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL PRODUCTO -->
@@ -630,7 +749,27 @@
     </div>
     <div id="checkoutStep3" class="checkout-step" style="display:none">
       <h3>Resumen y pago</h3>
-      <div class="mp-info-box">
+
+      <!-- Selector de método de pago -->
+      <div class="payment-method-selector">
+        <div class="pm-option active" id="pmWompi" onclick="selectPaymentMethod('wompi')">
+          <div class="pm-radio"><span></span></div>
+          <div class="pm-info">
+            <div class="pm-title"><i class="fas fa-lock"></i> Pago en línea — Wompi</div>
+            <div class="pm-sub">Tarjeta, Nequi, PSE, Bancolombia, DaviPlata</div>
+          </div>
+        </div>
+        <div class="pm-option" id="pmContraEntrega" onclick="selectPaymentMethod('contraentrega')">
+          <div class="pm-radio"><span></span></div>
+          <div class="pm-info">
+            <div class="pm-title"><i class="fas fa-truck"></i> Pago Contra Entrega</div>
+            <div class="pm-sub">Solo pagas el envío ahora, el producto al recibir</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Wompi -->
+      <div class="mp-info-box" id="infoWompi">
         <div class="mp-logo"><i class="fas fa-lock"></i> Pago seguro con <strong style="color:#7b3fe4">Wompi</strong></div>
         <div class="mp-methods">
           <span><i class="fab fa-cc-visa"></i></span>
@@ -642,10 +781,22 @@
         </div>
         <p class="mp-desc">Al hacer clic en "Pagar ahora" se abrirá el widget seguro de Wompi donde podrás elegir tu método de pago favorito.</p>
       </div>
+
+      <!-- Info Contra Entrega -->
+      <div class="ce-info-box" id="infoContraEntrega" style="display:none">
+        <div class="ce-header"><i class="fas fa-truck"></i> Pago Contra Entrega</div>
+        <p class="ce-desc">Para utilizar esta modalidad, solo debes pagar el costo del envío por adelantado. El valor del producto lo pagarás cuando recibas tu pedido.</p>
+        <p class="ce-desc" style="margin-top:8px">Esta política nos permite garantizar el despacho de tu pedido y evitar cancelaciones o devoluciones innecesarias.</p>
+        <div class="ce-costs" id="ceCosts">
+          <div class="ce-cost-row"><span>Costo del envío (a pagar ahora)</span><strong id="ceEnvioVal">—</strong></div>
+          <div class="ce-cost-row ce-pending"><span>Valor del producto (al recibir)</span><strong id="ceProductoVal">—</strong></div>
+        </div>
+      </div>
+
       <div class="order-summary" id="orderSummary"></div>
       <div class="form-row mt-16">
         <button class="btn-ghost" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Atrás</button>
-        <button class="btn-primary" onclick="processPayment()"><i class="fas fa-lock"></i> Pagar ahora</button>
+        <button class="btn-primary" id="btnPagar" onclick="processPayment()"><i class="fas fa-lock"></i> Pagar ahora</button>
       </div>
     </div>
     <div id="checkoutSuccess" class="checkout-step success-step" style="display:none">
@@ -653,8 +804,7 @@
       <h3>¡Pedido confirmado!</h3>
       <p>Gracias por tu compra. Recibirás un correo de confirmación en breve. Tu pedido llegará en 2-4 días hábiles.</p>
       <button class="btn-primary mt-16" onclick="closeCheckout(); clearCart();">Cerrar</button>
-    </div>
-  </div>
+    </div>  </div>
 </div>
 
 <!-- WHATSAPP FLOAT -->
