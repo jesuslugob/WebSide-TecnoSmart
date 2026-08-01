@@ -1,16 +1,47 @@
 // ===== STATE =====
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 
+// Caché de productos para evitar CLS — muestra datos correctos antes que Firebase responda
+(function aplicarCacheProductos() {
+  try {
+    const cached = localStorage.getItem('tsProductCache');
+    if (!cached) return;
+    const prods = JSON.parse(cached);
+    const fmt = v => '$' + Number(v||0).toLocaleString('es-CO');
+    Object.values(prods).forEach(p => {
+      const card = document.querySelector(`.product-card[data-id="${p.id}"]`);
+      if (!card) return;
+      const priceEl    = card.querySelector('.price');
+      const priceOldEl = card.querySelector('.price-old');
+      const priceWrap  = card.querySelector('.price-wrap');
+      if (priceEl)    priceEl.textContent    = fmt(p.price);
+      if (priceOldEl) priceOldEl.textContent = fmt(p.oldPrice);
+      // Quitar skeleton si ya tenemos valor en caché
+      if (priceWrap && p.price) priceWrap.classList.remove('price-loading');
+    });
+  } catch(e) { /* sin caché, el skeleton se queda hasta que llega Firebase */ }
+})();
+
 // Llamar carga de productos desde Firestore (se ejecuta después del DOM)
 document.addEventListener('DOMContentLoaded', async () => {
   if (typeof window.cargarProductosTienda === 'function') {
     await window.cargarProductosTienda();
     actualizarPreciosDOM();
+    // Guardar en caché para próxima carga
+    try {
+      const cache = {};
+      Object.values(products).forEach(p => {
+        cache[p.id] = { id: p.id, name: p.name, price: p.price, oldPrice: p.oldPrice, desc: p.desc };
+      });
+      localStorage.setItem('tsProductCache', JSON.stringify(cache));
+    } catch(e) {}
   }
   if (typeof window.cargarCalificaciones === 'function') {
-    window.cargarCalificaciones(); // onSnapshot — no necesita await
+    window.cargarCalificaciones();
   }
-  // Detectar retorno de Wompi (pago por PSE / Bancolombia / Nequi)
+  if (typeof window.cargarConfig === 'function') {
+    window.cargarConfig();
+  }
   procesarRetornoWompi();
 });
 
@@ -86,58 +117,59 @@ async function procesarRetornoWompi() {
 }
 
 // Actualiza las tarjetas de producto en el DOM con TODOS los datos de Firebase
+// Usa requestAnimationFrame para no provocar reflow durante el paint inicial
 function actualizarPreciosDOM() {
+  requestAnimationFrame(() => {
   Object.values(products).forEach(p => {
     const card = document.querySelector(`.product-card[data-id="${p.id}"]`);
     if (!card) return;
 
-    // Nombre
     const titleEl = card.querySelector('.card-title');
-    if (titleEl) titleEl.textContent = p.name;
+    if (titleEl && titleEl.textContent !== p.name) titleEl.textContent = p.name;
 
-    // Tag
     const tagEl = card.querySelector('.card-tag');
-    if (tagEl && p.tag) tagEl.textContent = p.tag;
+    if (tagEl && p.tag && tagEl.textContent !== p.tag) tagEl.textContent = p.tag;
 
-    // Descripción corta
     const descEl = card.querySelector('.card-desc');
-    if (descEl && p.desc) descEl.textContent = p.desc.length > 80 ? p.desc.slice(0, 80) + '…' : p.desc;
+    const descText = p.desc && p.desc.length > 80 ? p.desc.slice(0, 80) + '…' : (p.desc || '');
+    if (descEl && descEl.textContent !== descText) descEl.textContent = descText;
 
-    // Precio y precio anterior
     const priceEl    = card.querySelector('.price');
     const priceOldEl = card.querySelector('.price-old');
-    if (priceEl)    priceEl.textContent    = formatCOP(p.price);
-    if (priceOldEl) priceOldEl.textContent = formatCOP(p.oldPrice);
+    const priceWrap  = card.querySelector('.price-wrap');
+    const newPrice    = formatCOP(p.price);
+    const newOldPrice = formatCOP(p.oldPrice);
+    if (priceEl    && priceEl.textContent    !== newPrice)    priceEl.textContent    = newPrice;
+    if (priceOldEl && priceOldEl.textContent !== newOldPrice) priceOldEl.textContent = newOldPrice;
+    // Quitar skeleton ahora que tenemos el precio real
+    if (priceWrap) priceWrap.classList.remove('price-loading');
 
-    // Badge — siempre visible, nunca vacío
     const badgeEl = card.querySelector('.card-badge');
     if (badgeEl) {
       const badgeText  = (p.badge && p.badge.trim()) ? p.badge.trim() : 'Nuevo';
       const badgeColor = (p.badgeColor && p.badgeColor.trim()) ? p.badgeColor : 'linear-gradient(135deg,#6c63ff,#a78bfa)';
-      badgeEl.textContent      = badgeText;
+      if (badgeEl.textContent !== badgeText) badgeEl.textContent = badgeText;
       badgeEl.style.background = badgeColor;
       badgeEl.style.display    = '';
     }
 
-    // Imagen principal
     const firstImg = card.querySelector('.card-img-wrap img.active-slide');
-    if (firstImg && p.img) {
+    if (firstImg && p.img && firstImg.src !== p.img) {
       firstImg.src = p.img;
       firstImg.alt = p.name;
     }
 
-    // Botón agregar
     const btn = card.querySelector('.add-cart-btn');
     if (btn) {
       btn.setAttribute('onclick',
         `event.stopPropagation();addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.img}')`);
     }
 
-    // onclick de la card
     card.setAttribute('onclick', `openModal(${p.id})`);
     const qvBtn = card.querySelector('.quick-view');
     if (qvBtn) qvBtn.setAttribute('onclick', `event.stopPropagation();openModal(${p.id})`);
   });
+  }); // fin requestAnimationFrame
 }
 
 // ===== EMAILJS CONFIG =====
@@ -201,7 +233,7 @@ function formatCOP(value) {
 
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 1600, oldPrice: 2000,
+    id: 1, name: 'AirPods Pro 3', price: 12500, oldPrice: 15000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 3/pro3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
@@ -218,7 +250,7 @@ const products = {
     specs: {}
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 1600, oldPrice: 2000,
+    id: 2, name: 'AirPods Pro 2', price: 12500, oldPrice: 15000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 2/pro2-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
@@ -234,15 +266,18 @@ const products = {
     specs: {}
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 1600, oldPrice: 2000,
+    id: 3, name: 'AirPods Series 3', price: 12500, oldPrice: 15000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
-    img: 'img/Series 3/series3-1.jpg',
+    img: 'img/Series 3/IMG_6865.JPEG',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
+    video: 'img/Series 3/IMG_6874.MOV',
     gallery: [
-      'img/Series 3/series3-1.jpg',
-      'img/Series 3/series3-2.jpg',
-      'img/Series 3/series3-3.jpg',
-      'img/Series 3/series3-4.jpg'
+      'img/Series 3/IMG_6865.JPEG',
+      'img/Series 3/IMG_6871.JPEG',
+      'img/Series 3/IMG_6875.JPEG',
+      'img/Series 3/IMG_6878.JPEG',
+      'img/Series 3/IMG_6881.JPEG',
+      'img/Series 3/IMG_6882.JPEG'
     ],
     tag: 'Standard Series',
     desc: 'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.',
@@ -250,10 +285,11 @@ const products = {
     specs: {}
   },
   4: {
-    id: 4, name: 'AirPods Series 4', price: 1600, oldPrice: 2000,
+    id: 4, name: 'AirPods Series 4', price: 12500, oldPrice: 15000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Series 4/series4-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
+    video: 'img/Series 4/airpods-promo.mp4',
     gallery: [
       'img/Series 4/series4-1.jpg',
       'img/Series 4/series4-2.jpg',
@@ -370,6 +406,8 @@ function renderCart() {
   if (subtotalEl) subtotalEl.textContent = formatCOP(subtotal);
   if (totalEl)    totalEl.textContent    = formatCOP(subtotal);
   footer.style.display = 'block';
+  // Actualizar nota de contra entrega
+  actualizarNotaEnvioCarrito();
 }
 
 function changeQty(id, delta) {
@@ -427,15 +465,15 @@ function openModal(id) {
     <li><i class="fas fa-check-circle"></i> ${f}</li>
   `).join('');
   const galleryThumbs = [
-    // Primero el video como miniatura
-    `<button class="gallery-thumb active" onclick="changeGalleryMedia(this,'video','img/Series 4/airpods-promo.mp4')">
+    // Video del producto si tiene uno
+    ...(p.video ? [`<button class="gallery-thumb active" onclick="changeGalleryMedia(this,'video','${p.video}')">
       <video muted loop style="width:100%;height:100%;object-fit:cover;pointer-events:none">
-        <source src="img/Series 4/airpods-promo.mp4" type="video/mp4"/>
+        <source src="${p.video}" type="${p.video.toLowerCase().endsWith('.mov') ? 'video/quicktime' : 'video/mp4'}"/>
       </video>
-     </button>`,
-    // Luego las fotos
+     </button>`] : []),
+    // Fotos de la galería
     ...(p.gallery || [p.img]).map((src, i) => `
-      <button class="gallery-thumb" onclick="changeGalleryMedia(this,'img','${src}')">
+      <button class="gallery-thumb${!p.video && i === 0 ? ' active' : ''}" onclick="changeGalleryMedia(this,'img','${src}')">
         <img src="${src}" alt="foto ${i+1}" onerror="this.src='${p.fallback}'" />
       </button>
     `)
@@ -446,10 +484,10 @@ function openModal(id) {
       <!-- Galería -->
       <div class="pd-gallery">
         <div class="pd-main-img-wrap">
-          <video id="pdMainVideo" autoplay muted loop playsinline style="display:none;width:100%;height:100%;object-fit:cover;border-radius:16px">
-            <source id="pdMainVideoSrc" src="img/Series 4/airpods-promo.mp4" type="video/mp4" />
+          <video id="pdMainVideo" autoplay muted loop playsinline style="display:${p.video ? 'block' : 'none'};width:100%;height:100%;object-fit:cover;border-radius:16px">
+            <source id="pdMainVideoSrc" src="${p.video || ''}" type="${p.video?.toLowerCase().endsWith('.mov') ? 'video/quicktime' : 'video/mp4'}" />
           </video>
-          <img id="pdMainImg" src="${p.gallery?.[0]||p.img}" alt="${p.name}" onerror="this.src='${p.fallback}'" style="display:block" />
+          <img id="pdMainImg" src="${p.gallery?.[0]||p.img}" alt="${p.name}" onerror="this.src='${p.fallback}'" style="display:${p.video ? 'none' : 'block'}" />
           ${p.badge ? `<div class="pd-badge" style="background:${p.badgeColor}">${p.badge}</div>` : ''}
           <div class="pd-discount-badge">-${discount}%</div>
         </div>
@@ -652,7 +690,32 @@ function closeCheckout() {
 
 // Variable global para el método de pago seleccionado
 let selectedPaymentMethod = 'wompi';
-const COSTO_ENVIO = 8000; // $8.000 COP — costo del envío para contra entrega
+let COSTO_ENVIO = 15000; // Valor por defecto, se actualiza desde Firebase en tiempo real
+
+// Actualiza la nota de Contra Entrega en el carrito
+function actualizarNotaEnvioCarrito() {
+  const noteEl = document.getElementById('cartCeNote');
+  if (noteEl) {
+    noteEl.textContent = COSTO_ENVIO
+      ? `Contra Entrega: ${formatCOP(COSTO_ENVIO)} de envío`
+      : 'Contra Entrega disponible';
+  }
+}
+
+// Escuchar cambios de config desde Firebase
+window.addEventListener('configActualizada', (e) => {
+  if (e.detail?.costoEnvio !== undefined) {
+    COSTO_ENVIO = Number(e.detail.costoEnvio);
+    // Actualizar nota en carrito
+    actualizarNotaEnvioCarrito();
+    // Actualizar checkout si está abierto en contra entrega
+    if (selectedPaymentMethod === 'contraentrega') {
+      const ceEnvioEl = document.getElementById('ceEnvioVal');
+      if (ceEnvioEl) ceEnvioEl.textContent = formatCOP(COSTO_ENVIO);
+      renderOrderSummary();
+    }
+  }
+});
 
 function selectPaymentMethod(method) {
   selectedPaymentMethod = method;

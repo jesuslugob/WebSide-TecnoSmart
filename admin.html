@@ -491,6 +491,9 @@
       <button class="tab-btn" id="tabCalificaciones" onclick="switchTab('calificaciones')">
         <i class="fas fa-star"></i> <span>Calificaciones</span>
       </button>
+      <button class="tab-btn" id="tabConfig" onclick="switchTab('config')">
+        <i class="fas fa-cog"></i> <span>Configuración</span>
+      </button>
     </div>
     <div class="topbar-right">
       <div class="topbar-user">
@@ -647,6 +650,32 @@
       </div>
     </div>
 
+    <!-- ══ PANEL CONFIGURACIÓN ══ -->
+    <div id="panelConfig" style="display:none">
+      <div class="page-title">
+        <h1>Configuración</h1>
+        <p>Ajusta los valores generales de la tienda — los cambios se reflejan en tiempo real</p>
+      </div>
+      <div style="max-width:520px">
+        <div class="cal-card">
+          <div class="cal-card-name" style="font-size:16px;margin-bottom:16px">
+            <i class="fas fa-shipping-fast" style="color:var(--accent);margin-right:8px"></i>
+            Envío y Contra Entrega
+          </div>
+          <div class="form-field">
+            <label>Costo del envío — Contra Entrega ($)</label>
+            <input type="number" id="cfgCostoEnvio" placeholder="15000" style="max-width:200px" />
+            <small style="display:block;margin-top:6px;color:var(--text2);font-size:12px">
+              Este valor se cobra al cliente por adelantado mediante Wompi cuando selecciona Contra Entrega.
+            </small>
+          </div>
+          <button class="btn-cal-save" onclick="guardarConfig()" style="max-width:200px">
+            <i class="fas fa-save"></i> Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /main-content -->
 </div><!-- /admin-wrap -->
 
@@ -727,6 +756,26 @@
     </div>
 
     <div class="form-field">
+      <label>Video del producto</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="img-upload-area" id="videoUploadArea" onclick="document.getElementById('pfVideoFile').click()" style="min-height:80px">
+          <div class="img-upload-preview" id="videoUploadPreview">
+            <i class="fas fa-video"></i>
+            <span>Clic para subir video</span>
+            <small>MP4, MOV — máx. 100MB</small>
+          </div>
+        </div>
+        <input type="file" id="pfVideoFile" accept="video/*" style="display:none" onchange="previewVideo(this)" />
+        <input type="text" id="pfVideo" placeholder="O pega una URL: https://... o img/..." />
+        <div class="upload-progress" id="videoProgress" style="display:none">
+          <div class="progress-bar"><div class="progress-fill" id="videoFill"></div></div>
+          <span id="videoPct">0%</span>
+        </div>
+      </div>
+      <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">Opcional. Se muestra como primera miniatura en el modal del producto.</small>
+    </div>
+
+    <div class="form-field">
       <label>Descripción</label>
       <textarea id="pfDesc" rows="3" placeholder="Descripción del producto..."></textarea>
     </div>
@@ -786,9 +835,6 @@
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
-    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
   const firebaseConfig = {
     apiKey:            "AIzaSyDCHxSYD4gtsCyNkgarDCXXu0p7GRuHPhQ",
     authDomain:        "tecnosmart-f357b.firebaseapp.com",
@@ -798,10 +844,13 @@
     appId:             "1:4450157371657:web:997a15cc52c0dc18de73d8"
   };
 
-  const app     = initializeApp(firebaseConfig);
-  const db      = getFirestore(app);
-  const auth    = getAuth(app);
-  const storage = getStorage(app);
+  const app  = initializeApp(firebaseConfig);
+  const db   = getFirestore(app);
+  const auth = getAuth(app);
+
+  // ── CLOUDINARY CONFIG ─────────────────────────────────────────────────────
+  const CLOUDINARY_CLOUD  = 'ebzvr2jp';
+  const CLOUDINARY_PRESET = 'tecnosmart_upload';
 
   let todos     = [];
   let selected  = new Set();
@@ -1059,6 +1108,7 @@
     const isPedidos        = tab === 'pedidos';
     const isProductos      = tab === 'productos';
     const isCalificaciones = tab === 'calificaciones';
+    const isConfig         = tab === 'config';
 
     ['pedidosTitle','pedidosStats','pedidosToolbar','pedidosTable'].forEach(id => {
       const el = document.getElementById(id);
@@ -1066,13 +1116,16 @@
     });
     document.getElementById('panelProductos').style.display      = isProductos      ? 'block' : 'none';
     document.getElementById('panelCalificaciones').style.display = isCalificaciones ? 'block' : 'none';
+    document.getElementById('panelConfig').style.display         = isConfig         ? 'block' : 'none';
 
     document.getElementById('tabPedidos').classList.toggle('active',        isPedidos);
     document.getElementById('tabProductos').classList.toggle('active',      isProductos);
     document.getElementById('tabCalificaciones').classList.toggle('active', isCalificaciones);
+    document.getElementById('tabConfig').classList.toggle('active',         isConfig);
 
     if (isProductos)      cargarProductosAdmin();
     if (isCalificaciones) cargarCalificacionesAdmin();
+    if (isConfig)         cargarConfigAdmin();
   };
 
   // ── PANEL PRODUCTOS ───────────────────────────────────────────────────────
@@ -1080,6 +1133,7 @@
   let galleryUrls    = [];
   let mainImgPending = null;
   let galleryPending = [];
+  let videoPending   = null;
 
   window.cargarProductosAdmin = () => {
     const grid = document.getElementById('prodAdminGrid');
@@ -1159,21 +1213,53 @@
   window.removeGalleryUrl     = (i) => { galleryUrls.splice(i,1);    renderGalleryThumbs(); document.getElementById('pfGaleria').value = galleryUrls.join(', '); };
   window.removeGalleryPending = (i) => { galleryPending.splice(i,1); renderGalleryThumbs(); };
 
-  // ── SUBIR A STORAGE ───────────────────────────────────────────────────────
-  function uploadFile(file, path, onProgress) {
-    return new Promise((resolve, reject) => {
-      const task = uploadBytesResumable(ref(storage, path), file);
-      task.on('state_changed',
-        s => onProgress && onProgress(s.bytesTransferred / s.totalBytes * 100),
-        reject,
-        async () => resolve(await getDownloadURL(task.snapshot.ref))
-      );
+  // ── PREVIEW VIDEO ─────────────────────────────────────────────────────────
+  window.previewVideo = (input) => {
+    const file = input.files[0];
+    if (!file) return;
+    videoPending = file;
+    const area    = document.getElementById('videoUploadArea');
+    const preview = document.getElementById('videoUploadPreview');
+    area.classList.add('has-img');
+    // Reemplazar contenido del preview con nombre del archivo
+    preview.innerHTML = `
+      <i class="fas fa-check-circle" style="color:#22c55e;font-size:28px"></i>
+      <span style="color:#22c55e">${file.name}</span>
+      <small>${(file.size/1024/1024).toFixed(1)} MB</small>`;
+    document.getElementById('pfVideo').value = '';
+    document.getElementById('pfVideo').placeholder = `Archivo: ${file.name}`;
+  };
+
+  // ── SUBIR A CLOUDINARY ────────────────────────────────────────────────────
+  async function uploadFile(file, _path, onProgress) {
+    const isVideo      = file.type.startsWith('video/') || /\.(mov|mp4|avi|mkv|webm)$/i.test(file.name);
+    const resourceType = isVideo ? 'raw' : 'image';
+    const url          = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', 'tecnosmart');
+
+    // Usar fetch en lugar de XHR para mejor manejo de CORS
+    const res = await fetch(url, {
+      method: 'POST',
+      body:   formData,
     });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error('Error Cloudinary: ' + txt);
+    }
+
+    const data = await res.json();
+    if (onProgress) onProgress(100);
+    return data.secure_url;
   }
 
   // ── ABRIR FORMULARIO ──────────────────────────────────────────────────────
   window.abrirFormProd = (docId) => {
-    mainImgPending = null; galleryPending = []; galleryUrls = [];
+    mainImgPending = null; galleryPending = []; galleryUrls = []; videoPending = null;
 
     // Reset preview imagen principal
     const area    = document.getElementById('mainImgArea');
@@ -1183,7 +1269,19 @@
     document.getElementById('pfImagenFile').value = '';
     document.getElementById('mainImgProgress').style.display = 'none';
     document.getElementById('galleryProgress').style.display = 'none';
+    document.getElementById('videoProgress').style.display   = 'none';
     document.getElementById('galleryThumbs').innerHTML = '';
+
+    // Reset preview video
+    const vArea    = document.getElementById('videoUploadArea');
+    const vPreview = document.getElementById('videoUploadPreview');
+    if (vArea) vArea.classList.remove('has-img');
+    if (vPreview) vPreview.innerHTML = `
+      <i class="fas fa-video"></i>
+      <span>Clic para subir video</span>
+      <small>MP4, MOV — máx. 100MB</small>`;
+    const vFile = document.getElementById('pfVideoFile');
+    if (vFile) vFile.value = '';
 
     if (docId) {
       const p = prodListAdmin.find(x => x.docId === docId);
@@ -1201,6 +1299,7 @@
       document.getElementById('pfDesc').value        = p.descripcion || '';
       document.getElementById('pfCaracts').value     = (p.caracteristicas || []).join('\n');
       document.getElementById('pfOrden').value       = p.orden || '';
+      document.getElementById('pfVideo').value       = p.video || '';
       // Mostrar imagen actual
       if (p.imagenPrincipal) {
         const img = document.createElement('img');
@@ -1215,7 +1314,7 @@
       document.getElementById('prodFormTitle').textContent = 'Nuevo producto';
       document.getElementById('pfDocId').value = '';
       ['pfNombre','pfTag','pfPrecio','pfPrecioAntes','pfBadge','pfBadgeColor',
-       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfOrden'].forEach(id => {
+       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfOrden','pfVideo'].forEach(id => {
         document.getElementById(id).value = '';
       });
     }
@@ -1224,7 +1323,7 @@
 
   window.cerrarFormProd = () => {
     document.getElementById('prodFormOverlay').classList.remove('active');
-    mainImgPending = null; galleryPending = []; galleryUrls = [];
+    mainImgPending = null; galleryPending = []; galleryUrls = []; videoPending = null;
   };
 
   // ── GUARDAR PRODUCTO ──────────────────────────────────────────────────────
@@ -1285,7 +1384,23 @@
 
       if (!imagenPrincipal && galeriaFinal.length) imagenPrincipal = galeriaFinal[0];
 
-      // 3. Parsear campos de texto
+      // 3. Video — archivo o URL de texto
+      let videoFinal = document.getElementById('pfVideo').value.trim() || null;
+      if (videoPending) {
+        const vProg = document.getElementById('videoProgress');
+        const vFill = document.getElementById('videoFill');
+        const vPct  = document.getElementById('videoPct');
+        vProg.style.display = 'flex';
+        btn.innerHTML = '<i class="fas fa-spinner spin"></i> Subiendo video...';
+        videoFinal = await uploadFile(
+          videoPending,
+          `${prodFolder}/video_${videoPending.name}`,
+          p => { vFill.style.width = p + '%'; vPct.textContent = Math.round(p) + '%'; }
+        );
+        vProg.style.display = 'none';
+      }
+
+      // 4. Parsear campos de texto
       const caracteristicas = document.getElementById('pfCaracts').value
         .split('\n').map(s => s.trim()).filter(Boolean);
       const specs = {};
@@ -1299,6 +1414,7 @@
         badge:          document.getElementById('pfBadge').value.trim(),
         badgeColor:     document.getElementById('pfBadgeColor').value.trim(),
         imagenPrincipal,
+        video:          videoFinal || null,
         galeria:        galeriaFinal,
         descripcion:    document.getElementById('pfDesc').value.trim(),
         caracteristicas,
@@ -1433,6 +1549,24 @@
       renderCalGrid();
       toast('✅ Calificaciones reales reiniciadas', 'ok');
     } catch(e) { toast('❌ ' + e.message, 'err'); }
+  };
+
+  // ── CONFIGURACIÓN GENERAL ─────────────────────────────────────────────────
+  window.cargarConfigAdmin = async () => {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'general'));
+      const data = snap.exists() ? snap.data() : {};
+      const input = document.getElementById('cfgCostoEnvio');
+      if (input) input.value = data.costoEnvio ?? 15000;
+    } catch(e) { toast('❌ Error cargando config: ' + e.message, 'err'); }
+  };
+
+  window.guardarConfig = async () => {
+    const costoEnvio = Number(document.getElementById('cfgCostoEnvio')?.value) || 15000;
+    try {
+      await setDoc(doc(db, 'config', 'general'), { costoEnvio }, { merge: true });
+      toast('✅ Configuración guardada — se aplica en tiempo real', 'ok');
+    } catch(e) { toast('❌ Error: ' + e.message, 'err'); }
   };
 
   // ── HELPERS ───────────────────────────────────────────────────────────────

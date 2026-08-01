@@ -99,7 +99,7 @@
       const lista = [
         { id:'prod_1', nombre:'AirPods Pro 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Disfruta de un sonido potente con cancelación activa de ruido (ANC), modo transparencia y audio espacial personalizado. Calidad 1.1 con hasta 24h de batería total.', caracteristicas:['2× mejor cancelación de ruido activa','Modo transparencia','Audio espacial personalizado','Carga MagSafe y USB-C','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 3/pro3-1.jpg', galeria:['img/Airpods Pro 3/pro3-1.jpg','img/Airpods Pro 3/pro3-2.jpg','img/Airpods Pro 3/pro3-3.jpg','img/Airpods Pro 3/pro3-4.jpg','img/Airpods Pro 3/pro3-5.jpg'], orden:1, activo:true },
         { id:'prod_2', nombre:'AirPods Pro 2', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Audífonos inalámbricos Calidad 1.1 con sonido de alta definición, cancelación de ruido activa y estuche con altavoz integrado. Compatibles con iOS y Android.', caracteristicas:['Cancelación activa de ruido','Modo de sonido ambiente','Estuche con altavoz integrado','Audio espacial personalizado','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 2/pro2-1.jpg', galeria:['img/Airpods Pro 2/pro2-1.jpg','img/Airpods Pro 2/pro2-2.jpg','img/Airpods Pro 2/pro2-3.jpg','img/Airpods Pro 2/pro2-4.jpg'], orden:2, activo:true },
-        { id:'prod_3', nombre:'AirPods Series 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.', caracteristicas:['Audio espacial dinámico','EQ adaptativo automático','Diseño ergonómico ligero','Resistencia IPX4','Carga MagSafe'], specs:{}, imagenPrincipal:'img/Series 3/series3-1.jpg', galeria:['img/Series 3/series3-1.jpg','img/Series 3/series3-2.jpg','img/Series 3/series3-3.jpg','img/Series 3/series3-4.jpg'], orden:3, activo:true },
+        { id:'prod_3', nombre:'AirPods Series 3', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.', caracteristicas:['Audio espacial dinámico','EQ adaptativo automático','Diseño ergonómico ligero','Resistencia IPX4','Carga MagSafe'], specs:{}, imagenPrincipal:'img/Series 3/IMG_6865.JPEG', video:'img/Series 3/IMG_6874.MOV', galeria:['img/Series 3/IMG_6865.JPEG','img/Series 3/IMG_6871.JPEG','img/Series 3/IMG_6875.JPEG','img/Series 3/IMG_6878.JPEG','img/Series 3/IMG_6881.JPEG','img/Series 3/IMG_6882.JPEG'], orden:3, activo:true },
         { id:'prod_4', nombre:'AirPods Series 4', precio:12500, precioAntes:15000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Los AirPods de 4ta generación con nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas de batería total.', caracteristicas:['Nuevo diseño ergonómico sin almohadilla','Audio adaptativo','Detección de conversación','Carga USB-C y MagSafe','Hasta 24h con estuche'], specs:{}, imagenPrincipal:'img/Series 4/series4-1.jpg', galeria:['img/Series 4/series4-1.jpg','img/Series 4/series4-2.jpg','img/Series 4/series4-3.jpg'], orden:4, activo:true }
       ];
       for (const p of lista) {
@@ -194,6 +194,7 @@
             tag: p.tag || '', img: p.imagenPrincipal,
             fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
             gallery: p.galeria || [p.imagenPrincipal],
+            video: p.video || null,
             desc: p.descripcion, features: p.caracteristicas || [], specs: {}
           };
           orden++;
@@ -213,6 +214,7 @@
               tag: p.tag || '', img: p.imagenPrincipal,
               fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
               gallery: p.galeria || [p.imagenPrincipal],
+              video: p.video || null,
               desc: p.descripcion, features: p.caracteristicas || [], specs: {}
             };
             ord++;
@@ -223,6 +225,19 @@
       } catch(err) {
         console.warn('⚠️ Usando productos locales:', err.message);
       }
+    };
+
+    // ── Configuración general en tiempo real ─────────────────────────────
+    window.cargarConfig = () => {
+      onSnapshot(doc(db, 'config', 'general'), (snap) => {
+        const data = snap.exists() ? snap.data() : {};
+        // Actualizar costo de envío globalmente
+        if (data.costoEnvio !== undefined) {
+          window.COSTO_ENVIO_DB = Number(data.costoEnvio);
+          // Disparar evento para que app.js lo recoja
+          window.dispatchEvent(new CustomEvent('configActualizada', { detail: data }));
+        }
+      });
     };
   </script>
 </head>
@@ -323,11 +338,11 @@
           <p class="card-desc">2× mejor cancelación de ruido, sensor de frecuencia cardíaca, audio espacial personalizado.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
-            <div class="price-wrap">
-              <span class="price-old">$2.000</span>
-              <span class="price">$1.600</span>
+            <div class="price-wrap price-loading">
+              <span class="price-old">$15.000</span>
+              <span class="price">$12.500</span>
             </div>
-            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(1,'AirPods Pro 3',1600,'img/Airpods Pro 3/pro3-1.jpg')">
+            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(1,'AirPods Pro 3',12500,'img/Airpods Pro 3/pro3-1.jpg')">
               <i class="fas fa-bag-shopping"></i> Agregar
             </button>
           </div>
@@ -351,11 +366,11 @@
           <p class="card-desc">Cancelación activa de ruido, chip H2, audio espacial y estuche con altavoz integrado.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
-            <div class="price-wrap">
-              <span class="price-old">$2.000</span>
-              <span class="price">$1.600</span>
+            <div class="price-wrap price-loading">
+              <span class="price-old">$15.000</span>
+              <span class="price">$12.500</span>
             </div>
-            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(2,'AirPods Pro 2',1600,'img/Airpods Pro 2/pro2-1.jpg')">
+            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(2,'AirPods Pro 2',12500,'img/Airpods Pro 2/pro2-1.jpg')">
               <i class="fas fa-bag-shopping"></i> Agregar
             </button>
           </div>
@@ -366,9 +381,9 @@
       <div class="product-card" data-id="3" onclick="openModal(3)">
         <div class="card-badge" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">Nuevo</div>
         <div class="card-img-wrap" id="slide-3">
-          <img src="img/Series 3/series3-1.jpg" alt="AirPods Series 3" class="active-slide" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
-          <img src="img/Series 3/series3-2.jpg" alt="AirPods Series 3" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
-          <img src="img/Series 3/series3-3.jpg" alt="AirPods Series 3" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6865.JPEG" alt="AirPods Series 3" class="active-slide" loading="eager" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6871.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6875.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
           <div class="slide-dots" id="dots-3"></div>
           <div class="card-overlay"><button class="quick-view" onclick="event.stopPropagation();openModal(3)">Ver detalle</button></div>
         </div>
@@ -379,11 +394,11 @@
           <p class="card-desc">Audio espacial dinámico, resistencia al agua IPX4, carga MagSafe incluida.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
-            <div class="price-wrap">
-              <span class="price-old">$2.000</span>
-              <span class="price">$1.600</span>
+            <div class="price-wrap price-loading">
+              <span class="price-old">$15.000</span>
+              <span class="price">$12.500</span>
             </div>
-            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(3,'AirPods Series 3',1600,'img/Series 3/series3-1.jpg')">
+            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(3,'AirPods Series 3',12500,'img/Series 3/IMG_6865.JPEG')">
               <i class="fas fa-bag-shopping"></i> Agregar
             </button>
           </div>
@@ -407,11 +422,11 @@
           <p class="card-desc">Nuevo diseño ergonómico, chip H2, audio adaptativo y Hasta 24 horas de batería total.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
-            <div class="price-wrap">
-              <span class="price-old">$2.000</span>
-              <span class="price">$1.600</span>
+            <div class="price-wrap price-loading">
+              <span class="price-old">$15.000</span>
+              <span class="price">$12.500</span>
             </div>
-            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(4,'AirPods Series 4',1600,'img/Series 4/series4-1.jpg')">
+            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(4,'AirPods Series 4',12500,'img/Series 4/series4-1.jpg')">
               <i class="fas fa-bag-shopping"></i> Agregar
             </button>
           </div>
@@ -681,9 +696,12 @@
         <span>Subtotal</span>
         <span id="cartSubtotal">$0</span>
       </div>
-      <div class="cart-summary-row">
+      <div class="cart-summary-row cart-shipping-row">
         <span>Envío</span>
-        <span class="cart-free-ship"><i class="fas fa-truck"></i> Gratis</span>
+        <div class="cart-shipping-detail">
+          <span class="cart-free-ship"><i class="fas fa-truck"></i> Gratis</span>
+          <span class="cart-ce-note" id="cartCeNote">Contra Entrega disponible</span>
+        </div>
       </div>
       <div class="cart-summary-divider"></div>
       <div class="cart-summary-row cart-summary-total">
