@@ -756,23 +756,11 @@
     </div>
 
     <div class="form-field">
-      <label>Video del producto</label>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="img-upload-area" id="videoUploadArea" onclick="document.getElementById('pfVideoFile').click()" style="min-height:80px">
-          <div class="img-upload-preview" id="videoUploadPreview">
-            <i class="fas fa-video"></i>
-            <span>Clic para subir video</span>
-            <small>MP4, MOV — máx. 100MB</small>
-          </div>
-        </div>
-        <input type="file" id="pfVideoFile" accept="video/*" style="display:none" onchange="previewVideo(this)" />
-        <input type="text" id="pfVideo" placeholder="O pega una URL: https://... o img/..." />
-        <div class="upload-progress" id="videoProgress" style="display:none">
-          <div class="progress-bar"><div class="progress-fill" id="videoFill"></div></div>
-          <span id="videoPct">0%</span>
-        </div>
-      </div>
-      <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">Opcional. Se muestra como primera miniatura en el modal del producto.</small>
+      <label>Video del producto (URL)</label>
+      <input type="text" id="pfVideo" placeholder="https://res.cloudinary.com/... o https://youtube.com/..." />
+      <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">
+        Para subir videos: ve a <strong>Cloudinary → Media Library → Upload</strong> y pega aquí la URL del video subido.
+      </small>
     </div>
 
     <div class="form-field">
@@ -1133,7 +1121,6 @@
   let galleryUrls    = [];
   let mainImgPending = null;
   let galleryPending = [];
-  let videoPending   = null;
 
   window.cargarProductosAdmin = () => {
     const grid = document.getElementById('prodAdminGrid');
@@ -1213,39 +1200,16 @@
   window.removeGalleryUrl     = (i) => { galleryUrls.splice(i,1);    renderGalleryThumbs(); document.getElementById('pfGaleria').value = galleryUrls.join(', '); };
   window.removeGalleryPending = (i) => { galleryPending.splice(i,1); renderGalleryThumbs(); };
 
-  // ── PREVIEW VIDEO ─────────────────────────────────────────────────────────
-  window.previewVideo = (input) => {
-    const file = input.files[0];
-    if (!file) return;
-    videoPending = file;
-    const area    = document.getElementById('videoUploadArea');
-    const preview = document.getElementById('videoUploadPreview');
-    area.classList.add('has-img');
-    // Reemplazar contenido del preview con nombre del archivo
-    preview.innerHTML = `
-      <i class="fas fa-check-circle" style="color:#22c55e;font-size:28px"></i>
-      <span style="color:#22c55e">${file.name}</span>
-      <small>${(file.size/1024/1024).toFixed(1)} MB</small>`;
-    document.getElementById('pfVideo').value = '';
-    document.getElementById('pfVideo').placeholder = `Archivo: ${file.name}`;
-  };
-
-  // ── SUBIR A CLOUDINARY ────────────────────────────────────────────────────
+  // ── SUBIR A CLOUDINARY (solo imágenes) ───────────────────────────────────
   async function uploadFile(file, _path, onProgress) {
-    const isVideo      = file.type.startsWith('video/') || /\.(mov|mp4|avi|mkv|webm)$/i.test(file.name);
-    const resourceType = isVideo ? 'raw' : 'image';
-    const url          = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`;
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_PRESET);
     formData.append('folder', 'tecnosmart');
 
-    // Usar fetch en lugar de XHR para mejor manejo de CORS
-    const res = await fetch(url, {
-      method: 'POST',
-      body:   formData,
-    });
+    const res = await fetch(url, { method: 'POST', body: formData });
 
     if (!res.ok) {
       const txt = await res.text();
@@ -1259,7 +1223,7 @@
 
   // ── ABRIR FORMULARIO ──────────────────────────────────────────────────────
   window.abrirFormProd = (docId) => {
-    mainImgPending = null; galleryPending = []; galleryUrls = []; videoPending = null;
+    mainImgPending = null; galleryPending = []; galleryUrls = [];
 
     // Reset preview imagen principal
     const area    = document.getElementById('mainImgArea');
@@ -1269,19 +1233,7 @@
     document.getElementById('pfImagenFile').value = '';
     document.getElementById('mainImgProgress').style.display = 'none';
     document.getElementById('galleryProgress').style.display = 'none';
-    document.getElementById('videoProgress').style.display   = 'none';
     document.getElementById('galleryThumbs').innerHTML = '';
-
-    // Reset preview video
-    const vArea    = document.getElementById('videoUploadArea');
-    const vPreview = document.getElementById('videoUploadPreview');
-    if (vArea) vArea.classList.remove('has-img');
-    if (vPreview) vPreview.innerHTML = `
-      <i class="fas fa-video"></i>
-      <span>Clic para subir video</span>
-      <small>MP4, MOV — máx. 100MB</small>`;
-    const vFile = document.getElementById('pfVideoFile');
-    if (vFile) vFile.value = '';
 
     if (docId) {
       const p = prodListAdmin.find(x => x.docId === docId);
@@ -1323,7 +1275,7 @@
 
   window.cerrarFormProd = () => {
     document.getElementById('prodFormOverlay').classList.remove('active');
-    mainImgPending = null; galleryPending = []; galleryUrls = []; videoPending = null;
+    mainImgPending = null; galleryPending = []; galleryUrls = [];
   };
 
   // ── GUARDAR PRODUCTO ──────────────────────────────────────────────────────
@@ -1384,21 +1336,8 @@
 
       if (!imagenPrincipal && galeriaFinal.length) imagenPrincipal = galeriaFinal[0];
 
-      // 3. Video — archivo o URL de texto
-      let videoFinal = document.getElementById('pfVideo').value.trim() || null;
-      if (videoPending) {
-        const vProg = document.getElementById('videoProgress');
-        const vFill = document.getElementById('videoFill');
-        const vPct  = document.getElementById('videoPct');
-        vProg.style.display = 'flex';
-        btn.innerHTML = '<i class="fas fa-spinner spin"></i> Subiendo video...';
-        videoFinal = await uploadFile(
-          videoPending,
-          `${prodFolder}/video_${videoPending.name}`,
-          p => { vFill.style.width = p + '%'; vPct.textContent = Math.round(p) + '%'; }
-        );
-        vProg.style.display = 'none';
-      }
+      // 3. Video — solo URL manual
+      const videoFinal = document.getElementById('pfVideo').value.trim() || null;
 
       // 4. Parsear campos de texto
       const caracteristicas = document.getElementById('pfCaracts').value
