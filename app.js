@@ -154,9 +154,28 @@ function actualizarPreciosDOM() {
     }
 
     const firstImg = card.querySelector('.card-img-wrap img.active-slide');
-    if (firstImg && p.img && firstImg.src !== p.img) {
-      firstImg.src = p.img;
-      firstImg.alt = p.name;
+    if (firstImg && p.img) {
+      if (firstImg.src !== p.img) {
+        firstImg.src = p.img;
+        firstImg.alt = p.name;
+      }
+      firstImg.onerror = () => { firstImg.src = p.fallback || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'; };
+    }
+
+    // Actualizar todas las imágenes del slider con la galería de Firestore
+    // Filtrar videos — no deben ir en el slider de imágenes
+    if (p.gallery && p.gallery.length) {
+      const soloImgs = p.gallery.filter(url =>
+        url && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(url)
+      );
+      const allSlides = card.querySelectorAll('.card-img-wrap img');
+      allSlides.forEach((img, i) => {
+        const src = soloImgs[i] || soloImgs[0];
+        if (src && img.src !== src) {
+          img.src = src;
+          img.onerror = () => { img.onerror = null; img.src = p.fallback || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'; };
+        }
+      });
     }
 
     const btn = card.querySelector('.add-cart-btn');
@@ -170,6 +189,10 @@ function actualizarPreciosDOM() {
     if (qvBtn) qvBtn.setAttribute('onclick', `event.stopPropagation();openModal(${p.id})`);
   });
   }); // fin requestAnimationFrame
+  // Reiniciar slideshows después de actualizar imágenes desde Firestore
+  setTimeout(() => {
+    if (typeof reiniciarSliders === 'function') reiniciarSliders();
+  }, 100);
 }
 
 // ===== EMAILJS CONFIG =====
@@ -1055,35 +1078,60 @@ async function completarPedidoCE({ buyer, address, cartSnapshot, referencia, tra
 }
 
 // ===== CARD SLIDESHOW =====
+const _sliderIntervals = {};
+
 function initCardSlideshows() {
-  [1, 2, 3, 4].forEach(id => {
-    const wrap = document.getElementById(`slide-${id}`);
-    if (!wrap) return;
-    const imgs = wrap.querySelectorAll('img');
-    const dotsEl = document.getElementById(`dots-${id}`);
-    if (imgs.length <= 1) return;
+  [1, 2, 3, 4].forEach(id => reiniciarSlider(id));
+}
 
-    // Crear dots
-    imgs.forEach((_, i) => {
-      const dot = document.createElement('button');
-      dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
-      dot.onclick = (e) => { e.stopPropagation(); goSlide(id, i); };
-      dotsEl?.appendChild(dot);
-    });
+function reiniciarSliders() {
+  [1, 2, 3, 4].forEach(id => reiniciarSlider(id));
+}
 
-    let current = 0;
-    const intervals = {};
-    intervals[id] = setInterval(() => {
-      current = (current + 1) % imgs.length;
-      goSlide(id, current);
-    }, 2800 + id * 400); // offset para que no cambien todas al mismo tiempo
+function reiniciarSlider(id) {
+  const wrap = document.getElementById(`slide-${id}`);
+  if (!wrap) return;
+
+  // Solo imágenes — excluir cualquier <video> si existiera
+  const imgs = Array.from(wrap.querySelectorAll('img'));
+  const dotsEl = document.getElementById(`dots-${id}`);
+  if (!dotsEl) return;
+
+  // Limpiar interval anterior
+  if (_sliderIntervals[id]) { clearInterval(_sliderIntervals[id]); delete _sliderIntervals[id]; }
+
+  // Limpiar dots anteriores
+  dotsEl.innerHTML = '';
+
+  // Filtrar imágenes con src válido (no vacío ni blob roto)
+  const validImgs = imgs.filter(img => img.src && !img.src.endsWith('#'));
+  if (validImgs.length <= 1) return;
+
+  // Asegurar que la primera está activa
+  validImgs.forEach((img, i) => {
+    img.style.opacity = i === 0 ? '1' : '0';
+    img.classList.toggle('active-slide', i === 0);
   });
+
+  // Crear dots
+  validImgs.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = (e) => { e.stopPropagation(); goSlide(id, i); };
+    dotsEl.appendChild(dot);
+  });
+
+  let current = 0;
+  _sliderIntervals[id] = setInterval(() => {
+    current = (current + 1) % validImgs.length;
+    goSlide(id, current);
+  }, 2800 + id * 400);
 }
 
 function goSlide(cardId, idx) {
   const wrap = document.getElementById(`slide-${cardId}`);
   if (!wrap) return;
-  const imgs = wrap.querySelectorAll('img');
+  const imgs = Array.from(wrap.querySelectorAll('img'));
   const dots = wrap.querySelectorAll('.slide-dot');
   imgs.forEach((img, i) => {
     img.style.opacity = i === idx ? '1' : '0';

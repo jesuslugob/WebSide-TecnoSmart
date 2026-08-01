@@ -193,7 +193,7 @@
             badge: p.badge || 'Nuevo', badgeColor: p.badgeColor || 'linear-gradient(135deg,#6c63ff,#a78bfa)',
             tag: p.tag || '', img: p.imagenPrincipal,
             fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
-            gallery: p.galeria || [p.imagenPrincipal],
+            gallery: (p.galeria || [p.imagenPrincipal]).filter(u => u && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(u)),
             video: p.video || null,
             desc: p.descripcion, features: p.caracteristicas || [], specs: {}
           };
@@ -213,7 +213,7 @@
               badge: p.badge || 'Nuevo', badgeColor: p.badgeColor || 'linear-gradient(135deg,#6c63ff,#a78bfa)',
               tag: p.tag || '', img: p.imagenPrincipal,
               fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
-              gallery: p.galeria || [p.imagenPrincipal],
+              gallery: (p.galeria || [p.imagenPrincipal]).filter(u => u && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(u)),
               video: p.video || null,
               desc: p.descripcion, features: p.caracteristicas || [], specs: {}
             };
@@ -325,9 +325,9 @@
       <div class="product-card featured" data-id="1" onclick="openModal(1)">
         <div class="card-badge" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">Nuevo</div>
         <div class="card-img-wrap" id="slide-1">
-          <img src="img/Airpods Pro 3/pro3-1.jpg" alt="AirPods Pro 3" class="active-slide" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
-          <img src="img/Airpods Pro 3/pro3-2.jpg" alt="AirPods Pro 3" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
-          <img src="img/Airpods Pro 3/pro3-3.jpg" alt="AirPods Pro 3" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+          <img src="img/Airpods Pro 3/pro3-1.jpg" alt="AirPods Pro 3" class="active-slide" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+          <img src="img/Airpods Pro 3/pro3-2.jpg" alt="AirPods Pro 3" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+          <img src="img/Airpods Pro 3/pro3-3.jpg" alt="AirPods Pro 3" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
           <div class="slide-dots" id="dots-1"></div>
           <div class="card-overlay"><button class="quick-view" onclick="event.stopPropagation();openModal(1)">Ver detalle</button></div>
         </div>
@@ -353,9 +353,9 @@
       <div class="product-card" data-id="2" onclick="openModal(2)">
         <div class="card-badge" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">Nuevo</div>
         <div class="card-img-wrap" id="slide-2">
-          <img src="img/Airpods Pro 2/pro2-1.jpg" alt="AirPods Pro 2" class="active-slide" onerror="this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
-          <img src="img/Airpods Pro 2/pro2-2.jpg" alt="AirPods Pro 2" onerror="this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
-          <img src="img/Airpods Pro 2/pro2-3.jpg" alt="AirPods Pro 2" onerror="this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
+          <img src="img/Airpods Pro 2/pro2-1.jpg" alt="AirPods Pro 2" class="active-slide" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
+          <img src="img/Airpods Pro 2/pro2-2.jpg" alt="AirPods Pro 2" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
+          <img src="img/Airpods Pro 2/pro2-3.jpg" alt="AirPods Pro 2" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80'" />
           <div class="slide-dots" id="dots-2"></div>
           <div class="card-overlay"><button class="quick-view" onclick="event.stopPropagation();openModal(2)">Ver detalle</button></div>
         </div>
@@ -381,9 +381,9 @@
       <div class="product-card" data-id="3" onclick="openModal(3)">
         <div class="card-badge" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">Nuevo</div>
         <div class="card-img-wrap" id="slide-3">
-          <img src="img/Series 3/IMG_6865.JPEG" alt="AirPods Series 3" class="active-slide" loading="eager" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
-          <img src="img/Series 3/IMG_6871.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
-          <img src="img/Series 3/IMG_6875.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6865.JPEG" alt="AirPods Series 3" class="active-slide" loading="eager" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6871.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
+          <img src="img/Series 3/IMG_6875.JPEG" alt="AirPods Series 3" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80'" />
           <div class="slide-dots" id="dots-3"></div>
           <div class="card-overlay"><button class="quick-view" onclick="event.stopPropagation();openModal(3)">Ver detalle</button></div>
         </div>
@@ -409,9 +409,9 @@
       <div class="product-card" data-id="4" onclick="openModal(4)">
         <div class="card-badge" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">Nuevo</div>
         <div class="card-img-wrap" id="slide-4">
-          <img src="img/Series 4/series4-1.jpg" alt="AirPods Series 4" class="active-slide" onerror="this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
-          <img src="img/Series 4/series4-2.jpg" alt="AirPods Series 4" onerror="this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
-          <img src="img/Series 4/series4-3.jpg" alt="AirPods Series 4" onerror="this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
+          <img src="img/Series 4/series4-1.jpg" alt="AirPods Series 4" class="active-slide" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
+          <img src="img/Series 4/series4-2.jpg" alt="AirPods Series 4" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
+          <img src="img/Series 4/series4-3.jpg" alt="AirPods Series 4" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80'" />
           <div class="slide-dots" id="dots-4"></div>
           <div class="card-overlay"><button class="quick-view" onclick="event.stopPropagation();openModal(4)">Ver detalle</button></div>
         </div>
