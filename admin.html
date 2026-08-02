@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -460,9 +460,9 @@
     </div>
     <div class="input-group">
       <i class="fas fa-lock"></i>
-      <input type="password" id="adminPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()" />
+      <input type="password" id="adminPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')window.doLogin()" />
     </div>
-    <button class="btn-login" onclick="doLogin()">
+    <button class="btn-login" onclick="window.doLogin()">
       <i class="fas fa-sign-in-alt"></i> Ingresar
     </button>
     <div class="login-error" id="loginError">
@@ -482,16 +482,16 @@
       <span class="tl-badge">Admin</span>
     </div>
     <div class="topbar-center">
-      <button class="tab-btn active" id="tabPedidos" onclick="switchTab('pedidos')">
+      <button class="tab-btn active" id="tabPedidos" onclick="window.switchTab('pedidos')">
         <i class="fas fa-list"></i> <span>Pedidos</span>
       </button>
-      <button class="tab-btn" id="tabProductos" onclick="switchTab('productos')">
+      <button class="tab-btn" id="tabProductos" onclick="window.switchTab('productos')">
         <i class="fas fa-box"></i> <span>Productos</span>
       </button>
-      <button class="tab-btn" id="tabCalificaciones" onclick="switchTab('calificaciones')">
+      <button class="tab-btn" id="tabCalificaciones" onclick="window.switchTab('calificaciones')">
         <i class="fas fa-star"></i> <span>Calificaciones</span>
       </button>
-      <button class="tab-btn" id="tabConfig" onclick="switchTab('config')">
+      <button class="tab-btn" id="tabConfig" onclick="window.switchTab('config')">
         <i class="fas fa-cog"></i> <span>Configuración</span>
       </button>
     </div>
@@ -500,7 +500,7 @@
         <div class="av" id="userInitial">A</div>
         <span id="adminUser"></span>
       </div>
-      <button class="btn-out" onclick="doLogout()">
+      <button class="btn-out" onclick="window.doLogout()">
         <i class="fas fa-sign-out-alt"></i> Salir
       </button>
     </div>
@@ -571,10 +571,10 @@
       </div>
       <div class="toolbar-r">
         <span class="sel-count" id="selCount" style="display:none"></span>
-        <button class="btn-del" id="btnDel" onclick="confirmarEliminar()" disabled>
+        <button class="btn-del" id="btnDel" onclick="window.confirmarEliminar()" disabled>
           <i class="fas fa-trash-alt"></i> Eliminar
         </button>
-        <button class="btn-ref" onclick="cargarPedidos()">
+        <button class="btn-ref" onclick="window.cargarPedidos()">
           <i class="fas fa-sync-alt"></i> Actualizar
         </button>
       </div>
@@ -586,7 +586,7 @@
         <table>
           <thead>
             <tr>
-              <th style="width:40px"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" /></th>
+              <th style="width:40px"><input type="checkbox" id="checkAll" onchange="window.toggleAll(this)" /></th>
               <th>Referencia</th>
               <th>Cliente</th>
               <th>Ciudad</th>
@@ -614,10 +614,10 @@
       <div class="toolbar">
         <div class="toolbar-l"></div>
         <div class="toolbar-r">
-          <button class="btn-ref" onclick="cargarProductosAdmin()">
+          <button class="btn-ref" onclick="window.cargarProductosAdmin()">
             <i class="fas fa-sync-alt"></i> Actualizar
           </button>
-          <button class="btn-ref" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-color:#6366f1" onclick="abrirFormProd(null)">
+          <button class="btn-ref" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-color:#6366f1" onclick="window.abrirFormProd(null)">
             <i class="fas fa-plus"></i> Nuevo producto
           </button>
         </div>
@@ -638,7 +638,7 @@
       <div class="toolbar">
         <div class="toolbar-l"></div>
         <div class="toolbar-r">
-          <button class="btn-ref" onclick="cargarCalificacionesAdmin()">
+          <button class="btn-ref" onclick="window.cargarCalificacionesAdmin()">
             <i class="fas fa-sync-alt"></i> Actualizar
           </button>
         </div>
@@ -669,7 +669,7 @@
               Este valor se cobra al cliente por adelantado mediante Wompi cuando selecciona Contra Entrega.
             </small>
           </div>
-          <button class="btn-cal-save" onclick="guardarConfig()" style="max-width:200px">
+          <button class="btn-cal-save" onclick="window.guardarConfig()" style="max-width:200px">
             <i class="fas fa-save"></i> Guardar cambios
           </button>
         </div>
@@ -778,10 +778,10 @@
       <input type="number" id="pfOrden" placeholder="1" />
     </div>
 
-    <button class="btn-save" id="btnGuardarProd" onclick="guardarProducto()">
+    <button class="btn-save" id="btnGuardarProd" onclick="window.guardarProducto()">
       <i class="fas fa-save"></i> Guardar producto
     </button>
-    <button class="btn-cancel-form" onclick="cerrarFormProd()">Cancelar</button>
+    <button class="btn-cancel-form" onclick="window.cerrarFormProd()">Cancelar</button>
   </div>
 </div>
 
@@ -793,7 +793,7 @@
         <h3 id="detTitle">Detalle</h3>
         <div class="ref-sm" id="detRef"></div>
       </div>
-      <button class="det-close" onclick="cerrarDet()"><i class="fas fa-times"></i></button>
+      <button class="det-close" onclick="window.cerrarDet()"><i class="fas fa-times"></i></button>
     </div>
     <div class="det-body" id="detBody"></div>
   </div>
@@ -806,8 +806,8 @@
     <h3>Eliminar pedidos</h3>
     <p id="confMsg">¿Seguro que quieres eliminar los pedidos seleccionados?</p>
     <div class="conf-btns">
-      <button class="btn-no" onclick="cerrarConf()">Cancelar</button>
-      <button class="btn-yes" onclick="ejecutarEliminar()">
+      <button class="btn-no" onclick="window.cerrarConf()">Cancelar</button>
+      <button class="btn-yes" onclick="window.ejecutarEliminar()">
         <i class="fas fa-trash-alt"></i> Eliminar
       </button>
     </div>
@@ -921,7 +921,7 @@
     }
     tbody.innerHTML = pedidos.map(p => `
       <tr id="r-${p.docId}" class="${selected.has(p.docId)?'sel':''}">
-        <td><input type="checkbox" ${selected.has(p.docId)?'checked':''} onchange="toggleCheck('${p.docId}',this)" /></td>
+        <td><input type="checkbox" ${selected.has(p.docId)?'checked':''} onchange="window.toggleCheck('${p.docId}',this)" /></td>
         <td><span class="ref-pill">${(p.reference||'—').slice(0,18)}</span></td>
         <td>
           <div class="cname">${p.nombre||'—'}</div>
@@ -930,7 +930,7 @@
         <td>${p.ciudad||'—'}</td>
         <td><span class="tval">${fCOP(p.total)}</span></td>
         <td>
-          <select class="estado-sel" onchange="cambiarEstado('${p.docId}',this.value)">
+          <select class="estado-sel" onchange="window.cambiarEstado('${p.docId}',this.value)">
             ${(p.esContraEntrega
               ? ['Contra entrega - Envío pagado','ENVIADO','ENTREGADO','CANCELADO']
               : ['APROBADO','ENVIADO','ENTREGADO','PENDIENTE','CANCELADO']
@@ -938,7 +938,7 @@
           </select>
         </td>
         <td style="color:var(--text2);font-size:12px;white-space:nowrap">${fFecha(p.fechaLegible||p.fecha)}</td>
-        <td><button class="btn-ver" onclick="verDetalle('${p.docId}')"><i class="fas fa-eye"></i> Ver</button></td>
+        <td><button class="btn-ver" onclick="window.verDetalle('${p.docId}')"><i class="fas fa-eye"></i> Ver</button></td>
       </tr>`).join('');
   }
 
@@ -1067,12 +1067,12 @@
         <div class="info-grid">
           <div class="info-item"><label>Método de pago</label><span>Contra Entrega</span></div>
           <div class="info-item"><label>Estado del envío</label>
-            <select class="estado-sel" style="width:100%" onchange="cambiarCampo('${p.docId}','estadoEnvio',this.value)">
+            <select class="estado-sel" style="width:100%" onchange="window.cambiarCampo('${p.docId}','estadoEnvio',this.value)">
               ${['Pendiente','Enviado','Entregado'].map(s=>`<option value="${s}" ${(p.estadoEnvio||'Pendiente')===s?'selected':''}>${s}</option>`).join('')}
             </select>
           </div>
           <div class="info-item"><label>Estado del recaudo</label>
-            <select class="estado-sel" style="width:100%" onchange="cambiarCampo('${p.docId}','estadoRecaudo',this.value)">
+            <select class="estado-sel" style="width:100%" onchange="window.cambiarCampo('${p.docId}','estadoRecaudo',this.value)">
               ${['Pendiente','Cobrado'].map(s=>`<option value="${s}" ${(p.estadoRecaudo||'Pendiente')===s?'selected':''}>${s}</option>`).join('')}
             </select>
           </div>
@@ -1141,23 +1141,34 @@
       grid.innerHTML = '<div style="text-align:center;padding:64px;color:var(--text2);font-size:14px"><i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:12px"></i>Sin productos en Firestore</div>';
       return;
     }
-    grid.innerHTML = prodListAdmin.map(p => `
+    grid.innerHTML = prodListAdmin.map(p => {
+      // Normalizar ruta: rutas relativas → absolutas desde raíz
+      const normalizarImg = (u) => {
+        if (!u) return null;
+        if (u.startsWith('http://') || u.startsWith('https://')) return u;
+        if (u.startsWith('img/') || u.startsWith('/img/')) return '/' + u.replace(/^\//, '');
+        return null;
+      };
+      const imgSrc = normalizarImg(p.imagenPrincipal)
+        || (p.galeria || []).map(normalizarImg).find(Boolean)
+        || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80';
+      return `
       <div class="prod-admin-card">
         <div class="prod-admin-img">
-          <img src="${p.imagenPrincipal || ''}" alt="${p.nombre}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
+          <img src="${imgSrc}" alt="${p.nombre}"
+               onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'" />
         </div>
         <div class="prod-admin-body">
           <div class="prod-admin-name">${p.nombre || '—'}</div>
           <div class="prod-admin-price">${fCOP(p.precio)}<span style="font-size:12px;color:var(--text2);font-weight:400;text-decoration:line-through;margin-left:8px">${fCOP(p.precioAntes)}</span></div>
           <div class="prod-admin-desc">${(p.descripcion||'').slice(0,60)}${(p.descripcion||'').length>60?'…':''}</div>
           <div class="prod-admin-actions">
-            <button class="btn-edit" onclick="abrirFormProd('${p.docId}')">
+            <button class="btn-edit" onclick="window.abrirFormProd('${p.docId}')">
               <i class="fas fa-pen"></i> Editar
             </button>
           </div>
         </div>
-      </div>
-    `).join('');
+      </div>`;    }).join('');
   }
 
   // ── PREVIEW IMG PRINCIPAL ─────────────────────────────────────────────────
@@ -1183,15 +1194,18 @@
 
   function renderGalleryThumbs() {
     const container = document.getElementById('galleryThumbs');
-    const urlItems = galleryUrls.map((url, i) => `
+    const urlItems = galleryUrls.map((url, i) => {
+      const src = url.startsWith('http') ? url : '/' + url.replace(/^\//, '');
+      return `
       <div class="gthumb">
-        <img src="${url}" onerror="this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80'" />
-        <button class="gthumb-del" onclick="removeGalleryUrl(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
-      </div>`).join('');
+        <img src="${src}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=80'" />
+        <button class="gthumb-del" onclick="window.removeGalleryUrl(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
+      </div>`;
+    }).join('');
     const pendItems = galleryPending.map((f, i) => `
       <div class="gthumb">
         <img src="${URL.createObjectURL(f)}" />
-        <button class="gthumb-del" onclick="removeGalleryPending(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
+        <button class="gthumb-del" onclick="window.removeGalleryPending(${i})" title="Eliminar"><i class="fas fa-times"></i></button>
       </div>`).join('');
     container.innerHTML = urlItems + pendItems;
     if (galleryUrls.length) document.getElementById('pfGaleria').value = galleryUrls.join(', ');
@@ -1255,7 +1269,9 @@
       // Mostrar imagen actual
       if (p.imagenPrincipal) {
         const img = document.createElement('img');
-        img.src = p.imagenPrincipal;
+        // Rutas relativas → absolutas
+        img.src = p.imagenPrincipal.startsWith('http') ? p.imagenPrincipal : '/' + p.imagenPrincipal.replace(/^\//, '');
+        img.onerror = () => { img.src = 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'; };
         preview.appendChild(img);
         area.classList.add('has-img');
       }
@@ -1423,7 +1439,7 @@
         <div class="cal-toggle">
           <label>Modo manual</label>
           <label class="toggle-switch">
-            <input type="checkbox" ${p.modoManual ? 'checked' : ''} onchange="toggleModoManual('${p.docId}', this.checked)" />
+            <input type="checkbox" ${p.modoManual ? 'checked' : ''} onchange="window.toggleModoManual('${p.docId}', this.checked)" />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -1441,8 +1457,8 @@
           <span>Promedio real clientes</span>
           <strong>${p.cantidadReal ? Number(p.promedioReal).toFixed(1) + ' (' + p.cantidadReal + ')' : 'Sin datos'}</strong>
         </div>
-        <button class="btn-cal-save" onclick="guardarCalAdmin('${p.docId}')"><i class="fas fa-save"></i> Guardar</button>
-        <button class="btn-cal-reset" onclick="resetCalAdmin('${p.docId}')"><i class="fas fa-undo"></i> Reiniciar calificaciones reales</button>
+        <button class="btn-cal-save" onclick="window.guardarCalAdmin('${p.docId}')"><i class="fas fa-save"></i> Guardar</button>
+        <button class="btn-cal-reset" onclick="window.resetCalAdmin('${p.docId}')"><i class="fas fa-undo"></i> Reiniciar calificaciones reales</button>
       </div>`;
     }).join('');
   }

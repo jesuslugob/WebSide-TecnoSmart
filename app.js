@@ -1,6 +1,23 @@
 // ===== STATE =====
 let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
 
+// Limpiar caché de productos desactualizado (rutas locales)
+(function limpiarCacheDesactualizado() {
+  try {
+    const cached = localStorage.getItem('tsProductCache');
+    if (!cached) return;
+    const prods = JSON.parse(cached);
+    const tieneRutaLocal = Object.values(prods).some(p =>
+      (p.img && !p.img.startsWith('http')) ||
+      (p.gallery && p.gallery.some(u => u && !u.startsWith('http')))
+    );
+    if (tieneRutaLocal) {
+      localStorage.removeItem('tsProductCache');
+      console.log('🧹 Caché de productos limpiado (tenía rutas locales)');
+    }
+  } catch(e) {}
+})();
+
 // Caché de productos para evitar CLS — muestra datos correctos antes que Firebase responda
 (function aplicarCacheProductos() {
   try {
@@ -16,10 +33,9 @@ let cart = JSON.parse(localStorage.getItem('tsCart') || '[]');
       const priceWrap  = card.querySelector('.price-wrap');
       if (priceEl)    priceEl.textContent    = fmt(p.price);
       if (priceOldEl) priceOldEl.textContent = fmt(p.oldPrice);
-      // Quitar skeleton si ya tenemos valor en caché
       if (priceWrap && p.price) priceWrap.classList.remove('price-loading');
     });
-  } catch(e) { /* sin caché, el skeleton se queda hasta que llega Firebase */ }
+  } catch(e) {}
 })();
 
 // Llamar carga de productos desde Firestore (se ejecuta después del DOM)
@@ -117,9 +133,7 @@ async function procesarRetornoWompi() {
 }
 
 // Actualiza las tarjetas de producto en el DOM con TODOS los datos de Firebase
-// Usa requestAnimationFrame para no provocar reflow durante el paint inicial
 function actualizarPreciosDOM() {
-  requestAnimationFrame(() => {
   Object.values(products).forEach(p => {
     const card = document.querySelector(`.product-card[data-id="${p.id}"]`);
     if (!card) return;
@@ -141,7 +155,6 @@ function actualizarPreciosDOM() {
     const newOldPrice = formatCOP(p.oldPrice);
     if (priceEl    && priceEl.textContent    !== newPrice)    priceEl.textContent    = newPrice;
     if (priceOldEl && priceOldEl.textContent !== newOldPrice) priceOldEl.textContent = newOldPrice;
-    // Quitar skeleton ahora que tenemos el precio real
     if (priceWrap) priceWrap.classList.remove('price-loading');
 
     const badgeEl = card.querySelector('.card-badge');
@@ -153,46 +166,66 @@ function actualizarPreciosDOM() {
       badgeEl.style.display    = '';
     }
 
-    const firstImg = card.querySelector('.card-img-wrap img.active-slide');
-    if (firstImg && p.img) {
-      if (firstImg.src !== p.img) {
-        firstImg.src = p.img;
-        firstImg.alt = p.name;
-      }
-      firstImg.onerror = () => { firstImg.src = p.fallback || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'; };
-    }
+    // Galería filtrada sin videos
+    const soloImgs = (p.gallery || [p.img]).filter(url =>
+      url && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(url)
+    );
+    if (!soloImgs.length && p.img) soloImgs.push(p.img);
+    const fb = p.fallback || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80';
 
-    // Actualizar todas las imágenes del slider con la galería de Firestore
-    // Filtrar videos — no deben ir en el slider de imágenes
-    if (p.gallery && p.gallery.length) {
-      const soloImgs = p.gallery.filter(url =>
-        url && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(url)
-      );
-      const allSlides = card.querySelectorAll('.card-img-wrap img');
-      allSlides.forEach((img, i) => {
-        const src = soloImgs[i] || soloImgs[0];
-        if (src && img.src !== src) {
-          img.src = src;
-          img.onerror = () => { img.onerror = null; img.src = p.fallback || 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80'; };
-        }
+    // Reconstruir el slider con las imágenes correctas
+    const wrap = document.getElementById(`slide-${p.id}`);
+    if (wrap) {
+      // Detener interval anterior
+      if (_sliderIntervals[p.id]) { clearInterval(_sliderIntervals[p.id]); delete _sliderIntervals[p.id]; }
+
+      // Mantener solo los elementos que no son imgs (dots, overlay)
+      const dotsEl    = wrap.querySelector('.slide-dots');
+      const overlayEl = wrap.querySelector('.card-overlay');
+
+      // Eliminar todas las imgs actuales
+      wrap.querySelectorAll('img').forEach(img => img.remove());
+
+      // Recrear imgs con las URLs de Firestore/Cloudinary
+      soloImgs.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.src   = src;
+        img.alt   = p.name;
+        img.style.opacity = i === 0 ? '1' : '0';
+        if (i === 0) img.classList.add('active-slide');
+        img.onerror = () => { img.onerror = null; img.src = fb; };
+        // Insertar antes de dots
+        wrap.insertBefore(img, dotsEl || overlayEl || null);
       });
+
+      // Reiniciar dots y slider
+      if (dotsEl) dotsEl.innerHTML = '';
+      if (soloImgs.length > 1) {
+        soloImgs.forEach((_, i) => {
+          const dot = document.createElement('button');
+          dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+          dot.onclick = (e) => { e.stopPropagation(); goSlide(p.id, i); };
+          if (dotsEl) dotsEl.appendChild(dot);
+        });
+        let current = 0;
+        _sliderIntervals[p.id] = setInterval(() => {
+          current = (current + 1) % soloImgs.length;
+          goSlide(p.id, current);
+        }, 2800 + p.id * 400);
+      }
     }
 
     const btn = card.querySelector('.add-cart-btn');
     if (btn) {
+      const imgCart = soloImgs[0] || p.img;
       btn.setAttribute('onclick',
-        `event.stopPropagation();addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.img}')`);
+        `event.stopPropagation();addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${imgCart}')`);
     }
 
     card.setAttribute('onclick', `openModal(${p.id})`);
     const qvBtn = card.querySelector('.quick-view');
     if (qvBtn) qvBtn.setAttribute('onclick', `event.stopPropagation();openModal(${p.id})`);
   });
-  }); // fin requestAnimationFrame
-  // Reiniciar slideshows después de actualizar imágenes desde Firestore
-  setTimeout(() => {
-    if (typeof reiniciarSliders === 'function') reiniciarSliders();
-  }, 100);
 }
 
 // ===== EMAILJS CONFIG =====
@@ -256,7 +289,7 @@ function formatCOP(value) {
 
 const products = {
   1: {
-    id: 1, name: 'AirPods Pro 3', price: 12500, oldPrice: 15000,
+    id: 1, name: 'AirPods Pro 3', price: 149900, oldPrice: 187900,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 3/pro3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
@@ -265,7 +298,9 @@ const products = {
       'img/Airpods Pro 3/pro3-2.jpg',
       'img/Airpods Pro 3/pro3-3.jpg',
       'img/Airpods Pro 3/pro3-4.jpg',
-      'img/Airpods Pro 3/pro3-5.jpg'
+      'img/Airpods Pro 3/pro3-5.jpg',
+      'img/Airpods Pro 3/pro3-6.jpg',
+      'img/Airpods Pro 3/pro3-7.jpg'
     ],
     tag: 'Pro Series',
     desc: 'Disfruta de un sonido potente con cancelación activa de ruido (ANC), modo transparencia y audio espacial personalizado. Calidad 1.1 con hasta 24h de batería total.',
@@ -273,7 +308,7 @@ const products = {
     specs: {}
   },
   2: {
-    id: 2, name: 'AirPods Pro 2', price: 12500, oldPrice: 15000,
+    id: 2, name: 'AirPods Pro 2', price: 119990, oldPrice: 149990,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Airpods Pro 2/pro2-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
@@ -281,7 +316,9 @@ const products = {
       'img/Airpods Pro 2/pro2-1.jpg',
       'img/Airpods Pro 2/pro2-2.jpg',
       'img/Airpods Pro 2/pro2-3.jpg',
-      'img/Airpods Pro 2/pro2-4.jpg'
+      'img/Airpods Pro 2/pro2-4.jpg',
+      'img/Airpods Pro 2/pro2-5.jpg',
+      'img/Airpods Pro 2/pro2-6.jpg'
     ],
     tag: 'Pro Series',
     desc: 'Audífonos inalámbricos Calidad 1.1 con sonido de alta definición, cancelación de ruido activa y estuche con altavoz integrado. Compatibles con iOS y Android.',
@@ -289,18 +326,19 @@ const products = {
     specs: {}
   },
   3: {
-    id: 3, name: 'AirPods Series 3', price: 12500, oldPrice: 15000,
+    id: 3, name: 'AirPods Series 3', price: 119000, oldPrice: 149000,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
-    img: 'img/Series 3/IMG_6865.JPEG',
+    img: 'img/Series 3/series3-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=400&q=80',
-    video: 'img/Series 3/IMG_6874.MOV',
+    video: null,
     gallery: [
-      'img/Series 3/IMG_6865.JPEG',
-      'img/Series 3/IMG_6871.JPEG',
-      'img/Series 3/IMG_6875.JPEG',
-      'img/Series 3/IMG_6878.JPEG',
-      'img/Series 3/IMG_6881.JPEG',
-      'img/Series 3/IMG_6882.JPEG'
+      'img/Series 3/series3-1.jpg',
+      'img/Series 3/series3-2.jpg',
+      'img/Series 3/series3-3.jpg',
+      'img/Series 3/series3-4.jpg',
+      'img/Series 3/series3-5.jpg',
+      'img/Series 3/series3-6.jpg',
+      'img/Series 3/series3-7.jpg'
     ],
     tag: 'Standard Series',
     desc: 'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.',
@@ -308,15 +346,18 @@ const products = {
     specs: {}
   },
   4: {
-    id: 4, name: 'AirPods Series 4', price: 12500, oldPrice: 15000,
+    id: 4, name: 'AirPods Series 4', price: 139900, oldPrice: 174900,
     badge: 'Nuevo', badgeColor: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
     img: 'img/Series 4/series4-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=400&q=80',
-    video: 'img/Series 4/airpods-promo.mp4',
+    video: null,
     gallery: [
       'img/Series 4/series4-1.jpg',
       'img/Series 4/series4-2.jpg',
-      'img/Series 4/series4-3.jpg'
+      'img/Series 4/series4-3.jpg',
+      'img/Series 4/series4-4.jpg',
+      'img/Series 4/series4-5.jpg',
+      'img/Series 4/series4-6.jpg'
     ],
     tag: 'Standard Series',
     desc: 'Los AirPods de 4ta generación con nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas de batería total.',
@@ -330,6 +371,35 @@ window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
   if (window.scrollY > 50) nav.classList.add('scrolled');
   else nav.classList.remove('scrolled');
+});
+
+// ===== HERO SLIDESHOW =====
+document.addEventListener('DOMContentLoaded', () => {
+  const slides  = document.querySelectorAll('.hero-slide');
+  const dotsEl  = document.getElementById('heroDots');
+  if (!slides.length || !dotsEl) return;
+
+  // Crear dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Foto ${i + 1}`);
+    dot.onclick = () => goHeroSlide(i);
+    dotsEl.appendChild(dot);
+  });
+
+  let current = 0;
+  function goHeroSlide(idx) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+  }
+
+  setInterval(() => {
+    goHeroSlide((current + 1) % slides.length);
+  }, 3200);
 });
 
 // ===== MOBILE MENU =====
@@ -755,6 +825,8 @@ function selectPaymentMethod(method) {
   } else {
     btn.innerHTML = '<i class="fas fa-lock"></i> Pagar ahora';
   }
+  // Actualizar resumen de orden al cambiar método de pago
+  setTimeout(() => renderOrderSummary(), 0);
 }
 
 function goStep(n) {
@@ -1091,39 +1163,39 @@ function reiniciarSliders() {
 function reiniciarSlider(id) {
   const wrap = document.getElementById(`slide-${id}`);
   if (!wrap) return;
-
-  // Solo imágenes — excluir cualquier <video> si existiera
-  const imgs = Array.from(wrap.querySelectorAll('img'));
   const dotsEl = document.getElementById(`dots-${id}`);
-  if (!dotsEl) return;
 
-  // Limpiar interval anterior
   if (_sliderIntervals[id]) { clearInterval(_sliderIntervals[id]); delete _sliderIntervals[id]; }
+  if (dotsEl) dotsEl.innerHTML = '';
 
-  // Limpiar dots anteriores
-  dotsEl.innerHTML = '';
+  const imgs = Array.from(wrap.querySelectorAll('img'));
+  // Filtrar imágenes válidas y únicas (no repetidas)
+  const seen = new Set();
+  const validImgs = imgs.filter(img => {
+    if (!img.src || img.src.endsWith('#')) return false;
+    if (seen.has(img.src)) return false;
+    seen.add(img.src);
+    return true;
+  });
 
-  // Filtrar imágenes con src válido (no vacío ni blob roto)
-  const validImgs = imgs.filter(img => img.src && !img.src.endsWith('#'));
-  if (validImgs.length <= 1) return;
-
-  // Asegurar que la primera está activa
-  validImgs.forEach((img, i) => {
+  // Asegurar opacidad correcta en todas
+  imgs.forEach((img, i) => {
     img.style.opacity = i === 0 ? '1' : '0';
     img.classList.toggle('active-slide', i === 0);
   });
 
-  // Crear dots
+  if (validImgs.length <= 1) return; // una sola imagen — no hay slideshow
+
   validImgs.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
     dot.onclick = (e) => { e.stopPropagation(); goSlide(id, i); };
-    dotsEl.appendChild(dot);
+    if (dotsEl) dotsEl.appendChild(dot);
   });
 
   let current = 0;
   _sliderIntervals[id] = setInterval(() => {
-    current = (current + 1) % validImgs.length;
+    current = (current + 1) % imgs.length;
     goSlide(id, current);
   }, 2800 + id * 400);
 }
