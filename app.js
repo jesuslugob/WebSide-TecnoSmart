@@ -1467,3 +1467,46 @@ function updateNavForUser() {
 }
 
 
+
+// ===== CARACTERÍSTICAS — selector de modelos =====
+function selectModel(model, btn) {
+  document.querySelectorAll('.feat-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.feat-panel').forEach(p => {
+    p.classList.remove('active');
+    p.style.opacity = '0';
+  });
+  btn.classList.add('active');
+  const panel = document.getElementById('feat-' + model);
+  if (panel) {
+    panel.classList.add('active');
+    requestAnimationFrame(() => { panel.style.opacity = '1'; });
+  }
+}
+
+// ===== TOPBAR TICKER =====
+document.addEventListener('DOMContentLoaded', () => {
+  const items = [
+    { icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', text: 'Pago 100% seguro con pagos protegidos' },
+    { icon: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>', text: 'Envíos rápidos a todo Colombia' },
+    { icon: '<polyline points="20 6 9 17 4 12"/>', text: 'Calidad garantizada y respaldo en cada compra' },
+    { icon: '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>', text: 'Compra hoy y paga hasta en 4 cuotas con Wompi' },
+    { icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>', text: 'Pago contra entrega disponible en ciudades habilitadas' },
+  ];
+
+  function buildHTML() {
+    return items.map(item => `
+      <span class="ticker-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+        ${item.text}
+      </span>
+      <span class="ticker-sep" aria-hidden="true">·</span>
+    `).join('');
+  }
+
+  const c1 = document.getElementById('tickerContent');
+  const c2 = document.getElementById('tickerContent2');
+  if (!c1 || !c2) return;
+  const html = buildHTML();
+  c1.innerHTML = html;
+  c2.innerHTML = html;
+});

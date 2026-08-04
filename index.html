@@ -32,22 +32,6 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // ── Cargar productos desde Firestore ───────────────────────────────────
-    window.cargarProductosFirestore = async () => {
-      try {
-        const q    = query(collection(db, 'productos'), orderBy('orden', 'asc'));
-        const snap = await getDocs(q);
-        if (snap.empty) return false; // usar productos locales como fallback
-        const prods = {};
-        snap.docs.forEach(d => { prods[d.id] = { docId: d.id, ...d.data() }; });
-        window.products = prods;
-        return true;
-      } catch (err) {
-        console.warn('Usando productos locales:', err.message);
-        return false;
-      }
-    };
-
     // ── Observar estado de sesión ──────────────────────────────────────────
     onAuthStateChanged(auth, async user => {
       if (user) {
@@ -94,57 +78,6 @@
       window.currentUser.address = address;
     };
 
-    // ── Limpiar productos: elimina rutas locales, conserva Cloudinary/https ──
-    window.limpiarProductos = async () => {
-      const fb3 = 'https://images.unsplash.com/photo-1631176093617-43abc0cbcb09?w=800&q=80';
-      const fb4 = 'https://images.unsplash.com/photo-1580894906475-403275592de5?w=800&q=80';
-      const esUrlValida = u => u && (u.startsWith('https://') || u.startsWith('http://'));
-
-      // Prod 3
-      const snap3 = await getDoc(doc(db, 'productos', 'prod_3'));
-      if (snap3.exists()) {
-        const d3 = snap3.data();
-        const galeria3 = (d3.galeria || []).filter(esUrlValida);
-        const img3 = esUrlValida(d3.imagenPrincipal) ? d3.imagenPrincipal : (galeria3[0] || fb3);
-        await setDoc(doc(db, 'productos', 'prod_3'), {
-          imagenPrincipal: img3,
-          galeria: galeria3.length ? galeria3 : [fb3],
-          video: esUrlValida(d3.video) ? d3.video : null
-        }, { merge: true });
-        console.log('✅ prod_3 limpiado:', img3);
-      }
-
-      // Prod 4
-      const snap4 = await getDoc(doc(db, 'productos', 'prod_4'));
-      if (snap4.exists()) {
-        const d4 = snap4.data();
-        const galeria4 = (d4.galeria || []).filter(esUrlValida);
-        const img4 = esUrlValida(d4.imagenPrincipal) ? d4.imagenPrincipal : (galeria4[0] || fb4);
-        await setDoc(doc(db, 'productos', 'prod_4'), {
-          imagenPrincipal: img4,
-          galeria: galeria4.length ? galeria4 : [fb4],
-          video: esUrlValida(d4.video) ? d4.video : null
-        }, { merge: true });
-        console.log('✅ prod_4 limpiado:', img4);
-      }
-
-      alert('✅ Productos limpiados. Recarga la página.');
-    };
-    window.seedProductos = async () => {
-      const lista = [
-        { id:'prod_1', nombre:'AirPods Pro 3', precio:149900, precioAntes:187900, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Disfruta de un sonido potente con cancelación activa de ruido (ANC), modo transparencia y audio espacial personalizado. Calidad 1.1 con hasta 24h de batería total.', caracteristicas:['2× mejor cancelación de ruido activa','Modo transparencia','Audio espacial personalizado','Carga MagSafe y USB-C','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 3/pro3-1.jpg', video:null, galeria:['img/Airpods Pro 3/pro3-1.jpg','img/Airpods Pro 3/pro3-2.jpg','img/Airpods Pro 3/pro3-3.jpg','img/Airpods Pro 3/pro3-4.jpg','img/Airpods Pro 3/pro3-5.jpg','img/Airpods Pro 3/pro3-6.jpg','img/Airpods Pro 3/pro3-7.jpg'], orden:1, activo:true },
-        { id:'prod_2', nombre:'AirPods Pro 2', precio:119990, precioAntes:149990, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Pro Series', descripcion:'Audífonos inalámbricos Calidad 1.1 con sonido de alta definición, cancelación de ruido activa y estuche con altavoz integrado. Compatibles con iOS y Android.', caracteristicas:['Cancelación activa de ruido','Modo de sonido ambiente','Estuche con altavoz integrado','Audio espacial personalizado','Resistencia IPX4'], specs:{}, imagenPrincipal:'img/Airpods Pro 2/pro2-1.jpg', video:null, galeria:['img/Airpods Pro 2/pro2-1.jpg','img/Airpods Pro 2/pro2-2.jpg','img/Airpods Pro 2/pro2-3.jpg','img/Airpods Pro 2/pro2-4.jpg','img/Airpods Pro 2/pro2-5.jpg','img/Airpods Pro 2/pro2-6.jpg'], orden:2, activo:true },
-        { id:'prod_3', nombre:'AirPods Series 3', precio:119000, precioAntes:149000, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Una excelente alternativa para quienes buscan calidad de sonido, comodidad y una conexión estable. Incorporan Bluetooth 5.3, control táctil y batería de larga duración.', caracteristicas:['Audio espacial dinámico','EQ adaptativo automático','Diseño ergonómico ligero','Resistencia IPX4','Carga MagSafe'], specs:{}, imagenPrincipal:'img/Series 3/series3-1.jpg', video:null, galeria:['img/Series 3/series3-1.jpg','img/Series 3/series3-2.jpg','img/Series 3/series3-3.jpg','img/Series 3/series3-4.jpg','img/Series 3/series3-5.jpg','img/Series 3/series3-6.jpg','img/Series 3/series3-7.jpg'], orden:3, activo:true },
-        { id:'prod_4', nombre:'AirPods Series 4', precio:139900, precioAntes:174900, badge:'Nuevo', badgeColor:'linear-gradient(135deg,#6c63ff,#a78bfa)', tag:'Standard Series', descripcion:'Los AirPods de 4ta generación con nuevo diseño ergonómico sin silicona, audio adaptativo, detección de conversación y hasta 24 horas de batería total.', caracteristicas:['Nuevo diseño ergonómico sin almohadilla','Audio adaptativo','Detección de conversación','Carga USB-C y MagSafe','Hasta 24h con estuche'], specs:{}, imagenPrincipal:'img/Series 4/series4-1.jpg', video:null, galeria:['img/Series 4/series4-1.jpg','img/Series 4/series4-2.jpg','img/Series 4/series4-3.jpg','img/Series 4/series4-4.jpg','img/Series 4/series4-5.jpg','img/Series 4/series4-6.jpg'], orden:4, activo:true }
-      ];
-      for (const p of lista) {
-        const { id, ...data } = p;
-        await setDoc(doc(db, 'productos', id), data);
-        console.log('✅ Subido:', data.nombre);
-      }
-      alert('✅ 4 productos actualizados en Firestore');
-    };
-
     // ── Calificaciones en tiempo real con onSnapshot ───────────────────────
     window.cargarCalificaciones = () => {
       window._calificaciones = window._calificaciones || {};
@@ -177,7 +110,7 @@
           const starsEl = document.getElementById(`pd-stars-${orden}`);
           if (starsEl) starsEl.innerHTML = renderStarHTML(avg, count);
         });
-      }, (e) => { console.warn('Cal snapshot error:', e.message); });
+      }, () => {});
     };
 
     // Guarda un voto individual y recalcula el promedio
@@ -209,7 +142,7 @@
         // 4. Marcar en localStorage
         localStorage.setItem(lsKey, String(Date.now()));
         return 'ok';
-      } catch(e) { console.error('Error cal:', e.message); return 'error'; }
+      } catch { return 'error'; }
     };
 
     // ── Cargar productos desde Firestore al abrir la tienda (tiempo real) ─
@@ -230,11 +163,11 @@
             fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
             gallery: (p.galeria || [p.imagenPrincipal]).filter(u => u && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(u)),
             video: p.video || null,
-            desc: p.descripcion, features: p.caracteristicas || [], specs: {}
+            desc: p.descripcion, features: p.caracteristicas || [], specs: {},
+            featDesc: p.featDesc || ''
           };
           orden++;
         });
-        console.log('✅ Productos cargados desde Firestore:', snap.size);
 
         // Escuchar cambios en tiempo real
         onSnapshot(query(collection(db, 'productos'), orderBy('orden')), (snap2) => {
@@ -250,16 +183,14 @@
               fallback: 'https://images.unsplash.com/photo-1600294037547-5cb5c1d0edd0?w=400&q=80',
               gallery: (p.galeria || [p.imagenPrincipal]).filter(u => u && !/\.(mov|mp4|avi|mkv|webm)(\?|$)/i.test(u)),
               video: p.video || null,
-              desc: p.descripcion, features: p.caracteristicas || [], specs: {}
+              desc: p.descripcion, features: p.caracteristicas || [], specs: {},
+              featDesc: p.featDesc || ''
             };
             ord++;
           });
-          // Actualizar DOM en tiempo real
           if (typeof actualizarPreciosDOM === 'function') actualizarPreciosDOM();
         });
-      } catch(err) {
-        console.warn('⚠️ Usando productos locales:', err.message);
-      }
+      } catch(e) { /* fallback silencioso */ }
     };
 
     // ── Configuración general en tiempo real ─────────────────────────────
@@ -274,9 +205,99 @@
         }
       });
     };
+
+    // ── Características de la sección #features — tiempo real ────────────
+    // Colección: caracteristicas_seccion / { pro3, pro2, s4, s3 }
+    // Cada doc tiene: { desc: string, items: ["Título | Descripción", ...] }
+    const FEAT_ICONS_MAP = {
+      default:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      audio:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+      cancelaci:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
+      anc:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
+      batería:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg>`,
+      hora:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg>`,
+      bluetooth:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`,
+      transparencia: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      espacial:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`,
+      carga:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      usb:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      magsafe:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      compatible:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+      táctil:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      control:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      altavoz:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+      resistencia:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      ipx:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      adaptativo:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+      sensor:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      gps:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+      dise:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+      incluye:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    };
+
+    function getFeatIconHTML(titulo) {
+      const t = (titulo || '').toLowerCase();
+      for (const [key, svg] of Object.entries(FEAT_ICONS_MAP)) {
+        if (key !== 'default' && t.includes(key)) return svg;
+      }
+      return FEAT_ICONS_MAP.default;
+    }
+
+    function renderFeatGrid(items) {
+      return items.map(item => {
+        const parts  = String(item).split('|');
+        const titulo = parts[0].trim();
+        const sub    = parts[1] ? parts[1].trim() : '';
+        const icon   = getFeatIconHTML(titulo);
+        return `<div class="feat-card">
+          <div class="feat-icon">${icon}</div>
+          <div><strong>${titulo}</strong>${sub ? `<span>${sub}</span>` : ''}</div>
+        </div>`;
+      }).join('');
+    }
+
+    window.cargarCaracteristicasSeccion = () => {
+      const DEFAULTS = {
+        pro3: { desc: 'La experiencia de audio más avanzada con cancelación de ruido de próxima generación y audio espacial personalizado.', items: ['Audio Hi-Fi | Sonido potente y envolvente','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Modo Transparencia | Escucha el entorno','Audio Espacial | Sonido 360° inmersivo','Carga USB-C | Recarga eficiente','Compatible | Android e iPhone'] },
+        pro2: { desc: 'Cancelación activa de ruido, chip H2 y estuche con altavoz integrado para una experiencia sin igual.', items: ['Audio Hi-Fi | Sonido potente y envolvente','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Modo Transparencia | Escucha el entorno','Estuche con altavoz | Localízalo fácilmente','Control táctil | Gestiona música y llamadas','Compatible | Android e iPhone'] },
+        s4:   { desc: 'Diseño ergonómico sin silicona, audio adaptativo y la mejor batería de la línea estándar.', items: ['Audio Adaptativo | Se ajusta al entorno','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Carga USB-C | Recarga eficiente','Control táctil | Gestiona música y llamadas','Modo Transparencia | Escucha el entorno','Compatible | Android e iPhone'] },
+        s3:   { desc: 'La opción perfecta para quienes buscan calidad de sonido, comodidad y conexión estable a un precio accesible.', items: ['Audio Espacial | Sonido dinámico envolvente','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Control táctil | Gestiona música y llamadas','Resistencia IPX4 | Protección contra salpicaduras','Modo Transparencia | Escucha el entorno','Carga MagSafe | Carga inalámbrica rápida','Compatible | Android e iPhone'] },
+      };
+
+      const MODELS = ['pro3', 'pro2', 's4', 's3'];
+      MODELS.forEach(modelKey => {
+        onSnapshot(doc(db, 'caracteristicas_seccion', modelKey), (snap) => {
+          const data = snap.exists() ? snap.data() : DEFAULTS[modelKey];
+          // Actualizar descripción
+          const descEl = document.getElementById(`feat-desc-${modelKey}`);
+          if (descEl) descEl.textContent = data.desc || '';
+          // Actualizar grid de items
+          const gridEl = document.getElementById(`feat-grid-${modelKey}`);
+          if (gridEl && data.items && data.items.length) {
+            gridEl.innerHTML = renderFeatGrid(data.items);
+          }
+        });
+      });
+    };
+
+    // Llamar automáticamente cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => window.cargarCaracteristicasSeccion());
+    } else {
+      window.cargarCaracteristicasSeccion();
+    }
   </script>
 </head>
 <body>
+
+<!-- BARRA PREMIUM SUPERIOR — Ticker continuo -->
+<div class="topbar-ticker" id="topbarTicker">
+  <div class="ticker-track">
+    <!-- Se duplica para loop infinito sin saltos -->
+    <div class="ticker-content" id="tickerContent"></div>
+    <div class="ticker-content" id="tickerContent2" aria-hidden="true"></div>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav class="navbar" id="navbar">
@@ -371,7 +392,7 @@
           <div class="card-tag">Pro Series</div>
           <h3 class="card-title">AirPods Pro 3</h3>
           <div class="star-row" id="stars-card-1"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
-          <p class="card-desc">2× mejor cancelación de ruido, audio espacial personalizado, hasta 24h de batería.</p>
+          <p class="card-desc">2× mejor cancelación de ruido, audio espacial, hasta 24h de batería.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap price-loading">
@@ -399,7 +420,7 @@
           <div class="card-tag">Pro Series</div>
           <h3 class="card-title">AirPods Pro 2</h3>
           <div class="star-row" id="stars-card-2"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
-          <p class="card-desc">Cancelación activa de ruido, estuche con altavoz integrado, audio espacial.</p>
+          <p class="card-desc">Cancelación ANC, estuche con altavoz, audio espacial personalizado.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap price-loading">
@@ -427,7 +448,7 @@
           <div class="card-tag">Standard Series</div>
           <h3 class="card-title">AirPods Series 3</h3>
           <div class="star-row" id="stars-card-3"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
-          <p class="card-desc">Audio espacial dinámico, resistencia al agua IPX4, carga MagSafe incluida.</p>
+          <p class="card-desc">Audio espacial dinámico, resistencia IPX4, carga MagSafe incluida.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap price-loading">
@@ -455,7 +476,7 @@
           <div class="card-tag">Standard Series</div>
           <h3 class="card-title">AirPods Series 4</h3>
           <div class="star-row" id="stars-card-4"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="star-count">4.9 (327)</span></div>
-          <p class="card-desc">Diseño ergonómico sin silicona, audio adaptativo y hasta 24 horas de batería total.</p>
+          <p class="card-desc">Diseño ergonómico sin silicona, audio adaptativo, hasta 24h de batería.</p>
           <div class="card-specs"><span><i class="fas fa-battery-full"></i> 24h total</span><span><i class="fas fa-wifi"></i> BT 5.3</span><span><i class="fas fa-microphone"></i> ANC ✓</span></div>
           <div class="card-footer">
             <div class="price-wrap price-loading">
@@ -473,138 +494,131 @@
   </div>
 </section>
 
-<!-- CARACTERÍSTICAS (tabla comparativa) -->
-<section class="comparison" id="features">
+<!-- CARACTERÍSTICAS — Interactivo premium -->
+<section class="features-section" id="features">
   <div class="section-container">
     <div class="section-header">
-      <span class="section-tag">Comparativa</span>
-      <h2 class="section-title">Características de nuestros <span class="gradient-text">AirPods</span></h2>
+      <span class="section-tag">Tecnología</span>
+      <h2 class="section-title">Descubre la tecnología<br>de cada <span class="gradient-text">modelo</span></h2>
+      <p class="section-sub">Selecciona un modelo y conoce sus principales características.</p>
     </div>
-    <div class="table-wrap">
-      <table class="comp-table">
-        <thead>
-          <tr>
-            <th>Característica</th>
-            <th>AirPods Pro 3 ANC 1.1</th>
-            <th>AirPods Pro 2 ANC 1.1</th>
-            <th>AirPods Series 3 1.1</th>
-            <th>AirPods Series 4 ANC 1.1</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Cancelación de ruido (ANC)</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Modo Transparencia</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Audio espacial</td>
-            <td><i class="fas fa-check-circle green"></i> Compatible</td>
-            <td><i class="fas fa-check-circle green"></i> Compatible</td>
-            <td><i class="fas fa-check-circle green"></i> Compatible</td>
-            <td><i class="fas fa-check-circle green"></i> Compatible</td>
-          </tr>
-          <tr>
-            <td>Micrófonos</td>
-            <td>Doble micrófono HD</td>
-            <td>Doble micrófono HD</td>
-            <td>Micrófono HD</td>
-            <td>Doble micrófono HD</td>
-          </tr>
-          <tr>
-            <td>Controles táctiles</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Sensor de uso</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Batería (audífonos)</td>
-            <td>5–6 horas</td>
-            <td>5–6 horas</td>
-            <td>4–5 horas</td>
-            <td>5–6 horas</td>
-          </tr>
-          <tr>
-            <td>Batería con estuche</td>
-            <td>Hasta 24 horas</td>
-            <td>Hasta 24 horas</td>
-            <td>Hasta 24 horas</td>
-            <td>Hasta 24 horas</td>
-          </tr>
-          <tr>
-            <td>Bluetooth</td>
-            <td>5.3</td>
-            <td>5.3</td>
-            <td>5.3</td>
-            <td>5.3</td>
-          </tr>
-          <tr>
-            <td>Carga</td>
-            <td>USB-C</td>
-            <td>Lightning / USB-C*</td>
-            <td>Lightning</td>
-            <td>USB-C</td>
-          </tr>
-          <tr>
-            <td>Compatibilidad</td>
-            <td>Android / iPhone</td>
-            <td>Android / iPhone</td>
-            <td>Android / iPhone</td>
-            <td>Android / iPhone</td>
-          </tr>
-          <tr>
-            <td>Ventana emergente en iPhone</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Cambio de nombre</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Siri / Asistente de voz</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-            <td><i class="fas fa-check-circle green"></i> Sí</td>
-          </tr>
-          <tr>
-            <td>Resistencia al sudor</td>
-            <td>IPX4</td>
-            <td>IPX4</td>
-            <td>IPX4</td>
-            <td>IPX4</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="feat-selector-wrap">
+      <div class="feat-selector" id="featSelector">
+        <button class="feat-pill active" data-model="pro3" onclick="selectModel('pro3',this)">AirPods Pro 3</button>
+        <button class="feat-pill" data-model="pro2" onclick="selectModel('pro2',this)">AirPods Pro 2</button>
+        <button class="feat-pill" data-model="s4" onclick="selectModel('s4',this)">AirPods Serie 4</button>
+        <button class="feat-pill" data-model="s3" onclick="selectModel('s3',this)">AirPods Serie 3</button>
+      </div>
     </div>
-    <p style="font-size:12px;color:var(--text3);margin-top:14px;text-align:center">* Depende de la versión del proveedor.</p>
+    <div class="feat-content" id="featContent">
+
+      <!-- PANEL PRO 3 -->
+      <div class="feat-panel active" id="feat-pro3">
+        <div class="feat-img-col">
+          <div class="feat-img-wrap">
+            <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
+              <source src="Videos/Productos/Pro 3/pro3.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div class="feat-info-col">
+          <h3 class="feat-model-name">AirPods Pro 3</h3>
+          <p class="feat-model-desc" id="feat-desc-pro3">La experiencia de audio más avanzada con cancelación de ruido de próxima generación y audio espacial personalizado.</p>
+          <div class="feat-grid" id="feat-grid-pro3">
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div><div><strong>Audio Hi-Fi</strong><span>Sonido potente y envolvente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><div><strong>Cancelación ANC</strong><span>Reduce el ruido exterior</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg></div><div><strong>Hasta 24 horas</strong><span>Con el estuche de carga</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div><div><strong>Bluetooth 5.3</strong><span>Conexión rápida y estable</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><strong>Modo Transparencia</strong><span>Escucha el entorno</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></div><div><strong>Audio Espacial</strong><span>Sonido 360° inmersivo</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><strong>Carga USB-C</strong><span>Recarga eficiente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div><strong>Compatible</strong><span>Android e iPhone</span></div></div>
+          </div>
+          <button class="feat-buy-btn" onclick="openModal(1)">Comprar AirPods Pro 3 <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- PANEL PRO 2 -->
+      <div class="feat-panel" id="feat-pro2">
+        <div class="feat-img-col">
+          <div class="feat-img-wrap">
+            <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
+              <source src="Videos/Productos/Pro 2/pro2.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div class="feat-info-col">
+          <h3 class="feat-model-name">AirPods Pro 2</h3>
+          <p class="feat-model-desc" id="feat-desc-pro2">Cancelación activa de ruido, chip H2 y estuche con altavoz integrado para una experiencia sin igual.</p>
+          <div class="feat-grid" id="feat-grid-pro2">
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div><div><strong>Audio Hi-Fi</strong><span>Sonido potente y envolvente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><div><strong>Cancelación ANC</strong><span>Reduce el ruido exterior</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg></div><div><strong>Hasta 24 horas</strong><span>Con el estuche de carga</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div><div><strong>Bluetooth 5.3</strong><span>Conexión rápida y estable</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div><div><strong>Modo Transparencia</strong><span>Escucha el entorno</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div><strong>Estuche con altavoz</strong><span>Localízalo fácilmente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><strong>Control táctil</strong><span>Gestiona música y llamadas</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div><strong>Compatible</strong><span>Android e iPhone</span></div></div>
+          </div>
+          <button class="feat-buy-btn" onclick="openModal(2)">Comprar AirPods Pro 2 <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- PANEL SERIE 4 -->
+      <div class="feat-panel" id="feat-s4">
+        <div class="feat-img-col">
+          <div class="feat-img-wrap">
+            <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
+              <source src="Videos/Productos/Series 4/series4.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div class="feat-info-col">
+          <h3 class="feat-model-name">AirPods Serie 4</h3>
+          <p class="feat-model-desc" id="feat-desc-s4">Diseño ergonómico sin silicona, audio adaptativo y la mejor batería de la línea estándar.</p>
+          <div class="feat-grid" id="feat-grid-s4">
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div><div><strong>Audio Adaptativo</strong><span>Se ajusta al entorno</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div><div><strong>Cancelación ANC</strong><span>Reduce el ruido exterior</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg></div><div><strong>Hasta 24 horas</strong><span>Con el estuche de carga</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div><div><strong>Bluetooth 5.3</strong><span>Conexión rápida y estable</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><strong>Carga USB-C</strong><span>Recarga eficiente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><strong>Control táctil</strong><span>Gestiona música y llamadas</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><strong>Modo Transparencia</strong><span>Escucha el entorno</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div><strong>Compatible</strong><span>Android e iPhone</span></div></div>
+          </div>
+          <button class="feat-buy-btn" onclick="openModal(4)">Comprar AirPods Serie 4 <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- PANEL SERIE 3 -->
+      <div class="feat-panel" id="feat-s3">
+        <div class="feat-img-col">
+          <div class="feat-img-wrap">
+            <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
+              <source src="Videos/Productos/Series 3/series3.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div class="feat-info-col">
+          <h3 class="feat-model-name">AirPods Serie 3</h3>
+          <p class="feat-model-desc" id="feat-desc-s3">La opción perfecta para quienes buscan calidad de sonido, comodidad y conexión estable a un precio accesible.</p>
+          <div class="feat-grid" id="feat-grid-s3">
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></div><div><strong>Audio Espacial</strong><span>Sonido dinámico envolvente</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="11" x2="23" y2="11"/></svg></div><div><strong>Hasta 24 horas</strong><span>Con el estuche de carga</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div><div><strong>Bluetooth 5.3</strong><span>Conexión rápida y estable</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><strong>Control táctil</strong><span>Gestiona música y llamadas</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><strong>Resistencia IPX4</strong><span>Protección contra salpicaduras</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><strong>Modo Transparencia</strong><span>Escucha el entorno</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><strong>Carga MagSafe</strong><span>Carga inalámbrica rápida</span></div></div>
+            <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div><strong>Compatible</strong><span>Android e iPhone</span></div></div>
+          </div>
+          <button class="feat-buy-btn" onclick="openModal(3)">Comprar AirPods Serie 3 <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
-
-<!-- RESEÑAS ELIMINADAS -->
 
 <!-- NOSOTROS -->
 <section class="nosotros" id="nosotros">
@@ -620,7 +634,7 @@
       <p>En TecnoSmart vendemos AirPods de calidad 1.1 — la mejor réplica del mercado. Cada producto pasa por un control de calidad estricto para garantizarte una experiencia de audio, diseño y durabilidad casi idéntica al original, a una fracción del precio.</p>
       <ul class="nosotros-list">
         <li><i class="fas fa-check-circle"></i> Calidad 1.1 — lo mejor del mercado</li>
-        <li><i class="fas fa-shield-alt"></i> Garantía de 1 mes por defectos de fabrica</li>
+        <li><i class="fas fa-shield-alt"></i> Garantía de 1 mes por defectos de fábrica</li>
         <li><i class="fas fa-check-circle"></i> Envío a todo el país</li>
       </ul>
       <div class="garantia-note">
@@ -649,8 +663,8 @@
           <li><i class="fab fa-whatsapp"></i> +57 302 448 0599</li>
         </ul>
         <div class="footer-social">
-          <a href="https://www.instagram.com/tecno_smart13?igsh=emJrMWU4c3NpeGFx&utm_source=qr" target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.tiktok.com/@tecno_smart13" target="_blank" class="footer-social-btn"><i class="fab fa-tiktok"></i></a>
+          <a href="https://www.instagram.com/tecnosmart_store?igsh=MXEyd3Z6MzJycDRpeg==" target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@tecnosmartstore" target="_blank" class="footer-social-btn"><i class="fab fa-tiktok"></i></a>
           <a href="#" class="footer-social-btn" id="fb-link"><i class="fab fa-facebook"></i></a>
           <a href="https://wa.me/573043659495" target="_blank" class="footer-social-btn"><i class="fab fa-whatsapp"></i></a>
         </div>

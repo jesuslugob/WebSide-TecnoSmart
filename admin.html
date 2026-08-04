@@ -491,6 +491,9 @@
       <button class="tab-btn" id="tabCalificaciones" onclick="window.switchTab('calificaciones')">
         <i class="fas fa-star"></i> <span>Calificaciones</span>
       </button>
+      <button class="tab-btn" id="tabCaracteristicas" onclick="window.switchTab('caracteristicas')">
+        <i class="fas fa-list-check"></i> <span>Características</span>
+      </button>
       <button class="tab-btn" id="tabConfig" onclick="window.switchTab('config')">
         <i class="fas fa-cog"></i> <span>Configuración</span>
       </button>
@@ -676,6 +679,28 @@
       </div>
     </div>
 
+    <!-- ══ PANEL CARACTERÍSTICAS SECCIÓN ══ -->
+    <div id="panelCaracteristicas" style="display:none">
+      <div class="page-title">
+        <h1>Características — Sección #features</h1>
+        <p>Edita los items que aparecen en las tarjetas de cada modelo en la sección "Características" de la tienda</p>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-l"></div>
+        <div class="toolbar-r">
+          <button class="btn-ref" onclick="window.cargarCaracteristicasAdmin()">
+            <i class="fas fa-sync-alt"></i> Actualizar
+          </button>
+        </div>
+      </div>
+      <!-- 4 tarjetas editables: una por modelo -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:16px" id="featAdminGrid">
+        <div style="text-align:center;padding:48px;color:var(--text2);font-size:14px">
+          <i class="fas fa-spinner spin"></i> Cargando...
+        </div>
+      </div>
+    </div>
+
   </div><!-- /main-content -->
 </div><!-- /admin-wrap -->
 
@@ -764,13 +789,24 @@
     </div>
 
     <div class="form-field">
-      <label>Descripción</label>
-      <textarea id="pfDesc" rows="3" placeholder="Descripción del producto..."></textarea>
+      <label>Descripción (tarjeta de producto)</label>
+      <textarea id="pfDesc" rows="3" placeholder="Descripción corta que aparece en la tarjeta..."></textarea>
     </div>
 
     <div class="form-field">
-      <label>Características (una por línea)</label>
-      <textarea id="pfCaracts" rows="4" placeholder="2× mejor cancelación de ruido&#10;Sensor de frecuencia cardíaca"></textarea>
+      <label>Descripción de Características (sección #features)</label>
+      <textarea id="pfFeatDesc" rows="2" placeholder="La experiencia de audio más avanzada con cancelación de ruido de próxima generación..."></textarea>
+      <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">
+        Texto que aparece debajo del nombre en la sección "Características" de la tienda.
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label>Características del producto — <span style="font-weight:400;text-transform:none;letter-spacing:0">Formato: <code style="background:#f0f2f8;padding:1px 5px;border-radius:4px">Título | Descripción</code> (una por línea)</span></label>
+      <textarea id="pfCaracts" rows="8" placeholder="Audio Hi-Fi | Sonido potente y envolvente&#10;Cancelación ANC | Reduce el ruido exterior&#10;Hasta 24 horas | Con el estuche de carga&#10;Bluetooth 5.3 | Conexión rápida y estable"></textarea>
+      <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">
+        Cada línea = una tarjeta en la sección Características. Usa el formato <strong>Título | Descripción</strong>. Si solo pones el título sin " | ", se mostrará como característica simple.
+      </small>
     </div>
 
     <div class="form-field">
@@ -1096,24 +1132,28 @@
     const isPedidos        = tab === 'pedidos';
     const isProductos      = tab === 'productos';
     const isCalificaciones = tab === 'calificaciones';
+    const isCaracteristicas = tab === 'caracteristicas';
     const isConfig         = tab === 'config';
 
     ['pedidosTitle','pedidosStats','pedidosToolbar','pedidosTable'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = isPedidos ? '' : 'none';
     });
-    document.getElementById('panelProductos').style.display      = isProductos      ? 'block' : 'none';
-    document.getElementById('panelCalificaciones').style.display = isCalificaciones ? 'block' : 'none';
-    document.getElementById('panelConfig').style.display         = isConfig         ? 'block' : 'none';
+    document.getElementById('panelProductos').style.display       = isProductos       ? 'block' : 'none';
+    document.getElementById('panelCalificaciones').style.display  = isCalificaciones  ? 'block' : 'none';
+    document.getElementById('panelCaracteristicas').style.display = isCaracteristicas ? 'block' : 'none';
+    document.getElementById('panelConfig').style.display          = isConfig          ? 'block' : 'none';
 
-    document.getElementById('tabPedidos').classList.toggle('active',        isPedidos);
-    document.getElementById('tabProductos').classList.toggle('active',      isProductos);
-    document.getElementById('tabCalificaciones').classList.toggle('active', isCalificaciones);
-    document.getElementById('tabConfig').classList.toggle('active',         isConfig);
+    document.getElementById('tabPedidos').classList.toggle('active',          isPedidos);
+    document.getElementById('tabProductos').classList.toggle('active',        isProductos);
+    document.getElementById('tabCalificaciones').classList.toggle('active',   isCalificaciones);
+    document.getElementById('tabCaracteristicas').classList.toggle('active',  isCaracteristicas);
+    document.getElementById('tabConfig').classList.toggle('active',           isConfig);
 
-    if (isProductos)      cargarProductosAdmin();
-    if (isCalificaciones) cargarCalificacionesAdmin();
-    if (isConfig)         cargarConfigAdmin();
+    if (isProductos)       cargarProductosAdmin();
+    if (isCalificaciones)  cargarCalificacionesAdmin();
+    if (isCaracteristicas) cargarCaracteristicasAdmin();
+    if (isConfig)          cargarConfigAdmin();
   };
 
   // ── PANEL PRODUCTOS ───────────────────────────────────────────────────────
@@ -1263,6 +1303,7 @@
       document.getElementById('pfImagen').value      = p.imagenPrincipal || '';
       document.getElementById('pfGaleria').value     = (p.galeria || []).join(', ');
       document.getElementById('pfDesc').value        = p.descripcion || '';
+      document.getElementById('pfFeatDesc').value    = p.featDesc || '';
       document.getElementById('pfCaracts').value     = (p.caracteristicas || []).join('\n');
       document.getElementById('pfOrden').value       = p.orden || '';
       document.getElementById('pfVideo').value       = p.video || '';
@@ -1282,7 +1323,7 @@
       document.getElementById('prodFormTitle').textContent = 'Nuevo producto';
       document.getElementById('pfDocId').value = '';
       ['pfNombre','pfTag','pfPrecio','pfPrecioAntes','pfBadge','pfBadgeColor',
-       'pfImagen','pfGaleria','pfDesc','pfCaracts','pfOrden','pfVideo'].forEach(id => {
+       'pfImagen','pfGaleria','pfDesc','pfFeatDesc','pfCaracts','pfOrden','pfVideo'].forEach(id => {
         document.getElementById(id).value = '';
       });
     }
@@ -1356,8 +1397,10 @@
       const videoFinal = document.getElementById('pfVideo').value.trim() || null;
 
       // 4. Parsear campos de texto
-      const caracteristicas = document.getElementById('pfCaracts').value
+      const caracteristicasRaw = document.getElementById('pfCaracts').value
         .split('\n').map(s => s.trim()).filter(Boolean);
+      // Guardar como array de strings "Título | Descripción" o solo "Título"
+      const caracteristicas = caracteristicasRaw;
       const specs = {};
       // specs vacío — campo eliminado del formulario
 
@@ -1372,6 +1415,7 @@
         video:          videoFinal || null,
         galeria:        galeriaFinal,
         descripcion:    document.getElementById('pfDesc').value.trim(),
+        featDesc:       document.getElementById('pfFeatDesc').value.trim(),
         caracteristicas,
         specs,
         orden:          Number(document.getElementById('pfOrden').value) || 99,
@@ -1384,7 +1428,6 @@
       toast('✅ Producto guardado', 'ok');
     } catch(e) {
       toast('❌ Error: ' + e.message, 'err');
-      console.error(e);
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-save"></i> Guardar producto';
@@ -1521,6 +1564,82 @@
     try {
       await setDoc(doc(db, 'config', 'general'), { costoEnvio }, { merge: true });
       toast('✅ Configuración guardada — se aplica en tiempo real', 'ok');
+    } catch(e) { toast('❌ Error: ' + e.message, 'err'); }
+  };
+
+  // ── CARACTERÍSTICAS SECCIÓN #features ────────────────────────────────────
+  // Colección: caracteristicas_seccion / docs: pro3, pro2, s4, s3
+  // Campos: { desc: string, items: ["Título | Descripción", ...] }
+  const FEAT_MODELS = [
+    { key: 'pro3', label: 'AirPods Pro 3',   defaults: ['Audio Hi-Fi | Sonido potente y envolvente','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Modo Transparencia | Escucha el entorno','Audio Espacial | Sonido 360° inmersivo','Carga USB-C | Recarga eficiente','Compatible | Android e iPhone'] },
+    { key: 'pro2', label: 'AirPods Pro 2',   defaults: ['Audio Hi-Fi | Sonido potente y envolvente','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Modo Transparencia | Escucha el entorno','Estuche con altavoz | Localízalo fácilmente','Control táctil | Gestiona música y llamadas','Compatible | Android e iPhone'] },
+    { key: 's4',   label: 'AirPods Serie 4', defaults: ['Audio Adaptativo | Se ajusta al entorno','Cancelación ANC | Reduce el ruido exterior','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Carga USB-C | Recarga eficiente','Control táctil | Gestiona música y llamadas','Modo Transparencia | Escucha el entorno','Compatible | Android e iPhone'] },
+    { key: 's3',   label: 'AirPods Serie 3', defaults: ['Audio Espacial | Sonido dinámico envolvente','Hasta 24 horas | Con el estuche de carga','Bluetooth 5.3 | Conexión rápida y estable','Control táctil | Gestiona música y llamadas','Resistencia IPX4 | Protección contra salpicaduras','Modo Transparencia | Escucha el entorno','Carga MagSafe | Carga inalámbrica rápida','Compatible | Android e iPhone'] },
+  ];
+
+  let featData = {}; // { pro3: { desc, items }, ... }
+
+  window.cargarCaracteristicasAdmin = async () => {
+    const grid = document.getElementById('featAdminGrid');
+    grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px"><i class="fas fa-spinner spin"></i> Cargando...</div>';
+    try {
+      featData = {};
+      for (const m of FEAT_MODELS) {
+        try {
+          const snap = await getDoc(doc(db, 'caracteristicas_seccion', m.key));
+          featData[m.key] = snap.exists()
+            ? snap.data()
+            : { desc: '', items: m.defaults };
+        } catch(e) {
+          // Si no hay permisos de lectura, usar defaults
+          featData[m.key] = { desc: '', items: m.defaults };
+        }
+      }
+      renderFeatAdminGrid();
+    } catch(e) {
+      // Fallback: mostrar grid con defaults aunque falle Firestore
+      featData = {};
+      FEAT_MODELS.forEach(m => { featData[m.key] = { desc: '', items: m.defaults }; });
+      renderFeatAdminGrid();
+      toast('⚠️ Sin permisos de lectura — guardando creará los documentos', 'err');
+    }
+  };
+
+  function renderFeatAdminGrid() {
+    const grid = document.getElementById('featAdminGrid');
+    grid.innerHTML = FEAT_MODELS.map(m => {
+      const d = featData[m.key] || { desc: '', items: [] };
+      return `
+      <div class="cal-card">
+        <div class="cal-card-name" style="font-size:15px;margin-bottom:12px">
+          <i class="fas fa-headphones" style="color:var(--accent);margin-right:8px"></i>${m.label}
+        </div>
+        <div class="form-field" style="margin-bottom:10px">
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Descripción del panel</label>
+          <textarea id="feat-desc-admin-${m.key}" rows="2" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;background:var(--bg3);resize:vertical" placeholder="Texto descriptivo del modelo...">${d.desc || ''}</textarea>
+        </div>
+        <div class="form-field" style="margin-bottom:12px">
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">
+            Items — formato <code style="background:#f0f2f8;padding:1px 5px;border-radius:4px;font-size:10px">Título | Descripción</code> (uno por línea)
+          </label>
+          <textarea id="feat-items-admin-${m.key}" rows="9" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);outline:none;background:var(--bg3);resize:vertical;line-height:1.6" placeholder="Audio Hi-Fi | Sonido potente y envolvente&#10;Cancelación ANC | Reduce el ruido exterior">${(d.items||[]).join('\n')}</textarea>
+          <small style="color:var(--text2);font-size:11px;display:block;margin-top:4px">Cada línea = una tarjeta. Usa <strong>Título | Descripción</strong>.</small>
+        </div>
+        <button class="btn-cal-save" onclick="window.guardarFeatAdmin('${m.key}')">
+          <i class="fas fa-save"></i> Guardar ${m.label}
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  window.guardarFeatAdmin = async (modelKey) => {
+    const desc  = document.getElementById(`feat-desc-admin-${modelKey}`)?.value.trim() || '';
+    const items = (document.getElementById(`feat-items-admin-${modelKey}`)?.value || '')
+      .split('\n').map(s => s.trim()).filter(Boolean);
+    try {
+      await setDoc(doc(db, 'caracteristicas_seccion', modelKey), { desc, items }, { merge: true });
+      featData[modelKey] = { desc, items };
+      toast('✅ Guardado — se refleja en la tienda al instante', 'ok');
     } catch(e) { toast('❌ Error: ' + e.message, 'err'); }
   };
 
